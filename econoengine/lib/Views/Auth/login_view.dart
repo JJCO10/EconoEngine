@@ -1,3 +1,4 @@
+import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/controllers/auth_controller.dart'; // Importa el controlador de autenticación
 import 'register_view.dart'; // Importa la vista de registro
@@ -125,6 +126,12 @@ class _LoginViewState extends State<LoginView> {
                 TextButton(
                   onPressed: () {
                     // Lógica para recuperar contraseña
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordView(),
+                      ),
+                    );
                   },
                   child: Text(
                     '¿Olvidaste tu contraseña?',

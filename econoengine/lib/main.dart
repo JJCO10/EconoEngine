@@ -1,3 +1,4 @@
+import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
-        '/home': (context) => const HomeView()
+        '/home': (context) => const HomeView(),
+        '/recoverPassword': (context) => const ForgotPasswordView()
       },
     );
   }
