@@ -120,6 +120,7 @@ class _LoginViewState extends State<LoginView> {
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
+                const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
                     // Lógica para recuperar contraseña
@@ -129,7 +130,7 @@ class _LoginViewState extends State<LoginView> {
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

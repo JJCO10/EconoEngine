@@ -12,7 +12,6 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _tipoDocumentoController = TextEditingController();
   final TextEditingController _numeroDocumentoController = TextEditingController();
   final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -22,11 +21,14 @@ class _RegisterViewState extends State<RegisterView> {
   final AuthController _authController = AuthController(); // Controlador de autenticación
 
   String _errorMessage = '';
+  String? _selectedDocumentType; // Variable para almacenar el tipo de documento seleccionado
+
+  // Lista de opciones para el tipo de documento
+  final List<String> _documentTypes = ['CC', 'TI', 'CE', 'PP'];
 
   @override
   void dispose() {
     _nombreController.dispose();
-    _tipoDocumentoController.dispose();
     _numeroDocumentoController.dispose();
     _telefonoController.dispose();
     _emailController.dispose();
@@ -38,7 +40,7 @@ class _RegisterViewState extends State<RegisterView> {
   Future<void> _registrarUsuario() async {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text.trim();
-      final tipoDocumento = _tipoDocumentoController.text.trim();
+      final tipoDocumento = _selectedDocumentType ?? ''; // Usar el valor seleccionado
       final numeroDocumento = _numeroDocumentoController.text.trim();
       final telefono = _telefonoController.text.trim();
       final email = _emailController.text.trim();
@@ -84,9 +86,9 @@ class _RegisterViewState extends State<RegisterView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                // const SizedBox(height: 0),
                 Image.asset('assets/images/logo.png', height: 100),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 if (_errorMessage.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
@@ -97,13 +99,12 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                 _buildTextField(_nombreController, 'Nombre completo', Icons.person),
-                _buildTextField(_tipoDocumentoController, 'Tipo de Documento', Icons.credit_card),
-                _buildTextField(_numeroDocumentoController, 'Número de Documento', Icons.numbers),
+                _buildDocumentTypeField(), // Campo de tipo de documento y número de documento
                 _buildTextField(_telefonoController, 'Teléfono', Icons.phone),
                 _buildEmailField(),
                 _buildPasswordField(_contrasenaController, 'Contraseña', Icons.lock),
                 _buildConfirmPasswordField(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 25),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[800],
@@ -157,6 +158,59 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  Widget _buildDocumentTypeField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        children: [
+          // ComboBox para seleccionar el tipo de documento
+          Expanded(
+            flex: 2,
+            child: DropdownButtonFormField<String>(
+              value: _selectedDocumentType,
+              decoration: InputDecoration(
+                labelText: 'Documento',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              items: _documentTypes.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedDocumentType = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Selecciona un tipo de documento';
+                return null;
+              },
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Campo de texto para el número de documento
+          Expanded(
+            flex: 3,
+            child: TextFormField(
+              controller: _numeroDocumentoController,
+              decoration: InputDecoration(
+                labelText: 'Número de Documento',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Por favor ingresa el número de documento';
+                return null;
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildEmailField() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -199,7 +253,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   Widget _buildConfirmPasswordField() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 00),
       child: TextFormField(
         controller: _confirmcontrasenaController,
         obscureText: true,
