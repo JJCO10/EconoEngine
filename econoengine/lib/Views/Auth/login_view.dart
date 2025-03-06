@@ -11,7 +11,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _numeroDocumentoController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   // Instancia del controlador de autenticación
@@ -23,19 +23,20 @@ class _LoginViewState extends State<LoginView> {
   // Método para iniciar sesión
   Future<void> _iniciarSesion() async {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
+      final numeroDocumento = _numeroDocumentoController.text.trim();
       final password = _passwordController.text.trim();
+
 
       try {
         // Llamar al controlador para iniciar sesión
-        final success = await _authController.iniciarSesion(email, password);
+        final success = await _authController.iniciarSesion(numeroDocumento, password);
 
         if (success) {
           // Navegar a la pantalla principal (cambia '/home' por tu ruta)
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           setState(() {
-            _errorMessage = 'Correo o contraseña incorrectos.';
+            _errorMessage = 'Número de documento o contraseña incorrectos.';
           });
         }
       } catch (e) {
@@ -72,9 +73,9 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _emailController,
+                  controller: _numeroDocumentoController,
                   decoration: InputDecoration(
-                    labelText: 'Correo o Documento',
+                    labelText: 'Número de Documento',
                     prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -82,7 +83,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Por favor ingresa tu correo o documento';
+                      return 'Por favor ingresa tu número de documento';
                     }
                     return null;
                   },

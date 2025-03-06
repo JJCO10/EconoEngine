@@ -22,9 +22,9 @@ class AuthController {
   }
 
   // Iniciar sesión
-  Future<bool> iniciarSesion(String email, String contrasena) async {
+  Future<bool> iniciarSesion(String numeroDocumento, String contrasena) async {
     // Llamar al servicio y obtener el User de Firebase
-    final firebaseUser = await _authService.iniciarSesion(email, contrasena);
+    final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);
     return firebaseUser != null; // Retornar true si el inicio de sesión fue exitoso
   }
 }
