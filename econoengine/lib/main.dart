@@ -1,12 +1,19 @@
+import 'package:econoengine/Views/Auth/forgot_password_view.dart';
+import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:flutter/material.dart';
 import 'views/auth/login_view.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Inicializar Firebase (comenta si aún no lo necesitas)
   //await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   runApp(const MyApp());
 }
@@ -24,6 +31,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
+        '/home': (context) => const HomeView(),
+        '/recoverPassword': (context) => const ForgotPasswordView()
       },
     );
   }
