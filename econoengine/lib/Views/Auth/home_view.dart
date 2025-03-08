@@ -1,3 +1,4 @@
+import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatelessWidget {
@@ -28,6 +29,17 @@ class HomeView extends StatelessWidget {
             color: Colors.white, // Icono de la campana en blanco
             onPressed: () {
               // Lógica para notificaciones
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout), // Icono de cierre de sesión
+            color: Colors.white,
+            onPressed: () {
+              // Navegar a la página de inicio de sesión
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginView()),
+              );
             },
           ),
         ],
