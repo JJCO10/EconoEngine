@@ -1,6 +1,8 @@
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/controllers/auth_controller.dart'; // Importa el controlador de autenticación
+// import 'package:econoengine/services/biometric_auth_service.dart'; // Importa el servicio de autenticación biométrica
+// import 'package:econoengine/services/encryption_service.dart'; // Importa el servicio de encriptación
 import 'register_view.dart'; // Importa la vista de registro
 
 class LoginView extends StatefulWidget {
@@ -18,6 +20,9 @@ class _LoginViewState extends State<LoginView> {
   // Instancia del controlador de autenticación
   final AuthController _authController = AuthController();
 
+  // Instancia del servicio de autenticación biométrica
+  // final BiometricAuthService _biometricAuthService = BiometricAuthService();
+
   // Variable para mostrar errores
   String _errorMessage = '';
 
@@ -26,7 +31,6 @@ class _LoginViewState extends State<LoginView> {
     if (_formKey.currentState!.validate()) {
       final numeroDocumento = _numeroDocumentoController.text.trim();
       final password = _passwordController.text.trim();
-
 
       try {
         // Llamar al controlador para iniciar sesión
