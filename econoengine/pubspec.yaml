@@ -35,6 +35,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/logo.png
+    - assets/images/splash.jpg
+    - assets/images/icono.png
 
   uses-material-design: true
 
@@ -45,7 +47,8 @@ flutter_icons:
   adaptive_icon_foreground: "assets/images/icono.png" # Ruta del icono
 
 flutter_native_splash:
-  color: "#1A237E"  # Color de fondo (azul acorde a tu aplicación)
-  background_image: assets/images/splash.jpg  # Ruta de la imagen vertical
-  android: true  # Habilita el splash screen en Android
-  ios: true      # Habilita el splash screen en iOS
+  color: "#1A237E"
+  image: assets/images/splash.jpg
+  android: true
+  ios: true
+

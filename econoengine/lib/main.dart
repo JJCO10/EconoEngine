@@ -2,24 +2,23 @@ import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart'; // Importa el paquete
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'views/auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  // Inicializa el binding de Flutter
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized()); // Mantiene el splash visible
 
-  // Preserva el splash screen nativo
-  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+  await Future.delayed(const Duration(seconds: 3)); // Espera 3 segundos
 
-  // Inicializa Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Ejecuta la aplicación
+  FlutterNativeSplash.remove(); // Remueve el splash después de la espera
+
   runApp(const MyApp());
 }
 
@@ -28,11 +27,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Retraso artificial para ver el splash screen (opcional)
-    Future.delayed(const Duration(seconds: 3), () {
-      FlutterNativeSplash.remove(); // Remueve el splash screen nativo
-    });
-
     return MaterialApp(
       title: 'Fintech App',
       debugShowCheckedModeBanner: false,
@@ -42,7 +36,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
         '/home': (context) => const HomeView(),
-        '/recoverPassword': (context) => const ForgotPasswordView(),
+        '/recoverPassword': (context) => const ForgotPasswordView()
       },
     );
   }
