@@ -10,6 +10,16 @@ class BiometricAuthService {
     return canAuthenticate;
   }
 
+  // Verificar si el usuario tiene configurado un bloqueo biométrico
+  Future<bool> hasBiometricSetup() async {
+    try {
+      final List<BiometricType> availableBiometrics = await _localAuth.getAvailableBiometrics();
+      return availableBiometrics.isNotEmpty;
+    } catch (e) {
+      throw Exception('Error al verificar la configuración biométrica: $e');
+    }
+  }
+
   // Autenticar al usuario
   Future<bool> authenticate() async {
     try {

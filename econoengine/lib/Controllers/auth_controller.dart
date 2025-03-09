@@ -37,24 +37,21 @@ class AuthController {
       // Verificar si el dispositivo soporta autenticación biométrica
       final canAuthenticate = await _biometricAuthService.canAuthenticate();
       if (canAuthenticate) {
-        final didAuthenticate = await _biometricAuthService.authenticate();
-        if (!didAuthenticate) {
-          throw Exception('Autenticación biométrica fallida');
+        // Verificar si el usuario tiene configurado un bloqueo biométrico
+        final hasBiometricSetup = await _biometricAuthService.hasBiometricSetup();
+        if (hasBiometricSetup) {
+          // Intentar autenticar al usuario biométricamente
+          final didAuthenticate = await _biometricAuthService.authenticate();
+          if (!didAuthenticate) {
+            throw Exception('Autenticación biométrica fallida');
+          }
         }
+        // Si no tiene configurado un bloqueo biométrico, continuar con el inicio de sesión normal
       }
 
-      // Encriptar la contraseña antes de enviarla
-      // final encryptedPassword = EncryptionService.encrypt(contrasena);
-
-      // Iniciar sesión en Firebase
+      // Iniciar sesión en Firebase (o tu backend)
       final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);
       return firebaseUser != null;
-      // if (firebaseUser != null) {
-      //   // Almacenar el UID del usuario de manera segura
-      //   await _secureStorageService.write('userUid', firebaseUser.uid);
-      //   return true;
-      // }
-      // return false;
     } catch (e) {
       print("Error en AuthController (iniciarSesion): $e");
       return false;

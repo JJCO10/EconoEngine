@@ -38,7 +38,6 @@ class _LoginViewState extends State<LoginView> {
 
         if (success) {
           // Navegar a la pantalla principal (cambia '/home' por tu ruta)
-          
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           setState(() {
@@ -47,12 +46,16 @@ class _LoginViewState extends State<LoginView> {
         }
       } catch (e) {
         setState(() {
-          _errorMessage = 'Error al iniciar sesión: $e';
+          // Mostrar un mensaje de error específico
+          if (e.toString().contains('Autenticación biométrica fallida')) {
+            _errorMessage = 'Autenticación biométrica fallida. Intenta nuevamente.';
+          } else {
+            _errorMessage = 'Error al iniciar sesión: $e';
+          }
         });
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
