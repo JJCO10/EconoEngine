@@ -5,7 +5,6 @@ class User {
   final String numeroDocumento;
   final String telefono;
   final String email; // Añade este campo
-  final String contrasena;
 
   User({
     required this.nombre,
@@ -13,6 +12,5 @@ class User {
     required this.numeroDocumento,
     required this.telefono,
     required this.email, // Añade este parámetro
-    required this.contrasena,
   });
 }

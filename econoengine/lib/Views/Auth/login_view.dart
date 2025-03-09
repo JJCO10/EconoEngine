@@ -38,6 +38,7 @@ class _LoginViewState extends State<LoginView> {
 
         if (success) {
           // Navegar a la pantalla principal (cambia '/home' por tu ruta)
+          
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           setState(() {
