@@ -51,6 +51,23 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.10
+
+flutter_native_splash:
+  color: "#ffffff"  # Color de fondo
+  image: assets/images/splash.png  # Imagen del splash screen (debe ser PNG con fondo transparente)
+  android: true
+  ios: true
+  android_12:
+    color: "#FFFFFF" # Color de fondo para Android 12+
+    image: assets/images/splash.png  # Imagen para Android 12+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icono.png"
+  adaptive_icon_background: "#FFFFFF"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -59,6 +76,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/images/logo.png
+    - assets/images/splash.png
+    - assets/images/icono.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
