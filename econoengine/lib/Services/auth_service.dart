@@ -7,12 +7,12 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Registrar usuario
-  Future<firebase_auth.User?> registrarUsuario(User usuario) async {
+  Future<firebase_auth.User?> registrarUsuario(User usuario, String contrasena) async {
     try {
       // Registrar usuario en Firebase Auth
       firebase_auth.UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: usuario.email, // Usar el email proporcionado por el usuario
-        password: usuario.contrasena,
+        password: contrasena,
       );
 
       // Guardar datos adicionales en Firestore
@@ -22,7 +22,7 @@ class AuthService {
         'Numero Documento': usuario.numeroDocumento,
         'Telefono': usuario.telefono,
         'Email': usuario.email, // Guardar el email en Firestore
-        'Contraseña': usuario.contrasena,
+        // 'Contraseña': usuario.contrasena,
       });
 
       return userCredential.user; // Retornar el User de Firebase
