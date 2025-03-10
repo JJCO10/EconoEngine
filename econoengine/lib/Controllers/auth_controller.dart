@@ -7,6 +7,9 @@ class AuthController {
   final AuthService _authService = AuthService();
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
 
+  // Método para acceder al servicio de autenticación biométrica
+  BiometricAuthService get biometricAuthService => _biometricAuthService;
+
   // Guardar el estado de autenticación
   Future<void> _saveAuthState(String userId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,19 +63,19 @@ class AuthController {
   Future<bool> iniciarSesion(String numeroDocumento, String contrasena) async {
     try {
       // Verificar si el dispositivo soporta autenticación biométrica
-      final canAuthenticate = await _biometricAuthService.canAuthenticate();
-      if (canAuthenticate) {
-        // Verificar si el usuario tiene configurado un bloqueo biométrico
-        final hasBiometricSetup = await _biometricAuthService.hasBiometricSetup();
-        if (hasBiometricSetup) {
-          // Intentar autenticar al usuario biométricamente
-          final didAuthenticate = await _biometricAuthService.authenticate();
-          if (!didAuthenticate) {
-            throw Exception('Autenticación biométrica fallida');
-          }
-        }
-        // Si no tiene configurado un bloqueo biométrico, continuar con el inicio de sesión normal
-      }
+      // final canAuthenticate = await _biometricAuthService.canAuthenticate();
+      // if (canAuthenticate) {
+      //   // Verificar si el usuario tiene configurado un bloqueo biométrico
+      //   final hasBiometricSetup = await _biometricAuthService.hasBiometricSetup();
+      //   if (hasBiometricSetup) {
+      //     // Intentar autenticar al usuario biométricamente
+      //     final didAuthenticate = await _biometricAuthService.authenticate();
+      //     if (!didAuthenticate) {
+      //       throw Exception('Autenticación biométrica fallida');
+      //     }
+      //   }
+      //   // Si no tiene configurado un bloqueo biométrico, continuar con el inicio de sesión normal
+      // }
 
       // Iniciar sesión en Firebase (o tu backend)
       final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);

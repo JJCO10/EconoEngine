@@ -18,11 +18,13 @@ class _LoginViewState extends State<LoginView> {
   String _errorMessage = '';
   bool _isUserLoggedIn = false;
   String _savedDocumentNumber = '';
+  bool _showBiometricButton = false;
 
   @override
   void initState() {
     super.initState();
     _checkIfUserIsLoggedIn();
+    _checkBiometricSupport(); // Verificar soporte biométrico al iniciar
   }
 
   // Verificar si el usuario ya ha iniciado sesión
@@ -35,6 +37,15 @@ class _LoginViewState extends State<LoginView> {
     }
     setState(() {
       _isUserLoggedIn = isLoggedIn;
+    });
+  }
+
+  // Verificar si el dispositivo soporta autenticación biométrica y tiene configurada la huella
+  Future<void> _checkBiometricSupport() async {
+    final canAuthenticate = await _authController.biometricAuthService.canAuthenticate();
+    final hasBiometricSetup = await _authController.biometricAuthService.hasBiometricSetup();
+    setState(() {
+      _showBiometricButton = canAuthenticate && hasBiometricSetup;
     });
   }
 
@@ -166,7 +177,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                if (_isUserLoggedIn)
+                if (_isUserLoggedIn && _showBiometricButton)
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[800],
