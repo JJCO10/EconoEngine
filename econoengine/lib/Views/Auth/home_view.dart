@@ -1,4 +1,13 @@
 import 'package:econoengine/Views/Auth/login_view.dart';
+import 'package:econoengine/Views/TIR_view.dart';
+import 'package:econoengine/Views/UVR_view.dart';
+import 'package:econoengine/Views/alt_inv_view.dart';
+import 'package:econoengine/Views/amortizacion_view.dart';
+import 'package:econoengine/Views/bonos_view.dart';
+import 'package:econoengine/Views/gradientes_view.dart';
+import 'package:econoengine/Views/inflacion_view.dart';
+import 'package:econoengine/Views/interesCompuesto_view.dart';
+import 'package:econoengine/Views/interesSimple_view.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatelessWidget {
@@ -51,7 +60,7 @@ class HomeView extends StatelessWidget {
           children: [
             _buildBalanceSection(),
             const SizedBox(height: 20),
-            _buildHorizontalMenu(),
+            _buildHorizontalMenu(context),
             const SizedBox(height: 20),
             _buildTransactionHistorySection(),
           ],
@@ -127,42 +136,85 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalMenu() {
-    return SizedBox(
-      height: 100,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildMenuButton(Icons.calculate, 'Interés Simple'),
-          _buildMenuButton(Icons.trending_up, 'Interés Compuesto'),
-          _buildMenuButton(Icons.timeline, 'Gradientes'),
-          _buildMenuButton(Icons.pie_chart, 'Amortización'),
-          _buildMenuButton(Icons.trending_up, 'TIR'),
-          _buildMenuButton(Icons.monetization_on, 'UVR'),
-          _buildMenuButton(Icons.business, 'Alt_Inversión'),
-          _buildMenuButton(Icons.credit_card, 'Bonos'),
-          _buildMenuButton(Icons.arrow_upward, 'inflación'),
-        ],
-      ),
-    );
-  }
+  Widget _buildHorizontalMenu(context) {
+  return SizedBox(
+    height: 100,
+    child: ListView(
+      scrollDirection: Axis.horizontal,
+      children: [
+        _buildMenuButton(Icons.calculate, 'Interés Simple', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => InteresSimpleView()),
+          );
+        }),
+        _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => InteresCompuestoView()),
+          );
+        }),
+        _buildMenuButton(Icons.timeline, 'Gradientes', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => GradientesView()),
+          );
+        }),
+        _buildMenuButton(Icons.pie_chart, 'Amortización', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AmortizacionView()),
+          );
+        }),
+        _buildMenuButton(Icons.trending_up, 'TIR', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TIRView()),
+          );
+        }),
+        _buildMenuButton(Icons.monetization_on, 'UVR', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UVRView()),
+          );
+        }),
+        _buildMenuButton(Icons.business, 'Alt_Inversión', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AlternativasInversionView()),
+          );
+        }),
+        _buildMenuButton(Icons.credit_card, 'Bonos', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => BonosView()),
+          );
+        }),
+        _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => InflacionView()),
+          );
+        }),
+      ],
+    ),
+  );
+}
 
-  Widget _buildMenuButton(IconData icon, String label) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      child: Column(
-        children: [
-          IconButton(
-            icon: Icon(icon, size: 40),
-            onPressed: () {
-              // Lógica para cada botón del menú
-            },
-          ),
-          Text(label),
-        ],
-      ),
-    );
-  }
+  Widget _buildMenuButton(IconData icon, String label, VoidCallback onPressed) {
+  return Container(
+    margin: const EdgeInsets.only(right: 10),
+    child: Column(
+      children: [
+        IconButton(
+          icon: Icon(icon, size: 40),
+          onPressed: onPressed, // Usa la función de callback
+        ),
+        Text(label),
+      ],
+    ),
+  );
+}
 
   Widget _buildTransactionHistorySection() {
     return Card(
