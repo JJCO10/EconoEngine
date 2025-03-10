@@ -32,8 +32,10 @@ class _LoginViewState extends State<LoginView> {
     final isLoggedIn = await _authController.isUserLoggedIn();
     if (isLoggedIn) {
       final savedDocumentNumber = await _authController.getSavedDocumentNumber();
-      _savedDocumentNumber = savedDocumentNumber ?? ''; // Guardar el número real
-      _numeroDocumentoController.text = _maskDocumentNumber(savedDocumentNumber ?? '');
+      if (savedDocumentNumber != null) {
+        _savedDocumentNumber = savedDocumentNumber; // Guardar el número real
+        _numeroDocumentoController.text = _maskDocumentNumber(savedDocumentNumber); // Mostrar enmascarado
+      }
     }
     setState(() {
       _isUserLoggedIn = isLoggedIn;
@@ -53,10 +55,14 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _iniciarSesion() async {
     if (_formKey.currentState!.validate()) {
       final password = _passwordController.text.trim();
+      // Si el usuario estaba logueado, usar el número real guardado
+      final numeroDocumento = _isUserLoggedIn
+        ? _savedDocumentNumber
+        : _numeroDocumentoController.text.trim();
 
       try {
         // Usar el número de documento real guardado en _savedDocumentNumber
-        final success = await _authController.iniciarSesion(_savedDocumentNumber, password);
+        final success = await _authController.iniciarSesion(numeroDocumento, password);
         if (success) {
           Navigator.pushReplacementNamed(context, '/home');
         } else {
