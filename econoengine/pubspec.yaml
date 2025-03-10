@@ -68,6 +68,8 @@ flutter_launcher_icons:
 flutter:
   assets:
     - assets/images/logo.png
+    - assets/images/logo2.png
+    - assets/images/logo_dark.png
     - assets/images/splash.png
     - assets/images/icono.png
   # The following line ensures that the Material Icons font is

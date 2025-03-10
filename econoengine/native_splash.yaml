@@ -5,7 +5,12 @@ flutter_native_splash:
   
   background_image: "assets/images/background_splash.png"  # Imagen de fondo
   image: "assets/images/logo2.png"  # Imagen de inicio
+  
+  background_image_dark: "assets/images/background_splash.png"  # Imagen de fondo oscuro
+  image_dark: "assets/images/logo_dark.png"  # Imagen de inicio
 
   android_12:
     background_image: "assets/images/background_splash.png"  # Imagen de fondo
     image: "assets/images/logo2.png"  # Imagen de inicio
+    background_image_dark: "assets/images/background_splash.png"  # Imagen de fondo oscuro
+    image_dark: "assets/images/logo_dark.png"  # Imagen de inicio
