@@ -54,15 +54,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.10
 
-flutter_native_splash:
-  color: "#ffffff"  # Color de fondo
-  image: assets/images/splash.png  # Imagen del splash screen (debe ser PNG con fondo transparente)
-  android: true
-  ios: true
-  android_12:
-    color: "#FFFFFF" # Color de fondo para Android 12+
-    image: assets/images/splash.png  # Imagen para Android 12+
-
 flutter_launcher_icons:
   android: true
   ios: true
