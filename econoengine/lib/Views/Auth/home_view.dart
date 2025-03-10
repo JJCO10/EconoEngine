@@ -135,9 +135,13 @@ class HomeView extends StatelessWidget {
         children: [
           _buildMenuButton(Icons.calculate, 'Interés Simple'),
           _buildMenuButton(Icons.trending_up, 'Interés Compuesto'),
-          _buildMenuButton(Icons.money, 'Préstamos'),
-          _buildMenuButton(Icons.bar_chart, 'Inversiones'),
-          _buildMenuButton(Icons.savings, 'Ahorros'),
+          _buildMenuButton(Icons.timeline, 'Gradientes'),
+          _buildMenuButton(Icons.pie_chart, 'Amortización'),
+          _buildMenuButton(Icons.trending_up, 'TIR'),
+          _buildMenuButton(Icons.monetization_on, 'UVR'),
+          _buildMenuButton(Icons.business, 'Alt_Inversión'),
+          _buildMenuButton(Icons.credit_card, 'Bonos'),
+          _buildMenuButton(Icons.arrow_upward, 'inflación'),
         ],
       ),
     );
