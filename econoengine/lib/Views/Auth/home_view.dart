@@ -18,14 +18,14 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  int _selectedIndex = 0; // Índice para controlar la opción seleccionada
+  // int _selectedIndex = 0; // Índice para controlar la opción seleccionada
 
-  // Método para manejar el cambio de índice
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  // // Método para manejar el cambio de índice
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -80,30 +80,30 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       // Menú inferior
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Índice seleccionado
-        onTap: _onItemTapped, // Método para manejar el cambio de índice
-        selectedItemColor: Colors.blue[800], // Color del ícono seleccionado
-        unselectedItemColor: Colors.grey, // Color del ícono no seleccionado
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Principal',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Movimientos',
-          ),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: _selectedIndex, // Índice seleccionado
+      //   onTap: _onItemTapped, // Método para manejar el cambio de índice
+      //   selectedItemColor: Colors.blue[800], // Color del ícono seleccionado
+      //   unselectedItemColor: Colors.grey, // Color del ícono no seleccionado
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: 'Principal',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.settings),
+      //       label: 'Ajustes',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.person),
+      //       label: 'Perfil',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.list_alt),
+      //       label: 'Movimientos',
+      //     ),
+      //   ],
+      // ),
     );
   }
 
