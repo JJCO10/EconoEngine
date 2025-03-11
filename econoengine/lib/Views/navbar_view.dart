@@ -1,4 +1,4 @@
-import 'package:econoengine/Views/Auth/home_view.dart';
+import 'package:econoengine/Views/home_view.dart';
 import 'package:econoengine/Views/Profile_view.dart';
 import 'package:econoengine/Views/TIR_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
