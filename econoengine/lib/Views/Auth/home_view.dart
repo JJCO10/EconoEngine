@@ -10,8 +10,22 @@ import 'package:econoengine/Views/interesCompuesto_view.dart';
 import 'package:econoengine/Views/interesSimple_view.dart';
 import 'package:flutter/material.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  int _selectedIndex = 0; // Índice para controlar la opción seleccionada
+
+  // Método para manejar el cambio de índice
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,31 +34,30 @@ class HomeView extends StatelessWidget {
         title: const Text(
           'Hola, Juan',
           style: TextStyle(
-            color: Colors.white, // Texto en blanco
+            color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.blue[800], // Color azul acorde a la aplicación
+        backgroundColor: Colors.blue[800],
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20), // Bordes redondeados en la parte inferior
+            bottom: Radius.circular(20),
           ),
         ),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Iconos en blanco
+          color: Colors.white,
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            color: Colors.white, // Icono de la campana en blanco
+            color: Colors.white,
             onPressed: () {
               // Lógica para notificaciones
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout), // Icono de cierre de sesión
+            icon: const Icon(Icons.logout),
             color: Colors.white,
             onPressed: () {
-              // Navegar a la página de inicio de sesión
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginView()),
@@ -66,8 +79,34 @@ class HomeView extends StatelessWidget {
           ],
         ),
       ),
+      // Menú inferior
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex, // Índice seleccionado
+        onTap: _onItemTapped, // Método para manejar el cambio de índice
+        selectedItemColor: Colors.blue[800], // Color del ícono seleccionado
+        unselectedItemColor: Colors.grey, // Color del ícono no seleccionado
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Principal',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Ajustes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'Movimientos',
+          ),
+        ],
+      ),
     );
   }
+
   Widget _buildBalanceSection() {
     return Card(
       elevation: 4,
@@ -136,85 +175,85 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalMenu(context) {
-  return SizedBox(
-    height: 100,
-    child: ListView(
-      scrollDirection: Axis.horizontal,
-      children: [
-        _buildMenuButton(Icons.calculate, 'Interés Simple', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => InteresSimpleView()),
-          );
-        }),
-        _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => InteresCompuestoView()),
-          );
-        }),
-        _buildMenuButton(Icons.timeline, 'Gradientes', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => GradientesView()),
-          );
-        }),
-        _buildMenuButton(Icons.pie_chart, 'Amortización', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AmortizacionView()),
-          );
-        }),
-        _buildMenuButton(Icons.trending_up, 'TIR', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => TIRView()),
-          );
-        }),
-        _buildMenuButton(Icons.monetization_on, 'UVR', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UVRView()),
-          );
-        }),
-        _buildMenuButton(Icons.business, 'Alt_Inversión', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AlternativasInversionView()),
-          );
-        }),
-        _buildMenuButton(Icons.credit_card, 'Bonos', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => BonosView()),
-          );
-        }),
-        _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => InflacionView()),
-          );
-        }),
-      ],
-    ),
-  );
-}
+  Widget _buildHorizontalMenu(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildMenuButton(Icons.calculate, 'Interés Simple', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InteresSimpleView()),
+            );
+          }),
+          _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InteresCompuestoView()),
+            );
+          }),
+          _buildMenuButton(Icons.timeline, 'Gradientes', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => GradientesView()),
+            );
+          }),
+          _buildMenuButton(Icons.pie_chart, 'Amortización', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AmortizacionView()),
+            );
+          }),
+          _buildMenuButton(Icons.trending_up, 'TIR', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TIRView()),
+            );
+          }),
+          _buildMenuButton(Icons.monetization_on, 'UVR', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UVRView()),
+            );
+          }),
+          _buildMenuButton(Icons.business, 'Alt_Inversión', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AlternativasInversionView()),
+            );
+          }),
+          _buildMenuButton(Icons.credit_card, 'Bonos', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => BonosView()),
+            );
+          }),
+          _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InflacionView()),
+            );
+          }),
+        ],
+      ),
+    );
+  }
 
   Widget _buildMenuButton(IconData icon, String label, VoidCallback onPressed) {
-  return Container(
-    margin: const EdgeInsets.only(right: 10),
-    child: Column(
-      children: [
-        IconButton(
-          icon: Icon(icon, size: 40),
-          onPressed: onPressed, // Usa la función de callback
-        ),
-        Text(label),
-      ],
-    ),
-  );
-}
+    return Container(
+      margin: const EdgeInsets.only(right: 10),
+      child: Column(
+        children: [
+          IconButton(
+            icon: Icon(icon, size: 40),
+            onPressed: onPressed,
+          ),
+          Text(label),
+        ],
+      ),
+    );
+  }
 
   Widget _buildTransactionHistorySection() {
     return Card(
