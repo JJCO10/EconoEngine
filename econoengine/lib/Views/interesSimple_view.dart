@@ -17,6 +17,18 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
   // Variable para almacenar el resultado
   String _resultado = '';
 
+  // Método para verificar si un campo debe estar deshabilitado
+  bool _shouldDisableField(TextEditingController controller) {
+    int filledFields = 0;
+    if (_vpController.text.isNotEmpty) filledFields++;
+    if (_vfController.text.isNotEmpty) filledFields++;
+    if (_iController.text.isNotEmpty) filledFields++;
+    if (_tController.text.isNotEmpty) filledFields++;
+
+    // Si hay 3 campos llenos, deshabilitar el cuarto
+    return filledFields == 3 && controller.text.isEmpty;
+  }
+
   // Método para calcular el Monto Futuro (VF)
   void _calcularVF() {
     double vp = double.tryParse(_vpController.text) ?? 0;
@@ -74,6 +86,25 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
     });
   }
 
+  // Método para calcular el Valor Presente (VP)
+  void _calcularVP() {
+    double vf = double.tryParse(_vfController.text) ?? 0;
+    double i = double.tryParse(_iController.text) ?? 0;
+    double t = double.tryParse(_tController.text) ?? 0;
+
+    if (vf <= 0 || i <= 0 || t <= 0) {
+      setState(() {
+        _resultado = 'Por favor, ingrese valores válidos para VF, i y t.';
+      });
+      return;
+    }
+
+    double vp = vf / (1 + i * t);
+    setState(() {
+      _resultado = 'Valor Presente (VP): \$${vp.toStringAsFixed(2)}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +112,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
         title: const Text('Interés Simple'),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -99,44 +131,77 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
               const SizedBox(height: 20),
               // Campo para Tiempo (t)
               _buildTextField('Tiempo (t)', _tController),
-              const SizedBox(height: 20),
-              // Botones para calcular
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              const SizedBox(height: 30),
+              // Botones para calcular (organizados en 2 filas de 2 botones)
+              Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: _calcularVF,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[800],
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Calcular VF'),
+                  // Primera fila de botones
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildButton(
+                          'Calcular VF',
+                          Colors.blue[800]!,
+                          _calcularVF,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _buildButton(
+                          'Calcular VP',
+                          Colors.purple[800]!,
+                          _calcularVP,
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: _calcularTasaInteres,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[800],
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Calcular i'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _calcularTiempo,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[800],
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Calcular t'),
+                  const SizedBox(height: 10),
+                  // Segunda fila de botones
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildButton(
+                          'Calcular i',
+                          Colors.green[800]!,
+                          _calcularTasaInteres,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _buildButton(
+                          'Calcular t',
+                          Colors.orange[800]!,
+                          _calcularTiempo,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               // Mostrar el resultado
-              Text(
-                _resultado,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  _resultado,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[800],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -146,15 +211,58 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
     );
   }
 
-  // Método para construir un campo de texto
+  // Método para construir un campo de texto con estilo
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
+        labelStyle: TextStyle(
+          color: Colors.blue[800],
+          fontWeight: FontWeight.bold,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.blue[800]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.blue[800]!, width: 2),
+        ),
+        enabled: !_shouldDisableField(controller), // Deshabilitar si es necesario
       ),
       keyboardType: TextInputType.number,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.black87,
+      ),
+      onChanged: (value) {
+        // Actualizar el estado cuando el usuario ingresa un valor
+        setState(() {});
+      },
+    );
+  }
+
+  // Método para construir un botón con estilo
+  Widget _buildButton(String text, Color color, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 5,
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
