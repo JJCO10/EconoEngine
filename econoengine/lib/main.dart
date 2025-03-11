@@ -1,6 +1,7 @@
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 // import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
+// import 'package:econoengine/Views/home_view.dart';
 import 'package:econoengine/Views/navbar_view.dart';
 import 'package:flutter/material.dart';
 import 'views/auth/login_view.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
-        '/home': (context) => const NavbarView(),
+        '/home': (context) => const NavbarView(), // Usa el Navbar como página principal
         '/recoverPassword': (context) => const ForgotPasswordView(),
       },
     );
