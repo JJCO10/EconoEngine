@@ -1,6 +1,10 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.econoengine">
+    
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+
     <application
-        android:label="econoengine"
+        android:label="EconoEngine"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
