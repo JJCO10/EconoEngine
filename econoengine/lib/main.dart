@@ -1,9 +1,10 @@
+import 'package:econoengine/Controllers/auth_controller.dart';
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 // import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
-// import 'package:econoengine/Views/home_view.dart';
 import 'package:econoengine/Views/navbar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'views/auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -17,7 +18,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => AuthController(), // Proveer AuthController
+      child: const MyApp(),
+    ),);
 }
 
 class MyApp extends StatelessWidget {

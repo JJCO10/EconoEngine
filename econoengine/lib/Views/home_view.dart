@@ -9,6 +9,8 @@ import 'package:econoengine/Views/inflacion_view.dart';
 import 'package:econoengine/Views/interesCompuesto_view.dart';
 import 'package:econoengine/Views/interesSimple_view.dart';
 import 'package:flutter/material.dart';
+import 'package:econoengine/Controllers/auth_controller.dart'; // Asegúrate de importar el AuthController
+import 'package:provider/provider.dart'; // Para usar Provider
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -18,22 +20,42 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  // int _selectedIndex = 0; // Índice para controlar la opción seleccionada
+  String? userName;
+  bool isLoading = true;
 
-  // // Método para manejar el cambio de índice
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  // Método para cargar el nombre del usuario
+  Future<void> _loadUserName() async {
+    final authController = Provider.of<AuthController>(context, listen: false);
+    final savedUserId = await authController.getAuthState(); // Obtener el UID
+
+    if (savedUserId != null) {
+      final name = await authController.getUserName(savedUserId); // Obtener el nombre
+      setState(() {
+        userName = name; // Actualizar el estado con el nombre
+        isLoading = false; // Indicar que la carga ha terminado
+      });
+    } else {
+      setState(() {
+        isLoading = false; // Indicar que la carga ha terminado (incluso si no hay UID)
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Hola, Juan',
-          style: TextStyle(
+        title: isLoading
+            ? const Text("Cargando...", style: TextStyle(color: Colors.white)) // Indicador de carga
+            : Text(
+                userName != null ? 'Hola, ${userName!.split(" ")[0]}' : 'Hola, Usuario',
+          style: const TextStyle(
             color: Colors.white,
           ),
         ),
@@ -79,31 +101,6 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       ),
-      // Menú inferior
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: _selectedIndex, // Índice seleccionado
-      //   onTap: _onItemTapped, // Método para manejar el cambio de índice
-      //   selectedItemColor: Colors.blue[800], // Color del ícono seleccionado
-      //   unselectedItemColor: Colors.grey, // Color del ícono no seleccionado
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Principal',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.settings),
-      //       label: 'Ajustes',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person),
-      //       label: 'Perfil',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.list_alt),
-      //       label: 'Movimientos',
-      //     ),
-      //   ],
-      // ),
     );
   }
 
@@ -184,55 +181,55 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.calculate, 'Interés Simple', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => InteresSimpleView()),
+              MaterialPageRoute(builder: (context) => const InteresSimpleView()),
             );
           }),
           _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => InteresCompuestoView()),
+              MaterialPageRoute(builder: (context) => const InteresCompuestoView()),
             );
           }),
           _buildMenuButton(Icons.timeline, 'Gradientes', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GradientesView()),
+              MaterialPageRoute(builder: (context) => const GradientesView()),
             );
           }),
           _buildMenuButton(Icons.pie_chart, 'Amortización', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AmortizacionView()),
+              MaterialPageRoute(builder: (context) => const AmortizacionView()),
             );
           }),
           _buildMenuButton(Icons.trending_up, 'TIR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => TIRView()),
+              MaterialPageRoute(builder: (context) => const TIRView()),
             );
           }),
           _buildMenuButton(Icons.monetization_on, 'UVR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UVRView()),
+              MaterialPageRoute(builder: (context) => const UVRView()),
             );
           }),
           _buildMenuButton(Icons.business, 'Alt_Inversión', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AlternativasInversionView()),
+              MaterialPageRoute(builder: (context) => const AlternativasInversionView()),
             );
           }),
           _buildMenuButton(Icons.credit_card, 'Bonos', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => BonosView()),
+              MaterialPageRoute(builder: (context) => const BonosView()),
             );
           }),
           _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => InflacionView()),
+              MaterialPageRoute(builder: (context) => const InflacionView()),
             );
           }),
         ],

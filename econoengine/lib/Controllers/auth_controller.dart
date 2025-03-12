@@ -1,11 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+// import 'package:firebase_core/firebase_core.dart';
+
 import '../services/auth_service.dart';
 import '../services/biometric_auth_service.dart'; // Servicio de autenticación biométrica
 import '../models/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthController {
+class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
+
+  // Método para obtener el nombre del usuario desde Firestore
+  Future<String?> getUserName(String uid) async {
+    try {
+      final userDoc = await _firestore.collection('usuarios').doc(uid).get();
+      print("Datos del usuario desde Firestore: ${userDoc.data()}"); // Depuración
+      if (userDoc.exists) {
+        return userDoc.data()?['Nombre'] as String?;
+      }
+      return null;
+    } catch (e) {
+      print("Error al obtener el nombre del usuario: $e");
+      return null;
+    }
+  }
 
   // Método para acceder al servicio de autenticación biométrica
   BiometricAuthService get biometricAuthService => _biometricAuthService;
@@ -17,7 +37,7 @@ class AuthController {
   }
 
   // Obtener el estado de autenticación
-  Future<String?> _getAuthState() async {
+  Future<String?> getAuthState() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userId');
   }
@@ -62,25 +82,11 @@ class AuthController {
   // Iniciar sesión con autenticación biométrica y encriptación
   Future<bool> iniciarSesion(String numeroDocumento, String contrasena) async {
     try {
-      // Verificar si el dispositivo soporta autenticación biométrica
-      // final canAuthenticate = await _biometricAuthService.canAuthenticate();
-      // if (canAuthenticate) {
-      //   // Verificar si el usuario tiene configurado un bloqueo biométrico
-      //   final hasBiometricSetup = await _biometricAuthService.hasBiometricSetup();
-      //   if (hasBiometricSetup) {
-      //     // Intentar autenticar al usuario biométricamente
-      //     final didAuthenticate = await _biometricAuthService.authenticate();
-      //     if (!didAuthenticate) {
-      //       throw Exception('Autenticación biométrica fallida');
-      //     }
-      //   }
-      //   // Si no tiene configurado un bloqueo biométrico, continuar con el inicio de sesión normal
-      // }
-
       // Iniciar sesión en Firebase (o tu backend)
       final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);
       if (firebaseUser != null) {
-        await _saveAuthState(firebaseUser.uid);
+        await _saveAuthState(firebaseUser.uid); // Guardar el UID
+        print("UID del usuario: ${firebaseUser.uid}"); //Depuracion
         await _saveDocumentNumber(numeroDocumento); // Guardar el número de documento
         return true;
       }
@@ -93,7 +99,7 @@ class AuthController {
 
   // Verificar si el usuario ya ha iniciado sesión
   Future<bool> isUserLoggedIn() async {
-    final savedUserId = await _getAuthState();
+    final savedUserId = await getAuthState();
     return savedUserId != null;
   }
 
