@@ -1,16 +1,78 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-// import 'package:firebase_core/firebase_core.dart';
-
 import '../services/auth_service.dart';
-import '../services/biometric_auth_service.dart'; // Servicio de autenticación biométrica
+import '../services/biometric_auth_service.dart';
 import '../models/users.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
+
+  // Método para realizar transferencias
+  Future<void> transferirDinero(String telefonoDestinatario, double monto) async {
+    try {
+      // Obtener el usuario actual
+      final user = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('Usuario no autenticado');
+      }
+
+      // Obtener el documento del remitente (usuario actual)
+      final remitenteSnapshot = await _firestore.collection('usuarios').doc(user.uid).get();
+      if (!remitenteSnapshot.exists) {
+        throw Exception('No se encontró el remitente');
+      }
+
+      final remitenteData = remitenteSnapshot.data();
+      final telefonoRemitente = remitenteData?['Telefono'] as String?;
+      final saldoRemitente = remitenteData?['Saldo'] as double?;
+
+      if (telefonoRemitente == null || saldoRemitente == null) {
+        throw Exception('Datos del remitente incompletos');
+      }
+
+      if (saldoRemitente < monto) {
+        throw Exception('Saldo insuficiente');
+      }
+
+      // Obtener el documento del destinatario
+      final destinatarioSnapshot = await _firestore
+          .collection('usuarios')
+          .where('Telefono', isEqualTo: telefonoDestinatario)
+          .limit(1)
+          .get();
+
+      if (destinatarioSnapshot.docs.isEmpty) {
+        throw Exception('No se encontró el destinatario');
+      }
+
+      final destinatarioDoc = destinatarioSnapshot.docs.first;
+      final destinatarioData = destinatarioDoc.data();
+      final saldoDestinatario = destinatarioData['Saldo'] as double;
+
+      // Actualizar saldos en una transacción
+      await _firestore.runTransaction((transaction) async {
+        // Disminuir saldo del remitente
+        transaction.update(remitenteSnapshot.reference, {
+          'Saldo': saldoRemitente - monto,
+        });
+
+        // Aumentar saldo del destinatario
+        transaction.update(destinatarioDoc.reference, {
+          'Saldo': saldoDestinatario + monto,
+        });
+      });
+
+      print("Transferencia exitosa");
+    } catch (e) {
+      print("Error en AuthController (transferirDinero): $e");
+      rethrow;
+    }
+  }
+
 
   // Método para obtener el nombre del usuario desde Firestore
   Future<Map<String, dynamic>> getUserData(String uid) async {

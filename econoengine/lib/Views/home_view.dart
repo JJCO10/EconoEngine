@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/TIR_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
@@ -29,6 +32,256 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     _loadUserData();
+  }
+
+  Future<void> _mostrarDialogoTransferencia(BuildContext context) async {
+    final telefonoDestinatarioController = TextEditingController();
+    final montoController = TextEditingController();
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Realizar Transferencia'),
+          content: SizedBox(
+            width: double.maxFinite, // Hacer el diálogo más grande
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: telefonoDestinatarioController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de celular del destinatario',
+                  ),
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: montoController,
+                  decoration: const InputDecoration(
+                    labelText: 'Monto a transferir',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final telefonoDestinatario = telefonoDestinatarioController.text;
+                final monto = double.tryParse(montoController.text) ?? 0.0;
+
+                if (telefonoDestinatario.isEmpty || monto <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Por favor, ingresa datos válidos')),
+                  );
+                  return;
+                }
+
+                try {
+                  // final authController = Provider.of<AuthController>(context, listen: false);
+
+                  // Obtener los datos del destinatario
+                  final destinatarioSnapshot = await FirebaseFirestore.instance
+                      .collection('usuarios')
+                      .where('Telefono', isEqualTo: telefonoDestinatario)
+                      .limit(1)
+                      .get();
+
+                  if (destinatarioSnapshot.docs.isEmpty) {
+                    throw ('No se encontró el destinatario');
+                  }
+
+                  final destinatarioData = destinatarioSnapshot.docs.first.data();
+                  final nombreDestinatario = destinatarioData['Nombre'] as String?;
+
+                  if (nombreDestinatario == null) {
+                    throw ('No se encontró el nombre del destinatario');
+                  }
+
+                  // Generar la referencia de transferencia
+                  final referenciaTransferencia = _generarReferenciaTransferencia();
+
+                  // Mostrar el cuadro de confirmación
+                  await _mostrarConfirmacionTransferencia(
+                    context,
+                    nombreDestinatario,
+                    telefonoDestinatario,
+                    monto,
+                    referenciaTransferencia,
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              },
+              child: const Text('Transferir'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _generarReferenciaTransferencia() {
+    final now = DateTime.now();
+    final random = Random().nextInt(9999); // Número aleatorio entre 0 y 9999
+    return 'REF-${DateFormat('yyyyMMdd').format(now)}-$random';
+  }
+
+  Future<void> _mostrarConfirmacionTransferencia(
+    BuildContext context,
+    String nombreDestinatario,
+    String telefonoDestinatario,
+    double monto,
+    String referenciaTransferencia,
+  ) async {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('dd/MM/yyyy').format(now);
+    final formattedTime = DateFormat('HH:mm').format(now);
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Transferencia'),
+          content: SizedBox(
+            width: double.maxFinite, // Hacer el diálogo más grande
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Destinatario: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: nombreDestinatario),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Teléfono: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: telefonoDestinatario),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Monto: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: '\$${monto.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Fecha: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: formattedDate),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Hora: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: formattedTime),
+                    ],
+                  ),
+                ),
+                RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(
+                        text: 'Referencia: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(text: referenciaTransferencia),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo sin hacer la transferencia
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  final authController = Provider.of<AuthController>(context, listen: false);
+
+                  // Realizar la transferencia
+                  await authController.transferirDinero(telefonoDestinatario, monto);
+
+                  // Actualizar el saldo después de la transferencia
+                  await _loadUserData();
+
+                  // Mostrar mensaje de éxito
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Transferencia exitosa')),
+                  );
+
+                  // Cerrar el cuadro de confirmación
+                  Navigator.of(context).pop();
+
+                  // Cerrar el cuadro de diálogo de transferencia
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  // Mostrar mensaje de error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+
+                  // Cerrar el cuadro de confirmación en caso de error
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Método para cargar los datos del usuario
@@ -159,30 +412,15 @@ class _HomeViewState extends State<HomeView> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () {
-                      // Lógica para consignar
+                      _mostrarDialogoTransferencia(context);
                     },
                     child: const Text(
-                      'Consignar',
+                      'Transferir',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[800],
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    onPressed: () {
-                      // Lógica para retirar
-                    },
-                    child: const Text(
-                      'Retirar',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
+                const SizedBox(width: 10)
               ],
             ),
           ],
