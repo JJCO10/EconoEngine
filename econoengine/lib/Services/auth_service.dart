@@ -22,7 +22,7 @@ class AuthService {
         'Numero Documento': usuario.numeroDocumento,
         'Telefono': usuario.telefono,
         'Email': usuario.email, // Guardar el email en Firestore
-        // 'Contraseña': usuario.contrasena,
+        'Saldo': 0.0,
       });
 
       return userCredential.user; // Retornar el User de Firebase

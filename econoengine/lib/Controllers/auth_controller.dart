@@ -13,17 +13,17 @@ class AuthController extends ChangeNotifier {
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
 
   // Método para obtener el nombre del usuario desde Firestore
-  Future<String?> getUserName(String uid) async {
+  Future<Map<String, dynamic>> getUserData(String uid) async {
     try {
       final userDoc = await _firestore.collection('usuarios').doc(uid).get();
       print("Datos del usuario desde Firestore: ${userDoc.data()}"); // Depuración
       if (userDoc.exists) {
-        return userDoc.data()?['Nombre'] as String?;
+        return userDoc.data() as Map<String, dynamic>;
       }
-      return null;
+      throw Exception('Usuario no encontrado');
     } catch (e) {
-      print("Error al obtener el nombre del usuario: $e");
-      return null;
+      print("Error al obtener los datos del usuario: $e");
+      rethrow;
     }
   }
 

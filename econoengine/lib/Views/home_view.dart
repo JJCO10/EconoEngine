@@ -11,6 +11,7 @@ import 'package:econoengine/Views/interesSimple_view.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/Controllers/auth_controller.dart'; // Asegúrate de importar el AuthController
 import 'package:provider/provider.dart'; // Para usar Provider
+import 'package:intl/intl.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -22,29 +23,47 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   String? userName;
   bool isLoading = true;
+  double? saldo;
 
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    _loadUserData();
   }
 
-  // Método para cargar el nombre del usuario
-  Future<void> _loadUserName() async {
+  // Método para cargar los datos del usuario
+  Future<void> _loadUserData() async {
     final authController = Provider.of<AuthController>(context, listen: false);
     final savedUserId = await authController.getAuthState(); // Obtener el UID
+    print("UID recuperado: $savedUserId"); // Depuración
 
     if (savedUserId != null) {
-      final name = await authController.getUserName(savedUserId); // Obtener el nombre
+      try {
+        final userData = await authController.getUserData(savedUserId); // Obtener los datos del usuario
+        print("Datos del usuario: $userData"); // Depuración
+        setState(() {
+          userName = userData['Nombre'] as String?;
+          saldo = userData['Saldo'] as double?;
+          isLoading = false; // Indicar que la carga ha terminado
+        });
+      } catch (e) {
+        print("Error al cargar los datos del usuario: $e");
+        setState(() {
+          isLoading = false; // Indicar que la carga ha terminado (incluso si hay un error)
+        });
+      }
+    } else {
+      print("No se encontró un UID guardado"); // Depuración
       setState(() {
-        userName = name; // Actualizar el estado con el nombre
         isLoading = false; // Indicar que la carga ha terminado
       });
-    } else {
-      setState(() {
-        isLoading = false; // Indicar que la carga ha terminado (incluso si no hay UID)
-      });
     }
+  }
+
+  // Método para formatear el saldo
+  String _formatearSaldo(double saldo) {
+    final formatter = NumberFormat("#,##0.00", "es_ES"); // Formateador
+    return formatter.format(saldo);
   }
 
   @override
@@ -123,9 +142,9 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              '\$3.012,04',
-              style: TextStyle(
+            Text(
+              saldo != null ? '\$${_formatearSaldo(saldo!)}' : 'Cargando saldo...',
+              style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),

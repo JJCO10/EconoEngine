@@ -42,6 +42,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0  # Para almacenamiento seguro
   shared_preferences: ^2.2.2
   provider: ^6.1.2
+  intl: ^0.18.1 # Asegúrate de usar la última versión
 
 dev_dependencies:
   flutter_test:
