@@ -109,8 +109,10 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkmode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -134,11 +136,16 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _numeroDocumentoController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                   decoration: InputDecoration(
                     labelText: 'Número de Documento',
-                    prefixIcon: const Icon(Icons.person_outline),
+                    labelStyle: TextStyle(
+                    color: isDarkmode ? Colors.white70 : Colors.black87,
+                  ),
+                    prefixIcon: Icon(Icons.person_outline, color: isDarkmode ? Colors.white70 : Colors.black54),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: isDarkmode ? Colors.white70 : Colors.black54),
                     ),
                   ),
                   readOnly: _isUserLoggedIn, // Deshabilitar edición si el usuario ya ha iniciado sesión
@@ -152,12 +159,17 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    labelStyle: TextStyle(
+                      color: isDarkmode ? Colors.white70 : Colors.black87,
+                    ),
+                    prefixIcon: Icon(Icons.lock_outline, color: isDarkmode ? Colors.white70 : Colors.black54),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: isDarkmode ? Colors.white70 : Colors.black54),
                     ),
                   ),
                   validator: (value) {
@@ -171,6 +183,7 @@ class _LoginViewState extends State<LoginView> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[800],
+                    foregroundColor: Colors.white, // Texto siempre en blanco
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -187,6 +200,7 @@ class _LoginViewState extends State<LoginView> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[800],
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -211,14 +225,14 @@ class _LoginViewState extends State<LoginView> {
                   },
                   child: Text(
                     '¿Olvidaste tu contraseña?',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(color: isDarkmode ? Colors.white70 : Colors.grey[600]),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('¿No tienes cuenta? '),
+                    Text('¿No tienes cuenta?', style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(

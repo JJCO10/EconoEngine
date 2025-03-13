@@ -1,11 +1,184 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:econoengine/Models/transferencia.dart';
+import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../services/biometric_auth_service.dart'; // Servicio de autenticación biométrica
+import '../services/biometric_auth_service.dart';
 import '../models/users.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthController {
+class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
+
+  Future<List<Transferencia>> obtenerTransferenciasEnviadas() async {
+    return await _authService.obtenerTransferenciasEnviadas();
+  }
+
+  Future<List<Transferencia>> obtenerTransferenciasRecibidas() async {
+    return await _authService.obtenerTransferenciasRecibidas();
+  }
+
+  // Realizar una transferencia
+  Future<void> transferirDinero({
+    required String remitenteNombre,
+    required String remitenteCelular,
+    required String remitenteCedula,
+    required String destinatarioNombre,
+    required String destinatarioCelular,
+    required String destinatarioCedula,
+    required double monto,
+  }) async {
+    try {
+      final user = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('Usuario no autenticado');
+
+      // Obtener el documento del remitente (usuario actual)
+      final remitenteSnapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid)
+          .get();
+
+      if (!remitenteSnapshot.exists) {
+        throw Exception('No se encontró el remitente');
+      }
+
+      final remitenteData = remitenteSnapshot.data();
+      final saldoRemitente = remitenteData?['Saldo'] as double?;
+
+      if (saldoRemitente == null || saldoRemitente < monto) {
+        throw Exception('Saldo insuficiente');
+      }
+
+      // Obtener el documento del destinatario
+      final destinatarioSnapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .where('Numero Documento', isEqualTo: destinatarioCedula)
+          .limit(1)
+          .get();
+
+      if (destinatarioSnapshot.docs.isEmpty) {
+        throw Exception('No se encontró el destinatario');
+      }
+
+      final destinatarioDoc = destinatarioSnapshot.docs.first;
+      final destinatarioData = destinatarioDoc.data();
+      final saldoDestinatario = destinatarioData['Saldo'] as double;
+
+      // Crear el objeto Transferencia
+      final transferencia = Transferencia(
+        remitenteNombre: remitenteNombre,
+        remitenteCelular: remitenteCelular,
+        remitenteCedula: remitenteCedula,
+        destinatarioNombre: destinatarioNombre,
+        destinatarioCelular: destinatarioCelular,
+        destinatarioCedula: destinatarioCedula,
+        monto: monto,
+        fechaHora: DateTime.now(),
+        userId: user.uid,
+      );
+
+      // Guardar la transferencia en Firestore
+      await FirebaseFirestore.instance.collection('transferencias').add(transferencia.toMap());
+
+      // Actualizar saldos en una transacción
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // Disminuir saldo del remitente
+        transaction.update(remitenteSnapshot.reference, {
+          'Saldo': saldoRemitente - monto,
+        });
+
+        // Aumentar saldo del destinatario
+        transaction.update(destinatarioDoc.reference, {
+          'Saldo': saldoDestinatario + monto,
+        });
+      });
+
+      print("Transferencia exitosa");
+    } catch (e) {
+      print("Error en AuthController (transferirDinero): $e");
+      rethrow;
+    }
+  }
+
+  // Método para realizar transferencias
+  // Future<void> transferirDinero(String telefonoDestinatario, double monto, {required String remitenteCelular, required String remitenteNombre}) async {
+  //   try {
+  //     // Obtener el usuario actual
+  //     final user = firebase_auth.FirebaseAuth.instance.currentUser;
+  //     if (user == null) {
+  //       throw Exception('Usuario no autenticado');
+  //     }
+
+  //     // Obtener el documento del remitente (usuario actual)
+  //     final remitenteSnapshot = await _firestore.collection('usuarios').doc(user.uid).get();
+  //     if (!remitenteSnapshot.exists) {
+  //       throw Exception('No se encontró el remitente');
+  //     }
+
+  //     final remitenteData = remitenteSnapshot.data();
+  //     final telefonoRemitente = remitenteData?['Telefono'] as String?;
+  //     final saldoRemitente = remitenteData?['Saldo'] as double?;
+
+  //     if (telefonoRemitente == null || saldoRemitente == null) {
+  //       throw Exception('Datos del remitente incompletos');
+  //     }
+
+  //     if (saldoRemitente < monto) {
+  //       throw Exception('Saldo insuficiente');
+  //     }
+
+  //     // Obtener el documento del destinatario
+  //     final destinatarioSnapshot = await _firestore
+  //         .collection('usuarios')
+  //         .where('Telefono', isEqualTo: telefonoDestinatario)
+  //         .limit(1)
+  //         .get();
+
+  //     if (destinatarioSnapshot.docs.isEmpty) {
+  //       throw Exception('No se encontró el destinatario');
+  //     }
+
+  //     final destinatarioDoc = destinatarioSnapshot.docs.first;
+  //     final destinatarioData = destinatarioDoc.data();
+  //     final saldoDestinatario = destinatarioData['Saldo'] as double;
+
+  //     // Actualizar saldos en una transacción
+  //     await _firestore.runTransaction((transaction) async {
+  //       // Disminuir saldo del remitente
+  //       transaction.update(remitenteSnapshot.reference, {
+  //         'Saldo': saldoRemitente - monto,
+  //       });
+
+  //       // Aumentar saldo del destinatario
+  //       transaction.update(destinatarioDoc.reference, {
+  //         'Saldo': saldoDestinatario + monto,
+  //       });
+  //     });
+
+  //     print("Transferencia exitosa");
+  //   } catch (e) {
+  //     print("Error en AuthController (transferirDinero): $e");
+  //     rethrow;
+  //   }
+  // }
+
+
+  // Método para obtener el nombre del usuario desde Firestore
+  Future<Map<String, dynamic>> getUserData(String uid) async {
+    try {
+      final userDoc = await _firestore.collection('usuarios').doc(uid).get();
+      print("Datos del usuario desde Firestore: ${userDoc.data()}"); // Depuración
+      if (userDoc.exists) {
+        return userDoc.data() as Map<String, dynamic>;
+      }
+      throw Exception('Usuario no encontrado');
+    } catch (e) {
+      print("Error al obtener los datos del usuario: $e");
+      rethrow;
+    }
+  }
 
   // Método para acceder al servicio de autenticación biométrica
   BiometricAuthService get biometricAuthService => _biometricAuthService;
@@ -17,7 +190,7 @@ class AuthController {
   }
 
   // Obtener el estado de autenticación
-  Future<String?> _getAuthState() async {
+  Future<String?> getAuthState() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userId');
   }
@@ -62,25 +235,11 @@ class AuthController {
   // Iniciar sesión con autenticación biométrica y encriptación
   Future<bool> iniciarSesion(String numeroDocumento, String contrasena) async {
     try {
-      // Verificar si el dispositivo soporta autenticación biométrica
-      // final canAuthenticate = await _biometricAuthService.canAuthenticate();
-      // if (canAuthenticate) {
-      //   // Verificar si el usuario tiene configurado un bloqueo biométrico
-      //   final hasBiometricSetup = await _biometricAuthService.hasBiometricSetup();
-      //   if (hasBiometricSetup) {
-      //     // Intentar autenticar al usuario biométricamente
-      //     final didAuthenticate = await _biometricAuthService.authenticate();
-      //     if (!didAuthenticate) {
-      //       throw Exception('Autenticación biométrica fallida');
-      //     }
-      //   }
-      //   // Si no tiene configurado un bloqueo biométrico, continuar con el inicio de sesión normal
-      // }
-
       // Iniciar sesión en Firebase (o tu backend)
       final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);
       if (firebaseUser != null) {
-        await _saveAuthState(firebaseUser.uid);
+        await _saveAuthState(firebaseUser.uid); // Guardar el UID
+        print("UID del usuario: ${firebaseUser.uid}"); //Depuracion
         await _saveDocumentNumber(numeroDocumento); // Guardar el número de documento
         return true;
       }
@@ -93,7 +252,7 @@ class AuthController {
 
   // Verificar si el usuario ya ha iniciado sesión
   Future<bool> isUserLoggedIn() async {
-    final savedUserId = await _getAuthState();
+    final savedUserId = await getAuthState();
     return savedUserId != null;
   }
 
