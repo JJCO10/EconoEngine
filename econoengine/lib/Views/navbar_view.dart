@@ -19,7 +19,7 @@ class _NavbarViewState extends State<NavbarView> {
   final List<Widget> _pages = [
     const HomeView(),
     const TransactionsView(),
-    const SettingsView(),
+    // const SettingsView(),
     const ProfileView(),
   ];
 

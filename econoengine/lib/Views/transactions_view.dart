@@ -135,7 +135,9 @@ class _TransactionsViewState extends State<TransactionsView> {
                     ? 'Enviado a ${transferencia.destinatarioNombre}'
                     : 'Recibido de ${transferencia.remitenteNombre}',
                 style: TextStyle(
-                  color: esEnvio ? Colors.red : Colors.black,
+                  color: esEnvio
+                    ? Colors.red
+                    : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                 ),
               ),
               subtitle: Text(
@@ -200,7 +202,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                   style: DefaultTextStyle.of(context).style,
                   children: [
                     const TextSpan(text: 'Monto: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}', style: TextStyle(color: Colors.green)),
+                    TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}'),
                   ],
                 ),
               ),

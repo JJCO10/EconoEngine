@@ -7,11 +7,12 @@ import 'package:econoengine/Views/UVR_view.dart';
 import 'package:econoengine/Views/alt_inv_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
 import 'package:econoengine/Views/bonos_view.dart';
-import 'package:econoengine/Views/detalles_transfer_view.dart';
+// import 'package:econoengine/Views/detalles_transfer_view.dart';
 import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
 import 'package:econoengine/Views/interesCompuesto_view.dart';
 import 'package:econoengine/Views/interesSimple_view.dart';
+import 'package:econoengine/Views/settings_view.dart';
 import 'package:econoengine/Views/transactions_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -412,7 +413,10 @@ class _HomeViewState extends State<HomeView> {
             icon: const Icon(Icons.settings),
             color: Colors.white,
             onPressed: () {
-              // Lógica para notificaciones
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsView()),
+              );
             },
           ),
           IconButton(
@@ -672,17 +676,47 @@ class _HomeViewState extends State<HomeView> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Nombre: ${esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre}'),
-              Text('Teléfono: ${esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular}'),
-              Text('Monto: \$${_formatearSaldo(transferencia.monto)}'),
-              Text('Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}'),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style, // Hereda el estilo por defecto
+                  children: [
+                    const TextSpan(text: 'Nombre: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: [
+                    const TextSpan(text: 'Teléfono: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: [
+                    const TextSpan(text: 'Monto: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}'),
+                  ],
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: [
+                    const TextSpan(text: 'Fecha: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)),
+                  ],
+                ),
+              ),
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cerrar'),
             ),
           ],
