@@ -17,7 +17,7 @@ class _SettingsViewState extends State<SettingsView> {
   double _tamanoTexto = 14.0; // Tamaño de texto base
 
   // Lista de idiomas disponibles
-  final List<String> _idiomas = ['Español', 'Inglés', 'Francés', 'Alemán'];
+  final List<String> _idiomas = ['Español', 'Inglés'];
 
   @override
   Widget build(BuildContext context) {
