@@ -1,4 +1,6 @@
+import 'package:econoengine/Controllers/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -10,7 +12,6 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   // Variables para almacenar las preferencias del usuario
   bool _notificacionesHabilitadas = true;
-  bool _temaOscuro = false;
   String _idiomaSeleccionado = 'Español';
   bool _altoContraste = false;
   double _tamanoTexto = 14.0; // Tamaño de texto base
@@ -20,10 +21,11 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Provider.of<ThemeController>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configuración'),
-        backgroundColor: Colors.blue[800],
+        backgroundColor: themeController.currentTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 5,
       ),
@@ -44,10 +46,10 @@ class _SettingsViewState extends State<SettingsView> {
             const SizedBox(height: 10),
             SwitchListTile(
               title: const Text('Tema Oscuro'),
-              value: _temaOscuro,
+              value: themeController.isDarkMode,
               onChanged: (value) {
                 setState(() {
-                  _temaOscuro = value;
+                  themeController.toggleTheme(); // Cambia el tema
                 });
                 // Aquí puedes agregar la lógica para cambiar el tema de la aplicación
               },
