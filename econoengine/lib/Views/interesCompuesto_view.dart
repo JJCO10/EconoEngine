@@ -44,7 +44,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
       return;
     }
 
-    double mc = c * pow(1 + i, n);
+    double mc = c * pow(1 + (i / 100), n); // Convertir i a decimal
     setState(() {
       _resultado = 'Monto Compuesto (MC): \$${mc.toStringAsFixed(2)}';
     });
@@ -63,7 +63,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
       return;
     }
 
-    double n = (log(mc) - log(c)) / log(1 + i);
+    double n = (log(mc) - log(c)) / log(1 + (i / 100)); // Convertir i a decimal
     setState(() {
       _resultado = 'Tiempo (n): ${n.toStringAsFixed(2)} años';
     });
@@ -82,9 +82,9 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
       return;
     }
 
-    double i = pow(mc / c, 1 / n) - 1;
+    double i = (pow(mc / c, 1 / n) - 1) * 100; // Convertir a porcentaje
     setState(() {
-      _resultado = 'Tasa de Interés (i): ${(i * 100).toStringAsFixed(2)}%';
+      _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}%';
     });
   }
 
@@ -104,16 +104,36 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Campo para Capital Inicial (C)
-              _buildTextField('Capital Inicial (C)', _cController),
+              _buildTextField(
+                'Capital Inicial (C)',
+                _cController,
+                hintText: "Ej: 1000",
+                suffixText: "\$",
+              ),
               const SizedBox(height: 20),
               // Campo para Monto Compuesto (MC)
-              _buildTextField('Monto Compuesto (MC)', _mcController),
+              _buildTextField(
+                'Monto Compuesto (MC)',
+                _mcController,
+                hintText: "Ej: 2000",
+                suffixText: "\$",
+              ),
               const SizedBox(height: 20),
               // Campo para Tasa de Interés (i)
-              _buildTextField('Tasa de Interés (i)', _iController),
+              _buildTextField(
+                'Tasa de Interés (i)',
+                _iController,
+                hintText: "Ej: 12 (para 12%)",
+                suffixText: "%",
+              ),
               const SizedBox(height: 20),
               // Campo para Tiempo (n)
-              _buildTextField('Tiempo (n)', _nController),
+              _buildTextField(
+                'Tiempo (n)',
+                _nController,
+                hintText: "Ej: 5 (años)",
+                suffixText: "años",
+              ),
               const SizedBox(height: 30),
               // Botones para calcular
               Row(
@@ -177,11 +197,18 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
   }
 
   // Método para construir un campo de texto con estilo
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hintText,
+    String? suffixText,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hintText,
+        suffixText: suffixText,
         labelStyle: TextStyle(
           color: Colors.blue[800],
           fontWeight: FontWeight.bold,
