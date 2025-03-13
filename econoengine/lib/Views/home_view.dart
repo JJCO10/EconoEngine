@@ -226,18 +226,18 @@ class _HomeViewState extends State<HomeView> {
                     ],
                   ),
                 ),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Referencia: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: referenciaTransferencia),
-                    ],
-                  ),
-                ),
+                // RichText(
+                //   text: TextSpan(
+                //     style: DefaultTextStyle.of(context).style,
+                //     children: [
+                //       const TextSpan(
+                //         text: 'Referencia: ',
+                //         style: TextStyle(fontWeight: FontWeight.bold),
+                //       ),
+                //       TextSpan(text: referenciaTransferencia),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -348,7 +348,7 @@ class _HomeViewState extends State<HomeView> {
     movimientos.sort((a, b) => b.fechaHora.compareTo(a.fechaHora));
 
     // Tomar los últimos 4 movimientos
-    return movimientos.take(4).toList();
+    return movimientos.take(2).toList();
   }
 
   // Método para cargar los datos del usuario
@@ -645,15 +645,47 @@ class _HomeViewState extends State<HomeView> {
         style: TextStyle(color: color),
       ),
       subtitle: Text(
-        '\$${transferencia.monto.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}',
+        '\$${_formatearSaldo(transferencia.monto)} - ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}',
       ),
       onTap: () {
         // Navegar a la vista de detalles
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetallesTransferenciaView(transferencia: transferencia),
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => DetallesTransferenciaView(transferencia: transferencia),
+        //   ),
+        // );
+        _mostrarDetallesTransferencia(context, transferencia);
+      },
+    );
+  }
+
+  void _mostrarDetallesTransferencia(BuildContext context, Transferencia transferencia) {
+    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nombre: ${esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre}'),
+              Text('Teléfono: ${esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular}'),
+              Text('Monto: \$${_formatearSaldo(transferencia.monto)}'),
+              Text('Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}'),
+            ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
         );
       },
     );
