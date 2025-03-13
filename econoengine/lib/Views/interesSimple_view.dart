@@ -9,10 +9,10 @@ class InteresSimpleView extends StatefulWidget {
 
 class _InteresSimpleViewState extends State<InteresSimpleView> {
   // Controladores para los campos de texto
-  final TextEditingController _vpController = TextEditingController();
-  final TextEditingController _vfController = TextEditingController();
-  final TextEditingController _iController = TextEditingController();
-  final TextEditingController _tController = TextEditingController();
+  final TextEditingController _vpController = TextEditingController(); // Valor Presente (VP)
+  final TextEditingController _vfController = TextEditingController(); // Valor Futuro (VF)
+  final TextEditingController _iController = TextEditingController(); // Tasa de Interés (i)
+  final TextEditingController _tController = TextEditingController(); // Tiempo (t)
 
   // Variable para almacenar el resultado
   String _resultado = '';
@@ -42,7 +42,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
       return;
     }
 
-    double vf = vp * (1 + i * t);
+    double vf = vp * (1 + (i / 100) * t); // Convertir i a decimal
     setState(() {
       _resultado = 'Monto Futuro (VF): \$${vf.toStringAsFixed(2)}';
     });
@@ -61,9 +61,9 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
       return;
     }
 
-    double i = ((vf / vp) - 1) / t;
+    double i = ((vf / vp) - 1) / t * 100; // Convertir a porcentaje
     setState(() {
-      _resultado = 'Tasa de Interés (i): ${(i * 100).toStringAsFixed(2)}%';
+      _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}%';
     });
   }
 
@@ -80,7 +80,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
       return;
     }
 
-    double t = ((vf / vp) - 1) / i;
+    double t = ((vf / vp) - 1) / (i / 100); // Convertir i a decimal
     setState(() {
       _resultado = 'Tiempo (t): ${t.toStringAsFixed(2)} años';
     });
@@ -99,7 +99,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
       return;
     }
 
-    double vp = vf / (1 + i * t);
+    double vp = vf / (1 + (i / 100) * t); // Convertir i a decimal
     setState(() {
       _resultado = 'Valor Presente (VP): \$${vp.toStringAsFixed(2)}';
     });
@@ -121,16 +121,36 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Campo para Valor Presente (VP)
-              _buildTextField('Valor Presente (VP)', _vpController),
+              _buildTextField(
+                'Valor Presente (VP)',
+                _vpController,
+                hintText: "Ej: 1000",
+                suffixText: "\$",
+              ),
               const SizedBox(height: 20),
               // Campo para Valor Futuro (VF)
-              _buildTextField('Valor Futuro (VF)', _vfController),
+              _buildTextField(
+                'Valor Futuro (VF)',
+                _vfController,
+                hintText: "Ej: 1500",
+                suffixText: "\$",
+              ),
               const SizedBox(height: 20),
               // Campo para Tasa de Interés (i)
-              _buildTextField('Tasa de Interés (i)', _iController),
+              _buildTextField(
+                'Tasa de Interés (i)',
+                _iController,
+                hintText: "Ej: 10 (para 10%)",
+                suffixText: "%",
+              ),
               const SizedBox(height: 20),
               // Campo para Tiempo (t)
-              _buildTextField('Tiempo (t)', _tController),
+              _buildTextField(
+                'Tiempo (t)',
+                _tController,
+                hintText: "Ej: 5 (años)",
+                suffixText: "años",
+              ),
               const SizedBox(height: 30),
               // Botones para calcular (organizados en 2 filas de 2 botones)
               Column(
@@ -212,11 +232,18 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
   }
 
   // Método para construir un campo de texto con estilo
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hintText,
+    String? suffixText,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hintText,
+        suffixText: suffixText,
         labelStyle: TextStyle(
           color: Colors.blue[800],
           fontWeight: FontWeight.bold,

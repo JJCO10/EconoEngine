@@ -54,7 +54,7 @@ class _AmortizacionViewState extends State<AmortizacionView> {
     double saldo = monto;
 
     for (int i = 1; i <= periodos; i++) {
-      double interes = saldo * (tasa / 100);
+      double interes = saldo * (tasa / 100 / 12); // Tasa mensual
       double cuota = capitalConstante + interes;
       saldo -= capitalConstante;
 
@@ -73,7 +73,7 @@ class _AmortizacionViewState extends State<AmortizacionView> {
   // Método para calcular la amortización francesa
   List<Map<String, dynamic>> _calcularFrances(double monto, double tasa, int periodos) {
     List<Map<String, dynamic>> tabla = [];
-    double tasaMensual = tasa / 100 / 12;
+    double tasaMensual = tasa / 100 / 12; // Tasa mensual
     double cuota = monto * (tasaMensual * pow(1 + tasaMensual, periodos)) / (pow(1 + tasaMensual, periodos) - 1);
     double saldo = monto;
 
@@ -97,7 +97,7 @@ class _AmortizacionViewState extends State<AmortizacionView> {
   // Método para calcular la amortización americana
   List<Map<String, dynamic>> _calcularAmericano(double monto, double tasa, int periodos) {
     List<Map<String, dynamic>> tabla = [];
-    double interesPeriodico = monto * (tasa / 100 / 12);
+    double interesPeriodico = monto * (tasa / 100 / 12); // Tasa mensual
 
     for (int i = 1; i <= periodos; i++) {
       double cuota = (i == periodos) ? monto + interesPeriodico : interesPeriodico;
@@ -132,13 +132,28 @@ class _AmortizacionViewState extends State<AmortizacionView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Campo para el monto del préstamo
-              _buildTextField('Monto del Préstamo', _montoController),
+              _buildTextField(
+                'Monto del Préstamo',
+                _montoController,
+                hintText: "Ej: 10000",
+                suffixText: "\$",
+              ),
               const SizedBox(height: 20),
               // Campo para la tasa de interés anual
-              _buildTextField('Tasa de Interés Anual (%)', _tasaController),
+              _buildTextField(
+                'Tasa de Interés Anual',
+                _tasaController,
+                hintText: "Ej: 12 (para 12%)",
+                suffixText: "%",
+              ),
               const SizedBox(height: 20),
               // Campo para el número de periodos
-              _buildTextField('Número de Periodos', _periodosController),
+              _buildTextField(
+                'Número de Periodos',
+                _periodosController,
+                hintText: "Ej: 12 (meses)",
+                suffixText: "meses",
+              ),
               const SizedBox(height: 20),
               // Selección del método de amortización
               DropdownButton<String>(
@@ -205,11 +220,18 @@ class _AmortizacionViewState extends State<AmortizacionView> {
   }
 
   // Método para construir un campo de texto con estilo
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hintText,
+    String? suffixText,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hintText,
+        suffixText: suffixText,
         labelStyle: TextStyle(
           color: Colors.blue[800],
           fontWeight: FontWeight.bold,
