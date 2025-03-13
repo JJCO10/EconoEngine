@@ -20,7 +20,7 @@ class _NavbarViewState extends State<NavbarView> {
     const HomeView(),
     const TransactionsView(),
     // const SettingsView(),
-    const ProfileView(),
+    ProfileView(),
   ];
 
   @override

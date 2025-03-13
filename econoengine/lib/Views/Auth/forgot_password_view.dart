@@ -48,7 +48,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recuperar Contraseña'),
+        title: const Text('Cambiar Contraseña'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -79,7 +79,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   ),
                 const SizedBox(height: 10),
                 Text(
-                  'Ingresa tu correo electrónico para recibir un enlace de recuperación de contraseña.',
+                  'Ingresa tu correo electrónico para recibir un enlace para cambiar o recuperar tu contraseña.',
                   style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                   textAlign: TextAlign.center,
                 ),
@@ -118,15 +118,15 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'Volver al Inicio de Sesión',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () {
+                //     Navigator.pop(context);
+                //   },
+                //   child: Text(
+                //     'Volver al Inicio de Sesión',
+                //     style: TextStyle(color: Colors.grey[600]),
+                //   ),
+                // ),
               ],
             ),
           ),
