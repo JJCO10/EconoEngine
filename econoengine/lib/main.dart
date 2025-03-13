@@ -8,20 +8,23 @@ import 'package:provider/provider.dart';
 import 'views/auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'Controllers/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Inicializar Firebase (comenta si aún no lo necesitas)
-  //await Firebase.initializeApp();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  runApp(ChangeNotifierProvider(
-      create: (_) => AuthController(), // Proveer AuthController
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthController()), // Proveer AuthController
+        ChangeNotifierProvider(create: (_) => ThemeController()), // Proveer ThemeController
+      ],
       child: const MyApp(),
-    ),);
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -29,10 +32,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeController = Provider.of<ThemeController>(context);
     return MaterialApp(
       title: 'Fintech App',
       debugShowCheckedModeBanner: false,
-      theme: _buildTheme(),
+      theme: themeController.currentTheme,
       home: const LoginView(), // Pantalla inicial
       routes: {
         '/login': (context) => const LoginView(),
