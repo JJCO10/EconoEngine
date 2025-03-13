@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fintech App',
+      title: 'EconoEngine',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
       home: const LoginView(), // Pantalla inicial

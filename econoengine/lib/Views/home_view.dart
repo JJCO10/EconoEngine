@@ -1,16 +1,19 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:econoengine/Models/transferencia.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/TIR_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
 import 'package:econoengine/Views/alt_inv_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
 import 'package:econoengine/Views/bonos_view.dart';
+import 'package:econoengine/Views/detalles_transfer_view.dart';
 import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
 import 'package:econoengine/Views/interesCompuesto_view.dart';
 import 'package:econoengine/Views/interesSimple_view.dart';
+import 'package:econoengine/Views/transactions_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/Controllers/auth_controller.dart'; // Asegúrate de importar el AuthController
 import 'package:provider/provider.dart'; // Para usar Provider
@@ -193,7 +196,7 @@ class _HomeViewState extends State<HomeView> {
                         text: 'Monto: ',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      TextSpan(text: '\$${monto.toStringAsFixed(2)}'),
+                      TextSpan(text: '\$${_formatearSaldo(monto)}'),
                     ],
                   ),
                 ),
@@ -250,8 +253,57 @@ class _HomeViewState extends State<HomeView> {
                 try {
                   final authController = Provider.of<AuthController>(context, listen: false);
 
+                  // Obtener los datos del remitente (usuario actual)
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null) throw Exception('Usuario no autenticado');
+
+                  final remitenteSnapshot = await FirebaseFirestore.instance
+                      .collection('usuarios')
+                      .doc(user.uid)
+                      .get();
+
+                  if (!remitenteSnapshot.exists) {
+                    throw Exception('No se encontró el remitente');
+                  }
+
+                  final remitenteData = remitenteSnapshot.data();
+                  final remitenteNombre = remitenteData?['Nombre'] as String?;
+                  final remitenteCelular = remitenteData?['Telefono'] as String?;
+                  final remitenteCedula = remitenteData?['Numero Documento'] as String?;
+
+                  if (remitenteNombre == null || remitenteCelular == null || remitenteCedula == null) {
+                    throw Exception('Datos del remitente incompletos');
+                  }
+
+                  // Obtener los datos del destinatario
+                  final destinatarioSnapshot = await FirebaseFirestore.instance
+                      .collection('usuarios')
+                      .where('Telefono', isEqualTo: telefonoDestinatario)
+                      .limit(1)
+                      .get();
+
+                  if (destinatarioSnapshot.docs.isEmpty) {
+                    throw Exception('No se encontró el destinatario');
+                  }
+
+                  final destinatarioData = destinatarioSnapshot.docs.first.data();
+                  final destinatarioNombre = destinatarioData['Nombre'] as String?;
+                  final destinatarioCedula = destinatarioData['Numero Documento'] as String?;
+
+                  if (destinatarioNombre == null || destinatarioCedula == null) {
+                    throw Exception('Datos del destinatario incompletos');
+                  }
+
                   // Realizar la transferencia
-                  await authController.transferirDinero(telefonoDestinatario, monto);
+                  await authController.transferirDinero(
+                    remitenteNombre: remitenteNombre,
+                    remitenteCelular: remitenteCelular,
+                    remitenteCedula: remitenteCedula,
+                    destinatarioNombre: destinatarioNombre,
+                    destinatarioCelular: telefonoDestinatario,
+                    destinatarioCedula: destinatarioCedula,
+                    monto: monto,
+                  );
 
                   // Actualizar el saldo después de la transferencia
                   await _loadUserData();
@@ -282,6 +334,21 @@ class _HomeViewState extends State<HomeView> {
         );
       },
     );
+  }
+
+  Future<List<Transferencia>> _obtenerUltimosMovimientos() async {
+    final authController = Provider.of<AuthController>(context, listen: false);
+
+    // Obtener transferencias enviadas y recibidas
+    final transferenciasEnviadas = await authController.obtenerTransferenciasEnviadas();
+    final transferenciasRecibidas = await authController.obtenerTransferenciasRecibidas();
+
+    // Combinar y ordenar por fecha
+    final movimientos = [...transferenciasEnviadas, ...transferenciasRecibidas];
+    movimientos.sort((a, b) => b.fechaHora.compareTo(a.fechaHora));
+
+    // Tomar los últimos 4 movimientos
+    return movimientos.take(4).toList();
   }
 
   // Método para cargar los datos del usuario
@@ -342,7 +409,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.settings),
             color: Colors.white,
             onPressed: () {
               // Lógica para notificaciones
@@ -528,13 +595,34 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
             const SizedBox(height: 10),
-            _buildTransactionItem('Consignación', '\$1.000,00', Icons.arrow_downward, Colors.green),
-            _buildTransactionItem('Retiro', '\$500,00', Icons.arrow_upward, Colors.red),
-            _buildTransactionItem('Pago de servicios', '\$200,00', Icons.receipt, Colors.blue),
-            _buildTransactionItem('Recarga celular', '\$50,00', Icons.phone_android, Colors.orange),
+            FutureBuilder<List<Transferencia>>(
+              future: _obtenerUltimosMovimientos(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('No hay movimientos recientes');
+                } else {
+                  final movimientos = snapshot.data!;
+                  return Column(
+                    children: movimientos.map((movimiento) {
+                      return _buildTransactionItem(
+                        movimiento,
+                      );
+                    }).toList(),
+                  );
+                }
+              },
+            ),
             TextButton(
               onPressed: () {
-                // Lógica para ver todos los movimientos
+                // Navegar a la vista de transacciones
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TransactionsView()),
+                );
               },
               child: const Text('Ver todos los movimientos'),
             ),
@@ -544,17 +632,30 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildTransactionItem(String title, String amount, IconData icon, Color color) {
+  Widget _buildTransactionItem(Transferencia transferencia) {
+    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+    final nombre = esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre;
+    final color = esEnvio ? Colors.red : Colors.green;
+    final icono = esEnvio ? Icons.arrow_downward : Icons.arrow_upward;
+
     return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(title),
-      trailing: Text(
-        amount,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+      leading: Icon(icono, color: color),
+      title: Text(
+        esEnvio ? 'Enviado a $nombre' : 'Recibido de $nombre',
+        style: TextStyle(color: color),
       ),
+      subtitle: Text(
+        '\$${transferencia.monto.toStringAsFixed(2)} - ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}',
+      ),
+      onTap: () {
+        // Navegar a la vista de detalles
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetallesTransferenciaView(transferencia: transferencia),
+          ),
+        );
+      },
     );
   }
 }

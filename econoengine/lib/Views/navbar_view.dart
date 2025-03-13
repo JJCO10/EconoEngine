@@ -46,10 +46,6 @@ class _NavbarViewState extends State<NavbarView> {
             label: 'Movimientos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ajustes',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Perfil',
           ),
