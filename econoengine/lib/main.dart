@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeController = Provider.of<ThemeController>(context);
     return MaterialApp(
-      title: 'Fintech App',
+      title: 'EconoEngine',
       debugShowCheckedModeBanner: false,
       theme: themeController.currentTheme,
       home: const LoginView(), // Pantalla inicial
