@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Controllers/interesSimple_controller.dart';
 
 class InteresSimpleView extends StatefulWidget {
   const InteresSimpleView({super.key});
@@ -8,220 +10,163 @@ class InteresSimpleView extends StatefulWidget {
 }
 
 class _InteresSimpleViewState extends State<InteresSimpleView> {
-  // Controladores para los campos de texto
-  final TextEditingController _vpController = TextEditingController(); // Valor Presente (VP)
-  final TextEditingController _vfController = TextEditingController(); // Valor Futuro (VF)
-  final TextEditingController _iController = TextEditingController(); // Tasa de Interés (i)
-  final TextEditingController _tController = TextEditingController(); // Tiempo (t)
+  final TextEditingController _vpController = TextEditingController();
+  final TextEditingController _vfController = TextEditingController();
+  final TextEditingController _iController = TextEditingController();
+  final TextEditingController _tController = TextEditingController();
 
-  // Variable para almacenar el resultado
-  String _resultado = '';
-
-  // Método para verificar si un campo debe estar deshabilitado
-  bool _shouldDisableField(TextEditingController controller) {
-    int filledFields = 0;
-    if (_vpController.text.isNotEmpty) filledFields++;
-    if (_vfController.text.isNotEmpty) filledFields++;
-    if (_iController.text.isNotEmpty) filledFields++;
-    if (_tController.text.isNotEmpty) filledFields++;
-
-    // Si hay 3 campos llenos, deshabilitar el cuarto
-    return filledFields == 3 && controller.text.isEmpty;
+  @override
+  void dispose() {
+    _vpController.dispose();
+    _vfController.dispose();
+    _iController.dispose();
+    _tController.dispose();
+    super.dispose();
   }
 
-  // Método para calcular el Monto Futuro (VF)
-  void _calcularVF() {
-    double vp = double.tryParse(_vpController.text) ?? 0;
-    double i = double.tryParse(_iController.text) ?? 0;
-    double t = double.tryParse(_tController.text) ?? 0;
-
-    if (vp <= 0 || i <= 0 || t <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para VP, i y t.';
-      });
-      return;
-    }
-
-    double vf = vp * (1 + (i / 100) * t); // Convertir i a decimal
-    setState(() {
-      _resultado = 'Monto Futuro (VF): \$${vf.toStringAsFixed(2)}';
-    });
+  void _actualizarCamposLlenos() {
+    final llenos = [_vpController, _vfController, _iController, _tController]
+        .where((c) => c.text.isNotEmpty)
+        .length;
+    context.read<InteresSimpleController>().actualizarCamposLlenos(llenos);
   }
 
-  // Método para calcular la Tasa de Interés (i)
-  void _calcularTasaInteres() {
-    double vp = double.tryParse(_vpController.text) ?? 0;
-    double vf = double.tryParse(_vfController.text) ?? 0;
-    double t = double.tryParse(_tController.text) ?? 0;
-
-    if (vp <= 0 || vf <= 0 || t <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para VP, VF y t.';
-      });
-      return;
-    }
-
-    double i = ((vf / vp) - 1) / t * 100; // Convertir a porcentaje
-    setState(() {
-      _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}%';
-    });
-  }
-
-  // Método para calcular el Tiempo (t)
-  void _calcularTiempo() {
-    double vp = double.tryParse(_vpController.text) ?? 0;
-    double vf = double.tryParse(_vfController.text) ?? 0;
-    double i = double.tryParse(_iController.text) ?? 0;
-
-    if (vp <= 0 || vf <= 0 || i <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para VP, VF y i.';
-      });
-      return;
-    }
-
-    double t = ((vf / vp) - 1) / (i / 100); // Convertir i a decimal
-    setState(() {
-      _resultado = 'Tiempo (t): ${t.toStringAsFixed(2)} años';
-    });
-  }
-
-  // Método para calcular el Valor Presente (VP)
-  void _calcularVP() {
-    double vf = double.tryParse(_vfController.text) ?? 0;
-    double i = double.tryParse(_iController.text) ?? 0;
-    double t = double.tryParse(_tController.text) ?? 0;
-
-    if (vf <= 0 || i <= 0 || t <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para VF, i y t.';
-      });
-      return;
-    }
-
-    double vp = vf / (1 + (i / 100) * t); // Convertir i a decimal
-    setState(() {
-      _resultado = 'Valor Presente (VP): \$${vp.toStringAsFixed(2)}';
-    });
+  bool _debeDeshabilitar(TextEditingController controller) {
+    final tresLlenos = context.read<InteresSimpleController>().tresCamposLlenos;
+    return tresLlenos && controller.text.isEmpty;
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<InteresSimpleController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interés Simple'),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
-        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Campo para Valor Presente (VP)
               _buildTextField(
+                context,
                 'Valor Presente (VP)',
                 _vpController,
-                hintText: "Ej: 1000",
-                suffixText: "\$",
+                hint: "Ej: 1000",
+                suffix: "\$",
               ),
               const SizedBox(height: 20),
-              // Campo para Valor Futuro (VF)
               _buildTextField(
+                context,
                 'Valor Futuro (VF)',
                 _vfController,
-                hintText: "Ej: 1500",
-                suffixText: "\$",
+                hint: "Ej: 1500",
+                suffix: "\$",
               ),
               const SizedBox(height: 20),
-              // Campo para Tasa de Interés (i)
               _buildTextField(
+                context,
                 'Tasa de Interés (i)',
                 _iController,
-                hintText: "Ej: 10 (para 10%)",
-                suffixText: "%",
+                hint: "Ej: 10",
+                suffix: "%",
               ),
               const SizedBox(height: 20),
-              // Campo para Tiempo (t)
               _buildTextField(
+                context,
                 'Tiempo (t)',
                 _tController,
-                hintText: "Ej: 5 (años)",
-                suffixText: "años",
+                hint: "Ej: 5",
+                suffix: "años",
               ),
               const SizedBox(height: 30),
-              // Botones para calcular (organizados en 2 filas de 2 botones)
-              Column(
+              
+              if (controller.shouldShowError)
+                Text(
+                  controller.error,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              
+              Row(
                 children: [
-                  // Primera fila de botones
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildButton(
-                          'Calcular VF',
-                          Colors.blue[800]!,
-                          _calcularVF,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildButton(
-                          'Calcular VP',
-                          Colors.purple[800]!,
-                          _calcularVP,
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: _buildButton(
+                      'Calcular VF',
+                      Colors.blue[800]!,
+                      () {
+                        controller.calcularVF(
+                          double.tryParse(_vpController.text),
+                          double.tryParse(_iController.text),
+                          double.tryParse(_tController.text),
+                        );
+                      },
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  // Segunda fila de botones
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildButton(
-                          'Calcular i',
-                          Colors.green[800]!,
-                          _calcularTasaInteres,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildButton(
-                          'Calcular t',
-                          Colors.orange[800]!,
-                          _calcularTiempo,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildButton(
+                      'Calcular VP',
+                      Colors.purple[800]!,
+                      () {
+                        controller.calcularVP(
+                          double.tryParse(_vfController.text),
+                          double.tryParse(_iController.text),
+                          double.tryParse(_tController.text),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildButton(
+                      'Calcular i',
+                      Colors.green[800]!,
+                      () {
+                        controller.calcularTasa(
+                          double.tryParse(_vpController.text),
+                          double.tryParse(_vfController.text),
+                          double.tryParse(_tController.text),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildButton(
+                      'Calcular t',
+                      Colors.orange[800]!,
+                      () {
+                        controller.calcularTiempo(
+                          double.tryParse(_vpController.text),
+                          double.tryParse(_vfController.text),
+                          double.tryParse(_iController.text),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 30),
-              // Mostrar el resultado
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: Text(
-                  _resultado,
+                  controller.resultado,
                   style: TextStyle(
+                    color: Colors.blue[800],
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -231,46 +176,27 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
     );
   }
 
-  // Método para construir un campo de texto con estilo
   Widget _buildTextField(
+    BuildContext context,
     String label,
     TextEditingController controller, {
-    String? hintText,
-    String? suffixText,
+    String? hint,
+    String? suffix,
   }) {
     return TextField(
       controller: controller,
+      enabled: !_debeDeshabilitar(controller),
       decoration: InputDecoration(
         labelText: label,
-        hintText: hintText,
-        suffixText: suffixText,
-        labelStyle: TextStyle(
-          color: Colors.blue[800],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blue[800]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blue[800]!, width: 2),
-        ),
-        enabled: !_shouldDisableField(controller), // Deshabilitar si es necesario
+        hintText: hint,
+        suffixText: suffix,
+        border: const OutlineInputBorder(),
       ),
       keyboardType: TextInputType.number,
-      style: const TextStyle(
-        fontSize: 16,
-        color: Colors.black87,
-      ),
-      onChanged: (value) {
-        // Actualizar el estado cuando el usuario ingresa un valor
-        setState(() {});
-      },
+      onChanged: (_) => _actualizarCamposLlenos(),
     );
   }
 
-  // Método para construir un botón con estilo
   Widget _buildButton(String text, Color color, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -278,18 +204,8 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
         backgroundColor: color,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 5,
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: Text(text),
     );
   }
 }
