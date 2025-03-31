@@ -5,6 +5,7 @@ import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:econoengine/Views/navbar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'Controllers/interesCompuesto_controller.dart';
 import 'Controllers/interesSimple_controller.dart';
 import 'views/auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthController()), // Proveer AuthController
         ChangeNotifierProvider(create: (_) => ThemeController()), // Proveer ThemeController
         ChangeNotifierProvider(create: (_) => InteresSimpleController()), // Proveer InteresSimpleController
+        ChangeNotifierProvider(create: (_) => InteresCompuestoController()), // Proveer InteresCompuestoController
       ],
       child: const MyApp(),
     ),

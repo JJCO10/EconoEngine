@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Controllers/interesCompuesto_controller.dart';
 
 class InteresCompuestoView extends StatefulWidget {
   const InteresCompuestoView({super.key});
@@ -10,86 +10,36 @@ class InteresCompuestoView extends StatefulWidget {
 }
 
 class _InteresCompuestoViewState extends State<InteresCompuestoView> {
-  // Controladores para los campos de texto
-  final TextEditingController _cController = TextEditingController(); // Capital inicial (C)
-  final TextEditingController _mcController = TextEditingController(); // Monto Compuesto (MC)
-  final TextEditingController _iController = TextEditingController(); // Tasa de interés (i)
-  final TextEditingController _nController = TextEditingController(); // Tiempo (n)
+  final TextEditingController _cController = TextEditingController();
+  final TextEditingController _mcController = TextEditingController();
+  final TextEditingController _iController = TextEditingController();
+  final TextEditingController _nController = TextEditingController();
 
-  // Variable para almacenar el resultado
-  String _resultado = '';
-
-  // Método para verificar si un campo debe estar deshabilitado
-  bool _shouldDisableField(TextEditingController controller) {
-    int filledFields = 0;
-    if (_cController.text.isNotEmpty) filledFields++;
-    if (_mcController.text.isNotEmpty) filledFields++;
-    if (_iController.text.isNotEmpty) filledFields++;
-    if (_nController.text.isNotEmpty) filledFields++;
-
-    // Si hay 3 campos llenos, deshabilitar el cuarto
-    return filledFields == 3 && controller.text.isEmpty;
+  @override
+  void dispose() {
+    _cController.dispose();
+    _mcController.dispose();
+    _iController.dispose();
+    _nController.dispose();
+    super.dispose();
   }
 
-  // Método para calcular el Monto Compuesto (MC)
-  void _calcularMC() {
-    double c = double.tryParse(_cController.text) ?? 0;
-    double i = double.tryParse(_iController.text) ?? 0;
-    double n = double.tryParse(_nController.text) ?? 0;
-
-    if (c <= 0 || i <= 0 || n <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para C, i y n.';
-      });
-      return;
-    }
-
-    double mc = c * pow(1 + (i / 100), n); // Convertir i a decimal
-    setState(() {
-      _resultado = 'Monto Compuesto (MC): \$${mc.toStringAsFixed(2)}';
-    });
+  void _actualizarCamposLlenos() {
+    final llenos = [_cController, _mcController, _iController, _nController]
+        .where((c) => c.text.isNotEmpty)
+        .length;
+    context.read<InteresCompuestoController>().actualizarCamposLlenos(llenos);
   }
 
-  // Método para calcular el Tiempo (n)
-  void _calcularN() {
-    double c = double.tryParse(_cController.text) ?? 0;
-    double mc = double.tryParse(_mcController.text) ?? 0;
-    double i = double.tryParse(_iController.text) ?? 0;
-
-    if (c <= 0 || mc <= 0 || i <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para C, MC y i.';
-      });
-      return;
-    }
-
-    double n = (log(mc) - log(c)) / log(1 + (i / 100)); // Convertir i a decimal
-    setState(() {
-      _resultado = 'Tiempo (n): ${n.toStringAsFixed(2)} años';
-    });
-  }
-
-  // Método para calcular la Tasa de Interés (i)
-  void _calcularI() {
-    double c = double.tryParse(_cController.text) ?? 0;
-    double mc = double.tryParse(_mcController.text) ?? 0;
-    double n = double.tryParse(_nController.text) ?? 0;
-
-    if (c <= 0 || mc <= 0 || n <= 0) {
-      setState(() {
-        _resultado = 'Por favor, ingrese valores válidos para C, MC y n.';
-      });
-      return;
-    }
-
-    double i = (pow(mc / c, 1 / n) - 1) * 100; // Convertir a porcentaje
-    setState(() {
-      _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}%';
-    });
+  bool _debeDeshabilitar(TextEditingController controller) {
+    final tresLlenos = context.read<InteresCompuestoController>().tresCamposLlenos;
+    return tresLlenos && controller.text.isEmpty;
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<InteresCompuestoController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interés Compuesto'),
@@ -103,46 +53,58 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Campo para Capital Inicial (C)
               _buildTextField(
+                context,
                 'Capital Inicial (C)',
                 _cController,
-                hintText: "Ej: 1000",
-                suffixText: "\$",
+                hint: "Ej: 1000",
+                suffix: "\$",
               ),
               const SizedBox(height: 20),
-              // Campo para Monto Compuesto (MC)
               _buildTextField(
+                context,
                 'Monto Compuesto (MC)',
                 _mcController,
-                hintText: "Ej: 2000",
-                suffixText: "\$",
+                hint: "Ej: 2000",
+                suffix: "\$",
               ),
               const SizedBox(height: 20),
-              // Campo para Tasa de Interés (i)
               _buildTextField(
+                context,
                 'Tasa de Interés (i)',
                 _iController,
-                hintText: "Ej: 12 (para 12%)",
-                suffixText: "%",
+                hint: "Ej: 12",
+                suffix: "%",
               ),
               const SizedBox(height: 20),
-              // Campo para Tiempo (n)
               _buildTextField(
+                context,
                 'Tiempo (n)',
                 _nController,
-                hintText: "Ej: 5 (años)",
-                suffixText: "años",
+                hint: "Ej: 5",
+                suffix: "años",
               ),
               const SizedBox(height: 30),
-              // Botones para calcular
+              
+              if (controller.shouldShowError)
+                Text(
+                  controller.error,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              
               Row(
                 children: [
                   Expanded(
                     child: _buildButton(
                       'Calcular MC',
                       Colors.blue[800]!,
-                      _calcularMC,
+                      () {
+                        controller.calcularMontoCompuesto(
+                          double.tryParse(_cController.text),
+                          double.tryParse(_iController.text),
+                          double.tryParse(_nController.text),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -150,7 +112,13 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                     child: _buildButton(
                       'Calcular n',
                       Colors.green[800]!,
-                      _calcularN,
+                      () {
+                        controller.calcularTiempo(
+                          double.tryParse(_cController.text),
+                          double.tryParse(_mcController.text),
+                          double.tryParse(_iController.text),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -158,13 +126,18 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                     child: _buildButton(
                       'Calcular i',
                       Colors.orange[800]!,
-                      _calcularI,
+                      () {
+                        controller.calcularTasaInteres(
+                          double.tryParse(_cController.text),
+                          double.tryParse(_mcController.text),
+                          double.tryParse(_nController.text),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 30),
-              // Mostrar el resultado
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16.0),
@@ -180,7 +153,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                   ],
                 ),
                 child: Text(
-                  _resultado,
+                  controller.resultado,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -196,19 +169,20 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
     );
   }
 
-  // Método para construir un campo de texto con estilo
   Widget _buildTextField(
+    BuildContext context,
     String label,
     TextEditingController controller, {
-    String? hintText,
-    String? suffixText,
+    String? hint,
+    String? suffix,
   }) {
     return TextField(
       controller: controller,
+      enabled: !_debeDeshabilitar(controller),
       decoration: InputDecoration(
         labelText: label,
-        hintText: hintText,
-        suffixText: suffixText,
+        hintText: hint,
+        suffixText: suffix,
         labelStyle: TextStyle(
           color: Colors.blue[800],
           fontWeight: FontWeight.bold,
@@ -221,21 +195,12 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.blue[800]!, width: 2),
         ),
-        enabled: !_shouldDisableField(controller), // Deshabilitar si es necesario
       ),
       keyboardType: TextInputType.number,
-      style: const TextStyle(
-        fontSize: 16,
-        color: Colors.black87,
-      ),
-      onChanged: (value) {
-        // Actualizar el estado cuando el usuario ingresa un valor
-        setState(() {});
-      },
+      onChanged: (_) => _actualizarCamposLlenos(),
     );
   }
 
-  // Método para construir un botón con estilo
   Widget _buildButton(String text, Color color, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
