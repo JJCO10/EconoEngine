@@ -1,44 +1,35 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../Controllers/gradientes_controller.dart';
 
 class GradientesView extends StatefulWidget {
-  const GradientesView({Key? key}) : super(key: key);
+  const GradientesView({super.key});
 
   @override
-  _GradientesViewState createState() => _GradientesViewState();
+  State<GradientesView> createState() => _GradientesViewState();
 }
 
 class _GradientesViewState extends State<GradientesView> {
-  // Variables para gradiente aritmético
-  double valorPresenteAritmetico = 0;
-  double valorFuturoAritmetico = 0;
-  double serieAritmetico = 0;
-  double primerPagoAritmetico = 0;
-  double gradienteAritmetico = 0;
-  double tasaInteresAritmetico = 0;
-  int periodosAritmetico = 0;
+  final TextEditingController _primerPagoController = TextEditingController();
+  final TextEditingController _gradienteController = TextEditingController();
+  final TextEditingController _tasaInteresController = TextEditingController();
+  final TextEditingController _periodosController = TextEditingController();
+  final TextEditingController _tasaCrecimientoController = TextEditingController();
 
-  // Variables para gradiente geométrico
-  double valorPresenteGeometrico = 0;
-  double valorFuturoGeometrico = 0;
-  double serieGeometrico = 0;
-  double primerPagoGeometrico = 0;
-  double tasaCrecimientoGeometrico = 0;
-  double tasaInteresGeometrico = 0;
-  int periodosGeometrico = 0;
-
-  // Controladores para los campos de texto
-  final TextEditingController _controllerPrimerPago = TextEditingController();
-  final TextEditingController _controllerGradiente = TextEditingController();
-  final TextEditingController _controllerTasaInteres = TextEditingController();
-  final TextEditingController _controllerPeriodos = TextEditingController();
-  final TextEditingController _controllerTasaCrecimiento = TextEditingController();
-
-  // Variable para seleccionar el tipo de gradiente
-  String _tipoGradiente = "Aritmético";
+  @override
+  void dispose() {
+    _primerPagoController.dispose();
+    _gradienteController.dispose();
+    _tasaInteresController.dispose();
+    _periodosController.dispose();
+    _tasaCrecimientoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<GradienteController>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gradientes Aritméticos y Geométricos'),
@@ -51,113 +42,146 @@ class _GradientesViewState extends State<GradientesView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Selección de tipo de gradiente
-            Card(
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Seleccione el tipo de gradiente:",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButton<String>(
-                      value: _tipoGradiente,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _tipoGradiente = newValue!;
-                        });
-                      },
-                      items: <String>["Aritmético", "Geométrico"]
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildSelectorTipo(controller),
             const SizedBox(height: 20),
-
-            // Campos de entrada
-            Card(
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildInputField(
-                      "Primer Pago (A)",
-                      _controllerPrimerPago,
-                      hintText: "Ej: 1000",
-                      suffixText: "\$",
-                    ),
-                    const SizedBox(height: 10),
-                    if (_tipoGradiente == "Aritmético")
-                      _buildInputField(
-                        "Gradiente (G)",
-                        _controllerGradiente,
-                        hintText: "Ej: 100",
-                        suffixText: "\$",
-                      ),
-                    if (_tipoGradiente == "Geométrico")
-                      _buildInputField(
-                        "Tasa de Crecimiento (g)",
-                        _controllerTasaCrecimiento,
-                        hintText: "Ej: 0.05 (5%)",
-                        suffixText: "%",
-                      ),
-                    const SizedBox(height: 10),
-                    _buildInputField(
-                      "Tasa de Interés (i)",
-                      _controllerTasaInteres,
-                      hintText: "Ej: 0.10 (10%)",
-                      suffixText: "%",
-                    ),
-                    const SizedBox(height: 10),
-                    _buildInputField(
-                      "Número de Períodos (n)",
-                      _controllerPeriodos,
-                      hintText: "Ej: 12 (meses)",
-                      suffixText: "meses/años",
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildCamposEntrada(controller),
             const SizedBox(height: 20),
-
-            // Botón para calcular
-            Center(
-              child: ElevatedButton(
-                onPressed: _calcularGradiente,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  backgroundColor: Colors.blue[800],
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text("Calcular"),
-              ),
-            ),
+            if (controller.hasError) _buildError(controller),
+            _buildBotonCalcular(controller),
             const SizedBox(height: 20),
-
-            // Mostrar resultados
-            if (_tipoGradiente == "Aritmético")
-              _buildTablaResultadosAritmetico(),
-            if (_tipoGradiente == "Geométrico")
-              _buildTablaResultadosGeometrico(),
+            if (controller.resultados.isNotEmpty) _buildResultados(controller),
           ],
         ),
       ),
     );
   }
 
-  // Método para construir campos de entrada con estilos
+  Widget _buildSelectorTipo(GradienteController controller) {
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Text(
+              "Seleccione el tipo de gradiente:",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: controller.tipoGradiente,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  controller.cambiarTipoGradiente(newValue);
+                }
+              },
+              items: <String>["Aritmético", "Geométrico"]
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCamposEntrada(GradienteController controller) {
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildInputField(
+              "Primer Pago (A)",
+              _primerPagoController,
+              hintText: "Ej: 1000",
+              suffixText: "\$",
+            ),
+            const SizedBox(height: 10),
+            if (controller.tipoGradiente == "Aritmético")
+              _buildInputField(
+                "Gradiente (G)",
+                _gradienteController,
+                hintText: "Ej: 100",
+                suffixText: "\$",
+              ),
+            if (controller.tipoGradiente == "Geométrico")
+              _buildInputField(
+                "Tasa de Crecimiento (g)",
+                _tasaCrecimientoController,
+                hintText: "Ej: 0.05 (5%)",
+                suffixText: "%",
+              ),
+            const SizedBox(height: 10),
+            _buildInputField(
+              "Tasa de Interés (i)",
+              _tasaInteresController,
+              hintText: "Ej: 0.10 (10%)",
+              suffixText: "%",
+            ),
+            const SizedBox(height: 10),
+            _buildInputField(
+              "Número de Períodos (n)",
+              _periodosController,
+              hintText: "Ej: 12 (meses)",
+              suffixText: "meses/años",
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(GradienteController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        controller.error,
+        style: const TextStyle(color: Colors.red, fontSize: 16),
+      ),
+    );
+  }
+
+  Widget _buildBotonCalcular(GradienteController controller) {
+    return Center(
+      child: ElevatedButton(
+        onPressed: () => _calcular(controller),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          backgroundColor: Colors.blue[800],
+          foregroundColor: Colors.white,
+        ),
+        child: const Text("Calcular"),
+      ),
+    );
+  }
+
+  Widget _buildResultados(GradienteController controller) {
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: DataTable(
+          columns: const [
+            DataColumn(label: Text("Concepto")),
+            DataColumn(label: Text("Valor")),
+          ],
+          rows: controller.resultados.entries.map((entry) {
+            return DataRow(cells: [
+              DataCell(Text(_traducirConcepto(entry.key))),
+              DataCell(Text(entry.value.toStringAsFixed(2))),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildInputField(
     String label,
     TextEditingController controller, {
@@ -176,117 +200,35 @@ class _GradientesViewState extends State<GradientesView> {
     );
   }
 
-  // Método para calcular el gradiente seleccionado
-  void _calcularGradiente() {
-    double primerPago = double.tryParse(_controllerPrimerPago.text) ?? 0;
-    double tasaInteres = double.tryParse(_controllerTasaInteres.text) ?? 0;
-    int periodos = int.tryParse(_controllerPeriodos.text) ?? 0;
+  void _calcular(GradienteController controller) {
+    final primerPago = double.tryParse(_primerPagoController.text) ?? 0;
+    final tasaInteres = double.tryParse(_tasaInteresController.text) ?? 0;
+    final periodos = int.tryParse(_periodosController.text) ?? 0;
 
-    if (_tipoGradiente == "Aritmético") {
-      double gradiente = double.tryParse(_controllerGradiente.text) ?? 0;
-      _calcularGradienteAritmetico(primerPago, gradiente, tasaInteres, periodos);
-    } else if (_tipoGradiente == "Geométrico") {
-      double tasaCrecimiento = double.tryParse(_controllerTasaCrecimiento.text) ?? 0;
-      _calcularGradienteGeometrico(primerPago, tasaCrecimiento, tasaInteres, periodos);
-    }
-
-    setState(() {});
-  }
-
-  // Método para calcular gradiente aritmético
-  void _calcularGradienteAritmetico(double primerPago, double gradiente, double tasaInteres, int periodos) {
-    double i = tasaInteres / 100;
-
-    // Valor Presente
-    double factor1 = (1 - (1 / pow(1 + i, periodos))) / i;
-    double factor2 = (1 - (1 + periodos * i) / pow(1 + i, periodos)) / i;
-    valorPresenteAritmetico = primerPago * factor1 + gradiente * factor2;
-
-    // Valor Futuro
-    double factor3 = (pow(1 + i, periodos) - 1) / i;
-    double factor4 = ((pow(1 + i, periodos) - 1) / (i * i)) - (periodos / i);
-    valorFuturoAritmetico = primerPago * factor3 + gradiente * factor4;
-
-    // Serie
-    serieAritmetico = primerPago + (gradiente * (periodos - 1));
-  }
-
-  // Método para calcular gradiente geométrico
-  void _calcularGradienteGeometrico(double primerPago, double tasaCrecimiento, double tasaInteres, int periodos) {
-    double i = tasaInteres / 100;
-    double g = tasaCrecimiento / 100;
-
-    // Valor Presente
-    if (i != g) {
-      valorPresenteGeometrico = primerPago * ((1 - pow((1 + g) / (1 + i), periodos))) / (i - g);
+    if (controller.tipoGradiente == "Aritmético") {
+      final gradiente = double.tryParse(_gradienteController.text) ?? 0;
+      controller.calcular(
+        primerPago: primerPago,
+        gradienteOrTasaCrecimiento: gradiente,
+        tasaInteres: tasaInteres,
+        periodos: periodos,
+      );
     } else {
-      valorPresenteGeometrico = primerPago * (periodos / (1 + i));
+      final tasaCrecimiento = double.tryParse(_tasaCrecimientoController.text) ?? 0;
+      controller.calcular(
+        primerPago: primerPago,
+        gradienteOrTasaCrecimiento: tasaCrecimiento,
+        tasaInteres: tasaInteres,
+        periodos: periodos,
+      );
     }
-
-    // Valor Futuro
-    valorFuturoGeometrico = primerPago * ((pow(1 + i, periodos) - pow(1 + g, periodos))) / (i - g);
-
-    // Serie
-    serieGeometrico = primerPago * pow(1 + g, periodos - 1);
   }
 
-  // Método para construir la tabla de resultados (aritmético)
-  Widget _buildTablaResultadosAritmetico() {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text("Concepto")),
-            DataColumn(label: Text("Valor")),
-          ],
-          rows: [
-            DataRow(cells: [
-              const DataCell(Text("Valor Presente")),
-              DataCell(Text(valorPresenteAritmetico.toStringAsFixed(2))),
-            ]),
-            DataRow(cells: [
-              const DataCell(Text("Valor Futuro")),
-              DataCell(Text(valorFuturoAritmetico.toStringAsFixed(2))),
-            ]),
-            DataRow(cells: [
-              const DataCell(Text("Serie")),
-              DataCell(Text(serieAritmetico.toStringAsFixed(2))),
-            ]),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Método para construir la tabla de resultados (geométrico)
-  Widget _buildTablaResultadosGeometrico() {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text("Concepto")),
-            DataColumn(label: Text("Valor")),
-          ],
-          rows: [
-            DataRow(cells: [
-              const DataCell(Text("Valor Presente")),
-              DataCell(Text(valorPresenteGeometrico.toStringAsFixed(2))),
-            ]),
-            DataRow(cells: [
-              const DataCell(Text("Valor Futuro")),
-              DataCell(Text(valorFuturoGeometrico.toStringAsFixed(2))),
-            ]),
-            DataRow(cells: [
-              const DataCell(Text("Serie")),
-              DataCell(Text(serieGeometrico.toStringAsFixed(2))),
-            ]),
-          ],
-        ),
-      ),
-    );
+  String _traducirConcepto(String key) {
+    return {
+      'valorPresente': 'Valor Presente',
+      'valorFuturo': 'Valor Futuro',
+      'serie': 'Serie',
+    }[key] ?? key;
   }
 }
