@@ -1,4 +1,4 @@
-import 'package:econoengine/Views/Profile_view.dart';
+import 'package:econoengine/Views/profile_view.dart';
 import 'package:econoengine/Views/transactions_view.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/Views/home_view.dart'; // Asegúrate de importar las vistas correctas

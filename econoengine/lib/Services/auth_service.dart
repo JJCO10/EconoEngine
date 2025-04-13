@@ -1,23 +1,28 @@
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/users.dart';
+import '../Models/users.dart';
 
 class AuthService {
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Registrar usuario
-  Future<firebase_auth.User?> registrarUsuario(User usuario, String contrasena) async {
+  Future<firebase_auth.User?> registrarUsuario(
+      User usuario, String contrasena) async {
     try {
       // Registrar usuario en Firebase Auth
-      firebase_auth.UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      firebase_auth.UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: usuario.email, // Usar el email proporcionado por el usuario
         password: contrasena,
       );
 
       // Guardar datos adicionales en Firestore
-      await _firestore.collection('usuarios').doc(userCredential.user?.uid).set({
+      await _firestore
+          .collection('usuarios')
+          .doc(userCredential.user?.uid)
+          .set({
         'Nombre': usuario.nombre,
         'Tipo Documento': usuario.tipoDocumento,
         'Numero Documento': usuario.numeroDocumento,
@@ -34,8 +39,9 @@ class AuthService {
   }
 
   // Iniciar sesión
- // services/auth_service.dart
-  Future<firebase_auth.User?> iniciarSesion(String numeroDocumento, String contrasena) async {
+  // services/auth_service.dart
+  Future<firebase_auth.User?> iniciarSesion(
+      String numeroDocumento, String contrasena) async {
     try {
       // Buscar el correo electrónico asociado al número de documento en Firestore
       final querySnapshot = await _firestore
@@ -45,7 +51,8 @@ class AuthService {
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        throw Exception('No se encontró un usuario con ese número de documento');
+        throw Exception(
+            'No se encontró un usuario con ese número de documento');
       }
 
       final userData = querySnapshot.docs.first.data();
@@ -87,7 +94,8 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) =>
+              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias enviadas: $e");
@@ -108,7 +116,8 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) =>
+              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias recibidas: $e");

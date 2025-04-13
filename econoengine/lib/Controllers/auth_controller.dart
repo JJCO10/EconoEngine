@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../services/biometric_auth_service.dart';
-import '../models/users.dart';
+import '../Services/auth_service.dart';
+import '../Services/biometric_auth_service.dart';
+import '../Models/users.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,7 +80,9 @@ class AuthController extends ChangeNotifier {
       );
 
       // Guardar la transferencia en Firestore
-      await FirebaseFirestore.instance.collection('transferencias').add(transferencia.toMap());
+      await FirebaseFirestore.instance
+          .collection('transferencias')
+          .add(transferencia.toMap());
 
       // Actualizar saldos en una transacción
       await FirebaseFirestore.instance.runTransaction((transaction) async {
@@ -164,12 +166,12 @@ class AuthController extends ChangeNotifier {
   //   }
   // }
 
-
   // Método para obtener el nombre del usuario desde Firestore
   Future<Map<String, dynamic>> getUserData(String uid) async {
     try {
       final userDoc = await _firestore.collection('usuarios').doc(uid).get();
-      print("Datos del usuario desde Firestore: ${userDoc.data()}"); // Depuración
+      print(
+          "Datos del usuario desde Firestore: ${userDoc.data()}"); // Depuración
       if (userDoc.exists) {
         return userDoc.data() as Map<String, dynamic>;
       }
@@ -208,7 +210,13 @@ class AuthController extends ChangeNotifier {
   }
 
   // Registrar usuario con encriptación
-  Future<bool> registrarUsuario(String nombre, String tipoDocumento, String numeroDocumento, String telefono, String email, String contrasena) async {
+  Future<bool> registrarUsuario(
+      String nombre,
+      String tipoDocumento,
+      String numeroDocumento,
+      String telefono,
+      String email,
+      String contrasena) async {
     try {
       // Crear el objeto User con la contraseña encriptada
       User usuario = User(
@@ -220,9 +228,11 @@ class AuthController extends ChangeNotifier {
       );
 
       // Registrar el usuario en Firebase
-      final firebaseUser = await _authService.registrarUsuario(usuario, contrasena);
+      final firebaseUser =
+          await _authService.registrarUsuario(usuario, contrasena);
       if (firebaseUser != null) {
-        await _saveDocumentNumber(numeroDocumento); // Guardar el número de documento
+        await _saveDocumentNumber(
+            numeroDocumento); // Guardar el número de documento
         return true;
       }
       return false;
@@ -236,11 +246,13 @@ class AuthController extends ChangeNotifier {
   Future<bool> iniciarSesion(String numeroDocumento, String contrasena) async {
     try {
       // Iniciar sesión en Firebase (o tu backend)
-      final firebaseUser = await _authService.iniciarSesion(numeroDocumento, contrasena);
+      final firebaseUser =
+          await _authService.iniciarSesion(numeroDocumento, contrasena);
       if (firebaseUser != null) {
         await _saveAuthState(firebaseUser.uid); // Guardar el UID
         print("UID del usuario: ${firebaseUser.uid}"); //Depuracion
-        await _saveDocumentNumber(numeroDocumento); // Guardar el número de documento
+        await _saveDocumentNumber(
+            numeroDocumento); // Guardar el número de documento
         return true;
       }
       return false;
