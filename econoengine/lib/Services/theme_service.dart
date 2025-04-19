@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/theme_model.dart';
+import '../Models/theme_model.dart';
 
 class ThemeService {
   // Cargar la preferencia del tema desde SharedPreferences

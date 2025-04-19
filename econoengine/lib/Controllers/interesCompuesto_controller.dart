@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/interesCompuesto_service.dart';
+import '../Services/interesCompuesto_service.dart';
 
 class InteresCompuestoController extends ChangeNotifier {
   final InteresCompuestoService _service = InteresCompuestoService();
