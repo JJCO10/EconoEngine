@@ -29,13 +29,14 @@ class _GradientesViewState extends State<GradientesView> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<GradienteController>(context);
+    final unidadesTasa = ['anual', 'mensual', 'trimestral', 'semestral', 'diaria'];
+    final unidadesPeriodo = ['meses', 'trimestres', 'semestres', 'años', 'días'];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gradientes Aritméticos y Geométricos'),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
-        elevation: 5,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -44,7 +45,7 @@ class _GradientesViewState extends State<GradientesView> {
           children: [
             _buildSelectorTipo(controller),
             const SizedBox(height: 20),
-            _buildCamposEntrada(controller),
+            _buildCamposEntrada(controller, unidadesTasa, unidadesPeriodo),
             const SizedBox(height: 20),
             if (controller.hasError) _buildError(controller),
             _buildBotonCalcular(controller),
@@ -89,7 +90,11 @@ class _GradientesViewState extends State<GradientesView> {
     );
   }
 
-  Widget _buildCamposEntrada(GradienteController controller) {
+  Widget _buildCamposEntrada(
+    GradienteController controller,
+    List<String> unidadesTasa,
+    List<String> unidadesPeriodo,
+  ) {
     return Card(
       elevation: 5,
       child: Padding(
@@ -114,26 +119,99 @@ class _GradientesViewState extends State<GradientesView> {
               _buildInputField(
                 "Tasa de Crecimiento (g)",
                 _tasaCrecimientoController,
-                hintText: "Ej: 0.05 (5%)",
+                hintText: "Ej: 5 (5%)",
                 suffixText: "%",
               ),
             const SizedBox(height: 10),
-            _buildInputField(
-              "Tasa de Interés (i)",
-              _tasaInteresController,
-              hintText: "Ej: 0.10 (10%)",
-              suffixText: "%",
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: _buildInputField(
+                    "Tasa de Interés (i)",
+                    _tasaInteresController,
+                    hintText: "Ej: 12 (12%)",
+                    suffixText: "%",
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: _buildDropdown(
+                    "Unidad",
+                    unidadesTasa,
+                    controller.unidadTasa,
+                    (value) => controller.cambiarUnidadTasa(value!),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
-            _buildInputField(
-              "Número de Períodos (n)",
-              _periodosController,
-              hintText: "Ej: 12 (meses)",
-              suffixText: "meses/años",
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: _buildInputField(
+                    "Número de Períodos (n)",
+                    _periodosController,
+                    hintText: "Ej: 12",
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: _buildDropdown(
+                    "Unidad",
+                    unidadesPeriodo,
+                    controller.unidadPeriodo,
+                    (value) => controller.cambiarUnidadPeriodo(value!),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller, {
+    String? hintText,
+    String? suffixText,
+  }) {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hintText,
+        suffixText: suffixText,
+        border: const OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+      controller: controller,
+    );
+  }
+
+  Widget _buildDropdown(
+    String label,
+    List<String> items,
+    String? value,
+    ValueChanged<String?> onChanged,
+  ) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 
@@ -179,24 +257,6 @@ class _GradientesViewState extends State<GradientesView> {
           }).toList(),
         ),
       ),
-    );
-  }
-
-  Widget _buildInputField(
-    String label,
-    TextEditingController controller, {
-    String? hintText,
-    String? suffixText,
-  }) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        suffixText: suffixText,
-        border: const OutlineInputBorder(),
-      ),
-      keyboardType: TextInputType.number,
-      controller: controller,
     );
   }
 

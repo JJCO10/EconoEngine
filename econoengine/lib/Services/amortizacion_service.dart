@@ -2,13 +2,20 @@ import 'dart:math';
 
 class AmortizacionService {
   // Método para calcular la amortización alemana
-  List<Map<String, dynamic>> calcularAleman(double monto, double tasa, int periodos) {
+  List<Map<String, dynamic>> calcularAleman(
+    double monto, 
+    double tasa, 
+    int periodos, {
+    String unidadTasa = 'anual',
+    String unidadPeriodo = 'meses',
+  }) {
     List<Map<String, dynamic>> tabla = [];
     double capitalConstante = monto / periodos;
     double saldo = monto;
+    double tasaPeriodica = _convertirTasa(tasa, unidadTasa, periodos, unidadPeriodo);
 
     for (int i = 1; i <= periodos; i++) {
-      double interes = saldo * (tasa / 100 / 12); // Tasa mensual
+      double interes = saldo * tasaPeriodica;
       double cuota = capitalConstante + interes;
       saldo -= capitalConstante;
 
@@ -25,15 +32,21 @@ class AmortizacionService {
   }
 
   // Método para calcular la amortización francesa
-  List<Map<String, dynamic>> calcularFrances(double monto, double tasa, int periodos) {
+  List<Map<String, dynamic>> calcularFrances(
+    double monto, 
+    double tasa, 
+    int periodos, {
+    String unidadTasa = 'anual',
+    String unidadPeriodo = 'meses',
+  }) {
     List<Map<String, dynamic>> tabla = [];
-    double tasaMensual = tasa / 100 / 12;
-    double cuota = monto * (tasaMensual * pow(1 + tasaMensual, periodos)) / 
-                  (pow(1 + tasaMensual, periodos) - 1);
+    double tasaPeriodica = _convertirTasa(tasa, unidadTasa, periodos, unidadPeriodo);
+    double cuota = monto * (tasaPeriodica * pow(1 + tasaPeriodica, periodos)) / 
+                  (pow(1 + tasaPeriodica, periodos) - 1);
     double saldo = monto;
 
     for (int i = 1; i <= periodos; i++) {
-      double interes = saldo * tasaMensual;
+      double interes = saldo * tasaPeriodica;
       double capital = cuota - interes;
       saldo -= capital;
 
@@ -50,9 +63,16 @@ class AmortizacionService {
   }
 
   // Método para calcular la amortización americana
-  List<Map<String, dynamic>> calcularAmericano(double monto, double tasa, int periodos) {
+  List<Map<String, dynamic>> calcularAmericano(
+    double monto, 
+    double tasa, 
+    int periodos, {
+    String unidadTasa = 'anual',
+    String unidadPeriodo = 'meses',
+  }) {
     List<Map<String, dynamic>> tabla = [];
-    double interesPeriodico = monto * (tasa / 100 / 12);
+    double tasaPeriodica = _convertirTasa(tasa, unidadTasa, periodos, unidadPeriodo);
+    double interesPeriodico = monto * tasaPeriodica;
 
     for (int i = 1; i <= periodos; i++) {
       double cuota = (i == periodos) ? monto + interesPeriodico : interesPeriodico;
@@ -69,5 +89,41 @@ class AmortizacionService {
     }
 
     return tabla;
+  }
+
+  // Conversión de tasas según unidad
+  double _convertirTasa(double tasa, String unidadTasa, int periodos, String unidadPeriodo) {
+    // Primero convertir a tasa anual si no lo está
+    double tasaAnual;
+    switch (unidadTasa) {
+      case 'mensual':
+        tasaAnual = tasa * 12;
+        break;
+      case 'trimestral':
+        tasaAnual = tasa * 4;
+        break;
+      case 'semestral':
+        tasaAnual = tasa * 2;
+        break;
+      case 'diaria':
+        tasaAnual = tasa * 365;
+        break;
+      default: // anual
+        tasaAnual = tasa;
+    }
+
+    // Luego convertir a tasa periódica según los periodos
+    switch (unidadPeriodo) {
+      case 'meses':
+        return tasaAnual / 100 / 12;
+      case 'trimestres':
+        return tasaAnual / 100 / 4;
+      case 'semestres':
+        return tasaAnual / 100 / 2;
+      case 'días':
+        return tasaAnual / 100 / 365;
+      default: // años
+        return tasaAnual / 100;
+    }
   }
 }

@@ -39,19 +39,19 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<InteresCompuestoController>();
+    final List<String> unidadesTiempo = ['días', 'meses', 'trimestres', 'semestres', 'años'];
+    final List<String> unidadesTasa = ['diaria', 'mensual', 'trimestral', 'semestral', 'anual'];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Interés Compuesto'),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
-        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTextField(
                 context,
@@ -73,8 +73,25 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                 context,
                 'Tasa de Interés (i)',
                 _iController,
-                hint: "Ej: 12",
+                hint: "Ej: 10",
                 suffix: "%",
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: controller.unidadTasa,
+                items: unidadesTasa.map((unidad) {
+                  return DropdownMenuItem(
+                    value: unidad,
+                    child: Text('Tasa $unidad'),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) controller.cambiarUnidadTasa(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Unidad de Tasa',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
@@ -82,7 +99,23 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                 'Tiempo (n)',
                 _nController,
                 hint: "Ej: 5",
-                suffix: "años",
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: controller.unidadTiempo,
+                items: unidadesTiempo.map((unidad) {
+                  return DropdownMenuItem(
+                    value: unidad,
+                    child: Text(unidad),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) controller.cambiarUnidadTiempo(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Unidad de Tiempo',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 30),
               
@@ -121,7 +154,11 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
                   Expanded(
                     child: _buildButton(
                       'Calcular i',
@@ -139,27 +176,18 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
               ),
               const SizedBox(height: 30),
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: Text(
                   controller.resultado,
                   style: TextStyle(
+                    color: Colors.blue[800],
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -183,18 +211,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
         labelText: label,
         hintText: hint,
         suffixText: suffix,
-        labelStyle: TextStyle(
-          color: Colors.blue[800],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blue[800]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blue[800]!, width: 2),
-        ),
+        border: const OutlineInputBorder(),
       ),
       keyboardType: TextInputType.number,
       onChanged: (_) => _actualizarCamposLlenos(),
@@ -208,18 +225,8 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
         backgroundColor: color,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 15),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 5,
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: Text(text),
     );
   }
 }
