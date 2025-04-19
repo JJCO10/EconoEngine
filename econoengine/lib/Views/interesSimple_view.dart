@@ -39,6 +39,8 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<InteresSimpleController>();
+    final List<String> unidadesTiempo = ['días', 'meses', 'trimestres', 'semestres', 'años'];
+    final List<String> unidadesTasa = ['diaria', 'mensual', 'trimestral', 'semestral', 'anual'];
 
     return Scaffold(
       appBar: AppBar(
@@ -74,13 +76,48 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                 hint: "Ej: 10",
                 suffix: "%",
               ),
+              const SizedBox(height: 10),
+              // Selector de unidad de tasa
+              DropdownButtonFormField<String>(
+                value: controller.unidadTasa,
+                items: unidadesTasa.map((unidad) {
+                  return DropdownMenuItem(
+                    value: unidad,
+                    child: Text('Tasa $unidad'),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) controller.cambiarUnidadTasa(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Unidad de Tasa',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 20),
               _buildTextField(
                 context,
                 'Tiempo (t)',
                 _tController,
                 hint: "Ej: 5",
-                suffix: "años",
+              ),
+              const SizedBox(height: 10),
+              // Selector de unidad de tiempo
+              DropdownButtonFormField<String>(
+                value: controller.unidadTiempo,
+                items: unidadesTiempo.map((unidad) {
+                  return DropdownMenuItem(
+                    value: unidad,
+                    child: Text(unidad),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) controller.cambiarUnidadTiempo(value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Unidad de Tiempo',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 30),
               

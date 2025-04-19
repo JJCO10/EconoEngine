@@ -8,12 +8,27 @@ class InteresCompuestoController extends ChangeNotifier {
   String _resultado = '';
   String _error = '';
   int _camposLlenos = 0;
+  String _unidadTiempo = 'años';
+  String _unidadTasa = 'anual';
 
   // Getters
   String get resultado => _resultado;
   String get error => _error;
   bool get shouldShowError => _error.isNotEmpty;
   bool get tresCamposLlenos => _camposLlenos >= 3;
+  String get unidadTiempo => _unidadTiempo;
+  String get unidadTasa => _unidadTasa;
+
+  // Setters para unidades
+  void cambiarUnidadTiempo(String nuevaUnidad) {
+    _unidadTiempo = nuevaUnidad;
+    notifyListeners();
+  }
+
+  void cambiarUnidadTasa(String nuevaUnidad) {
+    _unidadTasa = nuevaUnidad;
+    notifyListeners();
+  }
 
   // Actualizar conteo de campos llenos
   void actualizarCamposLlenos(int llenos) {
@@ -36,7 +51,13 @@ class InteresCompuestoController extends ChangeNotifier {
       return;
     }
 
-    final mc = _service.calcularMontoCompuesto(capital!, tasa!, tiempo!);
+    final mc = _service.calcularMontoCompuesto(
+      capital!,
+      tasa!,
+      tiempo!,
+      unidadTiempo: _unidadTiempo,
+      unidadTasa: _unidadTasa,
+    );
     _resultado = 'Monto Compuesto (MC): \$${mc.toStringAsFixed(2)}';
     notifyListeners();
   }
@@ -55,8 +76,14 @@ class InteresCompuestoController extends ChangeNotifier {
       return;
     }
 
-    final n = _service.calcularTiempo(capital!, montoCompuesto!, tasa!);
-    _resultado = 'Tiempo (n): ${n.toStringAsFixed(2)} años';
+    final n = _service.calcularTiempo(
+      capital!,
+      montoCompuesto!,
+      tasa!,
+      unidadTiempo: _unidadTiempo,
+      unidadTasa: _unidadTasa,
+    );
+    _resultado = 'Tiempo (n): ${n.toStringAsFixed(2)} $_unidadTiempo';
     notifyListeners();
   }
 
@@ -74,8 +101,14 @@ class InteresCompuestoController extends ChangeNotifier {
       return;
     }
 
-    final i = _service.calcularTasaInteres(capital!, montoCompuesto!, tiempo!);
-    _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}%';
+    final i = _service.calcularTasaInteres(
+      capital!,
+      montoCompuesto!,
+      tiempo!,
+      unidadTiempo: _unidadTiempo,
+      unidadTasa: _unidadTasa,
+    );
+    _resultado = 'Tasa de Interés (i): ${i.toStringAsFixed(2)}% ($_unidadTasa)';
     notifyListeners();
   }
 }
