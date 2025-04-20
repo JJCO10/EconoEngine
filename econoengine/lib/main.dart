@@ -24,7 +24,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-<<<<<<< HEAD
         ChangeNotifierProvider(create: (_) => AuthController()), // Proveer AuthController
         ChangeNotifierProvider(create: (_) => ThemeController()), // Proveer ThemeController
         ChangeNotifierProvider(create: (_) => InteresSimpleController()), // Proveer InteresSimpleController
@@ -32,24 +31,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GradienteController()), // Proveer GradienteController
         ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
         ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
-=======
-        ChangeNotifierProvider(
-            create: (_) => AuthController()), // Proveer AuthController
-        ChangeNotifierProvider(
-            create: (_) => ThemeController()), // Proveer ThemeController
-        ChangeNotifierProvider(
-            create: (_) =>
-                InteresSimpleController()), // Proveer InteresSimpleController
-        ChangeNotifierProvider(
-            create: (_) =>
-                InteresCompuestoController()), // Proveer InteresCompuestoController
-        ChangeNotifierProvider(
-            create: (_) =>
-                GradienteController()), // Proveer GradienteController
-        ChangeNotifierProvider(
-            create: (_) =>
-                AmortizacionController()), // Proveer AmortizacionController
->>>>>>> e9f47453f1348d4a5d4cd51d7b441890c2c88abd
       ],
       child: const MyApp(),
     ),
