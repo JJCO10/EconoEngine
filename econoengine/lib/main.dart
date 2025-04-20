@@ -1,10 +1,18 @@
 import 'package:econoengine/Controllers/auth_controller.dart';
+import 'package:econoengine/Controllers/tir_controller.dart';
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 // import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:econoengine/Views/navbar_view.dart';
+import 'package:econoengine/controllers/capitalizacion_controller.dart';
+import 'package:econoengine/controllers/inflacion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'Controllers/amortizacion_controller.dart';
+import 'Controllers/gradientes_controller.dart';
+import 'Controllers/interesCompuesto_controller.dart';
+import 'Controllers/interesSimple_controller.dart';
+import 'Controllers/uvr_controller.dart';
 import 'Views/Auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -19,10 +27,16 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-            create: (_) => AuthController()), // Proveer AuthController
-        ChangeNotifierProvider(
-            create: (_) => ThemeController()), // Proveer ThemeController
+        ChangeNotifierProvider(create: (_) => AuthController()), // Proveer AuthController
+        ChangeNotifierProvider(create: (_) => ThemeController()), // Proveer ThemeController
+        ChangeNotifierProvider(create: (_) => InteresSimpleController()), // Proveer InteresSimpleController
+        ChangeNotifierProvider(create: (_) => InteresCompuestoController()), // Proveer InteresCompuestoController
+        ChangeNotifierProvider(create: (_) => GradienteController()), // Proveer GradienteController
+        ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
+        ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
+        ChangeNotifierProvider(create: (_) => UvrController()), // Proveer UvrController
+        ChangeNotifierProvider(create: (_) => CapitalizacionController()), // Proveer CapitalizacionController
+        ChangeNotifierProvider(create: (_) => InflacionController()), // Proveer InflacionController
       ],
       child: const MyApp(),
     ),

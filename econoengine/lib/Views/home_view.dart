@@ -2,11 +2,11 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
-import 'package:econoengine/Views/TIR_view.dart';
-import 'package:econoengine/Views/UVR_view.dart';
-import 'package:econoengine/Views/alt_inv_view.dart';
+import 'package:econoengine/Views/tir_view.dart';
+import 'package:econoengine/Views/uvr_view.dart';
+import 'package:econoengine/Views/capitalizacion_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
-import 'package:econoengine/Views/bonos_view.dart';
+//import 'package:econoengine/Views/bonos_view.dart';
 // import 'package:econoengine/Views/detalles_transfer_view.dart';
 import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
@@ -533,27 +533,27 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.trending_up, 'TIR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const TIRView()),
+              MaterialPageRoute(builder: (context) => const TirView()),
             );
           }),
           _buildMenuButton(Icons.monetization_on, 'UVR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const UVRView()),
+              MaterialPageRoute(builder: (context) => const UvrView()),
             );
           }),
-          _buildMenuButton(Icons.business, 'Alt_Inversión', () {
+          _buildMenuButton(Icons.business, 'Capitalizacion', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AlternativasInversionView()),
+              MaterialPageRoute(builder: (context) => const CapitalizacionView()),
             );
           }),
-          _buildMenuButton(Icons.credit_card, 'Bonos', () {
+          /*_buildMenuButton(Icons.credit_card, 'Bonos', () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BonosView()),
             );
-          }),
+          }),*/
           _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
             Navigator.push(
               context,
