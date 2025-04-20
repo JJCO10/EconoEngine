@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/tir_view.dart';
-import 'package:econoengine/Views/UVR_view.dart';
+import 'package:econoengine/Views/uvr_view.dart';
 import 'package:econoengine/Views/alt_inv_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
 import 'package:econoengine/Views/bonos_view.dart';
@@ -539,7 +539,7 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.monetization_on, 'UVR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const UVRView()),
+              MaterialPageRoute(builder: (context) => const UvrView()),
             );
           }),
           _buildMenuButton(Icons.business, 'Alt_Inversión', () {

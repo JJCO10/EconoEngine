@@ -10,6 +10,7 @@ import 'Controllers/amortizacion_controller.dart';
 import 'Controllers/gradientes_controller.dart';
 import 'Controllers/interesCompuesto_controller.dart';
 import 'Controllers/interesSimple_controller.dart';
+import 'Controllers/uvr_controller.dart';
 import 'Views/Auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -31,6 +32,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GradienteController()), // Proveer GradienteController
         ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
         ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
+        ChangeNotifierProvider(create: (_) => UvrController()), // Proveer UvrController
       ],
       child: const MyApp(),
     ),
