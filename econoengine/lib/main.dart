@@ -10,7 +10,7 @@ import 'Controllers/amortizacion_controller.dart';
 import 'Controllers/gradientes_controller.dart';
 import 'Controllers/interesCompuesto_controller.dart';
 import 'Controllers/interesSimple_controller.dart';
-import 'views/auth/login_view.dart';
+import 'Views/Auth/login_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'Controllers/theme_controller.dart';
@@ -20,10 +20,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   runApp(
     MultiProvider(
       providers: [
+<<<<<<< HEAD
         ChangeNotifierProvider(create: (_) => AuthController()), // Proveer AuthController
         ChangeNotifierProvider(create: (_) => ThemeController()), // Proveer ThemeController
         ChangeNotifierProvider(create: (_) => InteresSimpleController()), // Proveer InteresSimpleController
@@ -31,6 +32,24 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GradienteController()), // Proveer GradienteController
         ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
         ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
+=======
+        ChangeNotifierProvider(
+            create: (_) => AuthController()), // Proveer AuthController
+        ChangeNotifierProvider(
+            create: (_) => ThemeController()), // Proveer ThemeController
+        ChangeNotifierProvider(
+            create: (_) =>
+                InteresSimpleController()), // Proveer InteresSimpleController
+        ChangeNotifierProvider(
+            create: (_) =>
+                InteresCompuestoController()), // Proveer InteresCompuestoController
+        ChangeNotifierProvider(
+            create: (_) =>
+                GradienteController()), // Proveer GradienteController
+        ChangeNotifierProvider(
+            create: (_) =>
+                AmortizacionController()), // Proveer AmortizacionController
+>>>>>>> e9f47453f1348d4a5d4cd51d7b441890c2c88abd
       ],
       child: const MyApp(),
     ),
@@ -51,41 +70,42 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
-        '/home': (context) => const NavbarView(), // Usa el Navbar como página principal
+        '/home': (context) =>
+            const NavbarView(), // Usa el Navbar como página principal
         '/recoverPassword': (context) => const ForgotPasswordView(),
       },
     );
   }
 
   ThemeData _buildTheme() {
-  return ThemeData(
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1A237E),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF1A237E),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        vertical: 12, 
-        horizontal: 15,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF1A237E),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        shape: RoundedRectangleBorder(
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 15,
+        ),
       ),
-    ),
-    textTheme: const TextTheme(
-      bodyMedium: TextStyle(fontSize: 16),
-      titleLarge: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF1A237E),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(fontSize: 16),
+        titleLarge: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

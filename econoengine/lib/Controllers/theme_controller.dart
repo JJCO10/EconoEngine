@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/theme_model.dart';
-import '../services/theme_service.dart';
+import '../Models/theme_model.dart';
+import '../Services/theme_service.dart';
 
 class ThemeController with ChangeNotifier {
   final ThemeService _themeService = ThemeService();
@@ -24,7 +24,8 @@ class ThemeController with ChangeNotifier {
     notifyListeners();
   }
 
-  ThemeData get currentTheme => _themeModel.isDarkMode ? _darkTheme : _lightTheme;
+  ThemeData get currentTheme =>
+      _themeModel.isDarkMode ? _darkTheme : _lightTheme;
 
   static final ThemeData _lightTheme = ThemeData(
     brightness: Brightness.light,

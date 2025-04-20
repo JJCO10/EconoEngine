@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:econoengine/controllers/auth_controller.dart'; // Importa el controlador de autenticación
+import 'package:econoengine/Controllers/auth_controller.dart'; // Importa el controlador de autenticación
 import 'login_view.dart'; // Importa la vista de inicio de sesión
 
 class RegisterView extends StatefulWidget {
@@ -12,16 +12,20 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _numeroDocumentoController = TextEditingController();
+  final TextEditingController _numeroDocumentoController =
+      TextEditingController();
   final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _contrasenaController = TextEditingController();
-  final TextEditingController _confirmcontrasenaController = TextEditingController();
+  final TextEditingController _confirmcontrasenaController =
+      TextEditingController();
 
-  final AuthController _authController = AuthController(); // Controlador de autenticación
+  final AuthController _authController =
+      AuthController(); // Controlador de autenticación
 
   String _errorMessage = '';
-  String? _selectedDocumentType; // Variable para almacenar el tipo de documento seleccionado
+  String?
+      _selectedDocumentType; // Variable para almacenar el tipo de documento seleccionado
 
   // Lista de opciones para el tipo de documento
   final List<String> _documentTypes = ['CC', 'TI', 'CE', 'PP'];
@@ -40,7 +44,8 @@ class _RegisterViewState extends State<RegisterView> {
   Future<void> _registrarUsuario() async {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text.trim();
-      final tipoDocumento = _selectedDocumentType ?? ''; // Usar el valor seleccionado
+      final tipoDocumento =
+          _selectedDocumentType ?? ''; // Usar el valor seleccionado
       final numeroDocumento = _numeroDocumentoController.text.trim();
       final telefono = _telefonoController.text.trim();
       final email = _emailController.text.trim();
@@ -98,11 +103,13 @@ class _RegisterViewState extends State<RegisterView> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                _buildTextField(_nombreController, 'Nombre completo', Icons.person),
+                _buildTextField(
+                    _nombreController, 'Nombre completo', Icons.person),
                 _buildDocumentTypeField(), // Campo de tipo de documento y número de documento
                 _buildTextField(_telefonoController, 'Teléfono', Icons.phone),
                 _buildEmailField(),
-                _buildPasswordField(_contrasenaController, 'Contraseña', Icons.lock),
+                _buildPasswordField(
+                    _contrasenaController, 'Contraseña', Icons.lock),
                 _buildConfirmPasswordField(),
                 const SizedBox(height: 25),
                 ElevatedButton(
@@ -124,7 +131,8 @@ class _RegisterViewState extends State<RegisterView> {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginView()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginView()),
                     );
                   },
                   child: Text(
@@ -140,7 +148,8 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
@@ -170,7 +179,8 @@ class _RegisterViewState extends State<RegisterView> {
               value: _selectedDocumentType,
               decoration: InputDecoration(
                 labelText: 'Documento',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               items: _documentTypes.map((String value) {
                 return DropdownMenuItem<String>(
@@ -184,7 +194,8 @@ class _RegisterViewState extends State<RegisterView> {
                 });
               },
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Selecciona un tipo de documento';
+                if (value == null || value.isEmpty)
+                  return 'Selecciona un tipo de documento';
                 return null;
               },
             ),
@@ -197,10 +208,12 @@ class _RegisterViewState extends State<RegisterView> {
               controller: _numeroDocumentoController,
               decoration: InputDecoration(
                 labelText: 'Número de Documento',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Por favor ingresa el número de documento';
+                if (value == null || value.isEmpty)
+                  return 'Por favor ingresa el número de documento';
                 return null;
               },
             ),
@@ -209,7 +222,6 @@ class _RegisterViewState extends State<RegisterView> {
       ),
     );
   }
-
 
   Widget _buildEmailField() {
     return Padding(
@@ -223,7 +235,8 @@ class _RegisterViewState extends State<RegisterView> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) return 'Ingresa un correo válido';
-          final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+          final emailRegex =
+              RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
           if (!emailRegex.hasMatch(value)) return 'Formato de correo inválido';
           return null;
         },
@@ -231,7 +244,8 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  Widget _buildPasswordField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildPasswordField(
+      TextEditingController controller, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
@@ -243,8 +257,10 @@ class _RegisterViewState extends State<RegisterView> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty) return 'Por favor ingresa tu contraseña';
-          if (value.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+          if (value == null || value.isEmpty)
+            return 'Por favor ingresa tu contraseña';
+          if (value.length < 6)
+            return 'La contraseña debe tener al menos 6 caracteres';
           return null;
         },
       ),
@@ -264,7 +280,8 @@ class _RegisterViewState extends State<RegisterView> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) return 'Confirma tu contraseña';
-          if (value != _contrasenaController.text) return 'Las contraseñas no coinciden';
+          if (value != _contrasenaController.text)
+            return 'Las contraseñas no coinciden';
           return null;
         },
       ),
