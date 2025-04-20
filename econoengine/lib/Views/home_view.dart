@@ -4,7 +4,7 @@ import 'package:econoengine/Models/transferencia.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/tir_view.dart';
 import 'package:econoengine/Views/uvr_view.dart';
-import 'package:econoengine/Views/alt_inv_view.dart';
+import 'package:econoengine/Views/capitalizacion_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
 import 'package:econoengine/Views/bonos_view.dart';
 // import 'package:econoengine/Views/detalles_transfer_view.dart';
@@ -542,10 +542,10 @@ class _HomeViewState extends State<HomeView> {
               MaterialPageRoute(builder: (context) => const UvrView()),
             );
           }),
-          _buildMenuButton(Icons.business, 'Alt_Inversión', () {
+          _buildMenuButton(Icons.business, 'Capitalizacion', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AlternativasInversionView()),
+              MaterialPageRoute(builder: (context) => const CapitalizacionView()),
             );
           }),
           _buildMenuButton(Icons.credit_card, 'Bonos', () {
