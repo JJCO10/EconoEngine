@@ -6,7 +6,7 @@ import 'package:econoengine/Views/tir_view.dart';
 import 'package:econoengine/Views/uvr_view.dart';
 import 'package:econoengine/Views/capitalizacion_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
-import 'package:econoengine/Views/bonos_view.dart';
+//import 'package:econoengine/Views/bonos_view.dart';
 // import 'package:econoengine/Views/detalles_transfer_view.dart';
 import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
@@ -548,12 +548,12 @@ class _HomeViewState extends State<HomeView> {
               MaterialPageRoute(builder: (context) => const CapitalizacionView()),
             );
           }),
-          _buildMenuButton(Icons.credit_card, 'Bonos', () {
+          /*_buildMenuButton(Icons.credit_card, 'Bonos', () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BonosView()),
             );
-          }),
+          }),*/
           _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
             Navigator.push(
               context,
