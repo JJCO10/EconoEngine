@@ -4,6 +4,7 @@ import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 // import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
 import 'package:econoengine/Views/navbar_view.dart';
+import 'package:econoengine/controllers/capitalizacion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Controllers/amortizacion_controller.dart';
@@ -33,6 +34,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
         ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
         ChangeNotifierProvider(create: (_) => UvrController()), // Proveer UvrController
+        ChangeNotifierProvider(create: (_) => CapitalizacionController()), // Proveer CapitalizacionController
       ],
       child: const MyApp(),
     ),
