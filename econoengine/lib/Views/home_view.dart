@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
-import 'package:econoengine/Views/TIR_view.dart';
+import 'package:econoengine/Views/tir_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
 import 'package:econoengine/Views/alt_inv_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
@@ -533,7 +533,7 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.trending_up, 'TIR', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const TIRView()),
+              MaterialPageRoute(builder: (context) => const TirView()),
             );
           }),
           _buildMenuButton(Icons.monetization_on, 'UVR', () {

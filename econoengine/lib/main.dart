@@ -1,4 +1,5 @@
 import 'package:econoengine/Controllers/auth_controller.dart';
+import 'package:econoengine/Controllers/tir_controller.dart';
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 // import 'package:econoengine/Views/Auth/home_view.dart';
 import 'package:econoengine/Views/Auth/register_view.dart';
@@ -29,6 +30,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => InteresCompuestoController()), // Proveer InteresCompuestoController
         ChangeNotifierProvider(create: (_) => GradienteController()), // Proveer GradienteController
         ChangeNotifierProvider(create: (_) => AmortizacionController()), // Proveer AmortizacionController
+        ChangeNotifierProvider(create: (_) => TirController()), // Proveer TirController
       ],
       child: const MyApp(),
     ),
