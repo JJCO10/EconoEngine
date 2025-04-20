@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
       title: 'EconoEngine',
       debugShowCheckedModeBanner: false,
       theme: themeController.currentTheme,
-      home: const LoginView(), // Pantalla inicial
+      home: const LoginView(), // Pantalla inicial.
       routes: {
         '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
