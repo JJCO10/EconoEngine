@@ -41,3 +41,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ignorar otros archivos generados
+android/app/.cxx/Debug/303r6358
