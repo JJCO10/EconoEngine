@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controllers/capitalizacion_controller.dart';
+import '../Controllers/capitalizacion_controller.dart';
 
 class CapitalizacionView extends StatefulWidget {
   const CapitalizacionView({super.key});
