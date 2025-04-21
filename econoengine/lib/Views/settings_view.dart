@@ -1,4 +1,8 @@
+// lib/Views/settings_view.dart
 import 'package:econoengine/Controllers/theme_controller.dart';
+import 'package:econoengine/Controllers/text_size_controller.dart';
+import 'package:econoengine/Controllers/language_controller.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,21 +14,17 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  // Variables para almacenar las preferencias del usuario
-  bool _notificacionesHabilitadas = true;
-  String _idiomaSeleccionado = 'Español';
-  bool _altoContraste = false;
-  double _tamanoTexto = 14.0; // Tamaño de texto base
-
-  // Lista de idiomas disponibles
-  final List<String> _idiomas = ['Español', 'Inglés'];
+  // final List<String> _idiomas = ['Español', 'Inglés'];
 
   @override
   Widget build(BuildContext context) {
     final themeController = Provider.of<ThemeController>(context);
+    final textSizeController = Provider.of<TextSizeController>(context);
+    final languageController = Provider.of<LanguageController>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración'),
+        title: Text(AppLocalizations.of(context).settings),
         backgroundColor: themeController.currentTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 5,
@@ -48,34 +48,11 @@ class _SettingsViewState extends State<SettingsView> {
               title: const Text('Tema Oscuro'),
               value: themeController.isDarkMode,
               onChanged: (value) {
-                setState(() {
-                  themeController.toggleTheme(); // Cambia el tema
-                });
-                // Aquí puedes agregar la lógica para cambiar el tema de la aplicación
+                themeController.toggleTheme();
               },
             ),
             const Divider(height: 20),
-            // Sección de Notificaciones
-            Text(
-              'Notificaciones',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue[800],
-              ),
-            ),
-            const SizedBox(height: 10),
-            SwitchListTile(
-              title: const Text('Habilitar Notificaciones'),
-              value: _notificacionesHabilitadas,
-              onChanged: (value) {
-                setState(() {
-                  _notificacionesHabilitadas = value;
-                });
-                // Aquí puedes agregar la lógica para habilitar/deshabilitar notificaciones
-              },
-            ),
-            const Divider(height: 20),
+
             // Sección de Idioma
             Text(
               'Idioma',
@@ -86,27 +63,30 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 10),
+            // Cambiar el DropdownButtonFormField
+            // En el DropdownButtonFormField
             DropdownButtonFormField<String>(
-              value: _idiomaSeleccionado,
+              value: languageController.currentLanguageCode,
               onChanged: (String? newValue) {
-                setState(() {
-                  _idiomaSeleccionado = newValue!;
-                });
-                // Aquí puedes agregar la lógica para cambiar el idioma de la aplicación
+                if (newValue != null) {
+                  languageController.setLanguage(newValue);
+                }
               },
-              items: _idiomas.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+              items: [
+                DropdownMenuItem(
+                  value: 'es',
+                  child: Text(AppLocalizations.of(context).translate(
+                      'spanish')), // Añade 'spanish' a tu diccionario
                 ),
-              ),
+                DropdownMenuItem(
+                  value: 'en',
+                  child: Text(AppLocalizations.of(context).translate(
+                      'english')), // Añade 'english' a tu diccionario
+                ),
+              ],
             ),
             const Divider(height: 20),
+
             // Sección de Accesibilidad
             Text(
               'Accesibilidad',
@@ -119,32 +99,27 @@ class _SettingsViewState extends State<SettingsView> {
             const SizedBox(height: 10),
             SwitchListTile(
               title: const Text('Alto Contraste'),
-              value: _altoContraste,
+              value: themeController.isHighContrast,
               onChanged: (value) {
-                setState(() {
-                  _altoContraste = value;
-                });
-                // Aquí puedes agregar la lógica para aplicar el modo de alto contraste
+                themeController.setHighContrast(value);
               },
             ),
             const SizedBox(height: 10),
             ListTile(
               title: const Text('Tamaño del Texto'),
               subtitle: Slider(
-                value: _tamanoTexto,
+                value: textSizeController.textSize,
                 min: 12.0,
                 max: 24.0,
                 divisions: 6,
-                label: _tamanoTexto.toStringAsFixed(1),
+                label: textSizeController.textSize.toStringAsFixed(1),
                 onChanged: (value) {
-                  setState(() {
-                    _tamanoTexto = value;
-                  });
-                  // Aquí puedes agregar la lógica para ajustar el tamaño del texto
+                  textSizeController.setTextSize(value);
                 },
               ),
             ),
             const Divider(height: 20),
+
             // Sección de Información de la Aplicación
             Text(
               'Información de la Aplicación',
@@ -161,7 +136,32 @@ class _SettingsViewState extends State<SettingsView> {
               trailing: IconButton(
                 icon: const Icon(Icons.info_outline),
                 onPressed: () {
-                  // Aquí puedes agregar la lógica para mostrar más detalles
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Acerca de EconoEngine'),
+                      content: const SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text('EconoEngine versión 1.0.0'),
+                            SizedBox(height: 10),
+                            Text(
+                                'Una aplicación para gestionar tus finanzas de manera eficiente.'),
+                            SizedBox(height: 10),
+                            Text('© 2025 EconoEngine'),
+                          ],
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('Cerrar'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
