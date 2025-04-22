@@ -189,7 +189,7 @@ class _RegisterViewState extends State<RegisterView> {
               items: _documentTypes.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(loc.translate(value)),
                 );
               }).toList(),
               onChanged: (value) {

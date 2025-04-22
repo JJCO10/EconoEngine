@@ -150,10 +150,10 @@ class AppLocalizations {
       'confirmYourPassword': 'Confirma tu contraseña',
       'passwordsDontMatch': 'Las contraseñas no coinciden',
       'registerError': 'Error al registrar usuario. Inténtalo de nuevo.',
-      'CC': 'Cédula de Ciudadanía',
-      'TI': 'Tarjeta de Identidad',
-      'CE': 'Cédula de Extranjería',
-      'PP': 'Pasaporte',
+      'CC': 'CC',
+      'TI': 'TI',
+      'CE': 'CE',
+      'PP': 'PP',
     },
   };
 
