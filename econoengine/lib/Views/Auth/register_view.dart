@@ -1,6 +1,7 @@
+import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:flutter/material.dart';
-import 'package:econoengine/Controllers/auth_controller.dart'; // Importa el controlador de autenticación
-import 'login_view.dart'; // Importa la vista de inicio de sesión
+import 'package:econoengine/Controllers/auth_controller.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -20,14 +21,9 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _confirmcontrasenaController =
       TextEditingController();
 
-  final AuthController _authController =
-      AuthController(); // Controlador de autenticación
-
+  final AuthController _authController = AuthController();
   String _errorMessage = '';
-  String?
-      _selectedDocumentType; // Variable para almacenar el tipo de documento seleccionado
-
-  // Lista de opciones para el tipo de documento
+  String? _selectedDocumentType;
   final List<String> _documentTypes = ['CC', 'TI', 'CE', 'PP'];
 
   @override
@@ -43,9 +39,9 @@ class _RegisterViewState extends State<RegisterView> {
 
   Future<void> _registrarUsuario() async {
     if (_formKey.currentState!.validate()) {
+      final loc = AppLocalizations.of(context);
       final nombre = _nombreController.text.trim();
-      final tipoDocumento =
-          _selectedDocumentType ?? ''; // Usar el valor seleccionado
+      final tipoDocumento = _selectedDocumentType ?? '';
       final numeroDocumento = _numeroDocumentoController.text.trim();
       final telefono = _telefonoController.text.trim();
       final email = _emailController.text.trim();
@@ -68,12 +64,12 @@ class _RegisterViewState extends State<RegisterView> {
           );
         } else {
           setState(() {
-            _errorMessage = 'Error al registrar usuario. Inténtalo de nuevo.';
+            _errorMessage = loc.registerError;
           });
         }
       } catch (e) {
         setState(() {
-          _errorMessage = 'Error: $e';
+          _errorMessage = '${loc.loginError}: $e';
         });
       }
     }
@@ -81,6 +77,8 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SingleChildScrollView(
@@ -91,7 +89,6 @@ class _RegisterViewState extends State<RegisterView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // const SizedBox(height: 0),
                 Image.asset('assets/images/logo.png', height: 100),
                 const SizedBox(height: 20),
                 if (_errorMessage.isNotEmpty)
@@ -104,13 +101,14 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                 _buildTextField(
-                    _nombreController, 'Nombre completo', Icons.person),
-                _buildDocumentTypeField(), // Campo de tipo de documento y número de documento
-                _buildTextField(_telefonoController, 'Teléfono', Icons.phone),
-                _buildEmailField(),
-                _buildPasswordField(
-                    _contrasenaController, 'Contraseña', Icons.lock),
-                _buildConfirmPasswordField(),
+                    context, _nombreController, loc.fullName, Icons.person),
+                _buildDocumentTypeField(context, loc),
+                _buildTextField(
+                    context, _telefonoController, loc.phone, Icons.phone),
+                _buildEmailField(context, loc),
+                _buildPasswordField(context, _contrasenaController,
+                    loc.password, Icons.lock, loc),
+                _buildConfirmPasswordField(context, loc),
                 const SizedBox(height: 25),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -121,9 +119,9 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   onPressed: _registrarUsuario,
-                  child: const Text(
-                    'Crear cuenta',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  child: Text(
+                    loc.createAccount,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -136,7 +134,7 @@ class _RegisterViewState extends State<RegisterView> {
                     );
                   },
                   child: Text(
-                    '¿Ya tienes una cuenta? Inicia sesión',
+                    loc.alreadyHaveAccount,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ),
@@ -149,7 +147,12 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller, String label, IconData icon) {
+    BuildContext context,
+    TextEditingController controller,
+    String label,
+    IconData icon,
+  ) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
@@ -160,25 +163,26 @@ class _RegisterViewState extends State<RegisterView> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         validator: (value) {
-          if (value!.isEmpty) return 'Por favor ingresa $label';
+          if (value!.isEmpty) {
+            return '${loc.pleaseEnter} $label';
+          }
           return null;
         },
       ),
     );
   }
 
-  Widget _buildDocumentTypeField() {
+  Widget _buildDocumentTypeField(BuildContext context, AppLocalizations loc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
-          // ComboBox para seleccionar el tipo de documento
           Expanded(
             flex: 2,
             child: DropdownButtonFormField<String>(
               value: _selectedDocumentType,
               decoration: InputDecoration(
-                labelText: 'Documento',
+                labelText: loc.documentType,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -194,26 +198,27 @@ class _RegisterViewState extends State<RegisterView> {
                 });
               },
               validator: (value) {
-                if (value == null || value.isEmpty)
-                  return 'Selecciona un tipo de documento';
+                if (value == null || value.isEmpty) {
+                  return loc.selectDocumentType;
+                }
                 return null;
               },
             ),
           ),
           const SizedBox(width: 10),
-          // Campo de texto para el número de documento
           Expanded(
             flex: 3,
             child: TextFormField(
               controller: _numeroDocumentoController,
               decoration: InputDecoration(
-                labelText: 'Número de Documento',
+                labelText: loc.documentNumber,
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty)
-                  return 'Por favor ingresa el número de documento';
+                if (value == null || value.isEmpty) {
+                  return loc.enterDocumentNumber;
+                }
                 return null;
               },
             ),
@@ -223,21 +228,25 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(BuildContext context, AppLocalizations loc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         controller: _emailController,
         decoration: InputDecoration(
-          labelText: 'Correo electrónico',
+          labelText: loc.email,
           prefixIcon: const Icon(Icons.email),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty) return 'Ingresa un correo válido';
+          if (value == null || value.isEmpty) {
+            return loc.enterValidEmail;
+          }
           final emailRegex =
               RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-          if (!emailRegex.hasMatch(value)) return 'Formato de correo inválido';
+          if (!emailRegex.hasMatch(value)) {
+            return loc.invalidEmailFormat;
+          }
           return null;
         },
       ),
@@ -245,7 +254,12 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildPasswordField(
-      TextEditingController controller, String label, IconData icon) {
+    BuildContext context,
+    TextEditingController controller,
+    String label,
+    IconData icon,
+    AppLocalizations loc,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
@@ -257,31 +271,37 @@ class _RegisterViewState extends State<RegisterView> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty)
-            return 'Por favor ingresa tu contraseña';
-          if (value.length < 6)
-            return 'La contraseña debe tener al menos 6 caracteres';
+          if (value == null || value.isEmpty) {
+            return loc.enterPassword;
+          }
+          if (value.length < 6) {
+            return loc.passwordLength;
+          }
           return null;
         },
       ),
     );
   }
 
-  Widget _buildConfirmPasswordField() {
+  Widget _buildConfirmPasswordField(
+      BuildContext context, AppLocalizations loc) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 00),
+      padding: const EdgeInsets.only(bottom: 0),
       child: TextFormField(
         controller: _confirmcontrasenaController,
         obscureText: true,
         decoration: InputDecoration(
-          labelText: 'Confirmar contraseña',
+          labelText: loc.confirmPassword,
           prefixIcon: const Icon(Icons.lock_reset),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty) return 'Confirma tu contraseña';
-          if (value != _contrasenaController.text)
-            return 'Las contraseñas no coinciden';
+          if (value == null || value.isEmpty) {
+            return loc.confirmYourPassword;
+          }
+          if (value != _contrasenaController.text) {
+            return loc.passwordsDontMatch;
+          }
           return null;
         },
       ),

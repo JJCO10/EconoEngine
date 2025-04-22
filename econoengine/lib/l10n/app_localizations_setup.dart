@@ -86,10 +86,10 @@ class AppLocalizations {
       'confirmYourPassword': 'Confirm your password',
       'passwordsDontMatch': 'Passwords do not match',
       'registerError': 'Error registering user. Please try again.',
-      'CC': 'Citizenship Card',
-      'TI': 'Identity Card',
-      'CE': 'Foreigner ID',
-      'PP': 'Passport',
+      'CC': 'CC',
+      'TI': 'IC',
+      'CE': 'FID',
+      'PP': 'PP',
     },
     'es': {
       // Textos generales
@@ -202,6 +202,7 @@ class AppLocalizations {
   String get biometricAuthFailed => translate('biometricAuthFailed');
   String get biometricError => translate('biometricError');
   String get fieldRequired => translate('fieldRequired');
+  String get pleaseEnter => translate('pleaseEnter');
   // Mensajes de validación
   String get pleaseEnterDocument => translate('pleaseEnterDocument');
   String get pleaseEnterPassword => translate('pleaseEnterPassword');
