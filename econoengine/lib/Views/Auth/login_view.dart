@@ -2,6 +2,7 @@ import 'package:econoengine/Views/Auth/forgot_password_view.dart';
 import 'package:flutter/material.dart';
 import 'package:econoengine/Controllers/auth_controller.dart'; // Importa el controlador de autenticación
 import 'register_view.dart'; // Importa la vista de registro
+import 'package:econoengine/l10n/app_localizations_setup.dart'; // Asegúrate de importar AppLocalizations
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -117,6 +118,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     final isDarkmode = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context); // Shortcut para las traducciones
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -143,10 +145,10 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _numeroDocumentoController,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   decoration: InputDecoration(
-                    labelText: 'Número de Documento',
+                    labelText: loc.documentNumber,
                     labelStyle: TextStyle(
                       color: isDarkmode ? Colors.white70 : Colors.black87,
                     ),
@@ -158,11 +160,10 @@ class _LoginViewState extends State<LoginView> {
                           color: isDarkmode ? Colors.white70 : Colors.black54),
                     ),
                   ),
-                  readOnly:
-                      _isUserLoggedIn, // Deshabilitar edición si el usuario ya ha iniciado sesión
+                  readOnly: _isUserLoggedIn,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Por favor ingresa tu número de documento';
+                      return loc.pleaseEnterDocument;
                     }
                     return null;
                   },
@@ -170,11 +171,11 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'Contraseña',
+                    labelText: loc.password,
                     labelStyle: TextStyle(
                       color: isDarkmode ? Colors.white70 : Colors.black87,
                     ),
@@ -188,7 +189,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Por favor ingresa tu contraseña';
+                      return loc.pleaseEnterPassword;
                     }
                     return null;
                   },
@@ -197,17 +198,16 @@ class _LoginViewState extends State<LoginView> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[800],
-                    foregroundColor: Colors.white, // Texto siempre en blanco
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed:
-                      _iniciarSesion, // Llamar al método de inicio de sesión
-                  child: const Text(
-                    'Iniciar sesión',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  onPressed: _iniciarSesion,
+                  child: Text(
+                    loc.login,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -222,15 +222,14 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                     onPressed: _iniciarSesionBiometrico,
-                    child: const Text(
-                      'Iniciar sesión con huella',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    child: Text(
+                      loc.loginWithFingerprint,
+                      style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
-                    // Lógica para recuperar contraseña
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -239,7 +238,7 @@ class _LoginViewState extends State<LoginView> {
                     );
                   },
                   child: Text(
-                    '¿Olvidaste tu contraseña?',
+                    loc.forgotPassword,
                     style: TextStyle(
                         color: isDarkmode ? Colors.white70 : Colors.grey[600]),
                   ),
@@ -248,9 +247,9 @@ class _LoginViewState extends State<LoginView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('¿No tienes cuenta?',
+                    Text(loc.dontHaveAccount,
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.onBackground)),
+                            color: Theme.of(context).colorScheme.onSurface)),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -261,7 +260,7 @@ class _LoginViewState extends State<LoginView> {
                         );
                       },
                       child: Text(
-                        'Regístrate',
+                        loc.register,
                         style: TextStyle(
                           color: Colors.blue[800],
                           fontWeight: FontWeight.bold,

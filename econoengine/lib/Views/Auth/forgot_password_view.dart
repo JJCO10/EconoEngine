@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart'; // Importa AppLocalizations
 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ForgotPasswordViewState createState() => _ForgotPasswordViewState();
 }
 
@@ -21,7 +23,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     super.dispose();
   }
 
-  // Método para enviar el correo de recuperación de contraseña
   Future<void> _sendPasswordResetEmail() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
@@ -29,15 +30,15 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       try {
         await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
         setState(() {
-          _successMessage = 'Se ha enviado un correo para restablecer tu contraseña.';
+          _successMessage = AppLocalizations.of(context).resetEmailSent;
           _errorMessage = '';
         });
 
-        // Limpiar el campo después de enviar el correo
         _emailController.clear();
       } catch (e) {
         setState(() {
-          _errorMessage = 'Error: ${e.toString()}';
+          _errorMessage =
+              '${AppLocalizations.of(context).loginError}: ${e.toString()}';
           _successMessage = '';
         });
       }
@@ -46,9 +47,11 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context); // Shortcut para las traducciones
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cambiar Contraseña'),
+        title: Text(loc.resetPassword),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -79,7 +82,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   ),
                 const SizedBox(height: 10),
                 Text(
-                  'Ingresa tu correo electrónico para recibir un enlace para cambiar o recuperar tu contraseña.',
+                  loc.enterEmailForReset,
                   style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                   textAlign: TextAlign.center,
                 ),
@@ -87,17 +90,19 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Correo Electrónico',
+                    labelText: loc.email,
                     prefixIcon: const Icon(Icons.email),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu correo electrónico';
+                      return loc.emailRequired;
                     }
-                    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                    final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Ingresa un correo electrónico válido';
+                      return loc.enterValidEmail;
                     }
                     return null;
                   },
@@ -112,21 +117,21 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     ),
                   ),
                   onPressed: _sendPasswordResetEmail,
-                  child: const Text(
-                    'Enviar Correo de Recuperación',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  child: Text(
+                    loc.sendResetLink,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 20),
-                // TextButton(
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //   },
-                //   child: Text(
-                //     'Volver al Inicio de Sesión',
-                //     style: TextStyle(color: Colors.grey[600]),
-                //   ),
-                // ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    loc.backToLogin,
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
               ],
             ),
           ),
