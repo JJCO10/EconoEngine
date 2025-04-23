@@ -1,3 +1,4 @@
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/interesCompuesto_controller.dart';
@@ -16,6 +17,14 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
   final TextEditingController _nController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<InteresCompuestoController>().initialize(context);
+    });
+  }
+
+  @override
   void dispose() {
     _cController.dispose();
     _mcController.dispose();
@@ -32,19 +41,33 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
   }
 
   bool _debeDeshabilitar(TextEditingController controller) {
-    final tresLlenos = context.read<InteresCompuestoController>().tresCamposLlenos;
+    final tresLlenos =
+        context.read<InteresCompuestoController>().tresCamposLlenos;
     return tresLlenos && controller.text.isEmpty;
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final controller = context.watch<InteresCompuestoController>();
-    final List<String> unidadesTiempo = ['días', 'meses', 'trimestres', 'semestres', 'años'];
-    final List<String> unidadesTasa = ['diaria', 'mensual', 'trimestral', 'semestral', 'anual'];
+    const List<String> unidadesTiempoIngles = [
+      'days',
+      'months',
+      'quarters',
+      'semesters',
+      'years'
+    ];
+    const List<String> unidadesTasaIngles = [
+      'daily',
+      'monthly',
+      'quarterly',
+      'semiannual',
+      'annual'
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Interés Compuesto'),
+        title: Text(loc.compoundInterest),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
       ),
@@ -55,7 +78,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
             children: [
               _buildTextField(
                 context,
-                'Capital Inicial (C)',
+                loc.initialCapital,
                 _cController,
                 hint: "Ej: 1000",
                 suffix: "\$",
@@ -63,7 +86,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Monto Compuesto (MC)',
+                loc.compoundAmount,
                 _mcController,
                 hint: "Ej: 2000",
                 suffix: "\$",
@@ -71,7 +94,7 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Tasa de Interés (i)',
+                loc.interestRate,
                 _iController,
                 hint: "Ej: 10",
                 suffix: "%",
@@ -79,78 +102,83 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: controller.unidadTasa,
-                items: unidadesTasa.map((unidad) {
+                items: unidadesTasaIngles.map((unidadIngles) {
                   return DropdownMenuItem(
-                    value: unidad,
-                    child: Text('Tasa $unidad'),
+                    value: unidadIngles,
+                    child:
+                        Text('${loc.rateUnit} ${loc.translate(unidadIngles)}'),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) controller.cambiarUnidadTasa(value);
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Unidad de Tasa',
+                decoration: InputDecoration(
+                  labelText: loc.rateUnit,
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Tiempo (n)',
+                loc.tiempoInteresCompuesto,
                 _nController,
                 hint: "Ej: 5",
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: controller.unidadTiempo,
-                items: unidadesTiempo.map((unidad) {
+                items: unidadesTiempoIngles.map((unidadIngles) {
                   return DropdownMenuItem(
-                    value: unidad,
-                    child: Text(unidad),
+                    value: unidadIngles,
+                    child: Text(loc.translate(unidadIngles)),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) controller.cambiarUnidadTiempo(value);
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Unidad de Tiempo',
+                decoration: InputDecoration(
+                  labelText: loc.timeUnit,
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 30),
-              
               if (controller.shouldShowError)
                 Text(
                   controller.error,
                   style: const TextStyle(color: Colors.red, fontSize: 16),
                 ),
-              
               Row(
                 children: [
                   Expanded(
                     child: _buildButton(
-                      'Calcular MC',
+                      loc.calculateMC,
                       Colors.blue[800]!,
                       () {
-                        controller.calcularMontoCompuesto(
-                          double.tryParse(_cController.text),
-                          double.tryParse(_iController.text),
-                          double.tryParse(_nController.text),
-                        );
+                        context
+                            .read<InteresCompuestoController>()
+                            .calcularMontoCompuesto(
+                              context, // Pasar el BuildContext
+                              double.tryParse(_cController.text),
+                              double.tryParse(_iController.text),
+                              double.tryParse(_nController.text),
+                            );
                       },
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildButton(
-                      'Calcular n',
+                      loc.calculaten,
                       Colors.green[800]!,
                       () {
-                        controller.calcularTiempo(
-                          double.tryParse(_cController.text),
-                          double.tryParse(_mcController.text),
-                          double.tryParse(_iController.text),
-                        );
+                        context
+                            .read<InteresCompuestoController>()
+                            .calcularTiempo(
+                              context, // Pasar el BuildContext
+                              double.tryParse(_cController.text),
+                              double.tryParse(_mcController.text),
+                              double.tryParse(_iController.text),
+                            );
                       },
                     ),
                   ),
@@ -161,14 +189,17 @@ class _InteresCompuestoViewState extends State<InteresCompuestoView> {
                 children: [
                   Expanded(
                     child: _buildButton(
-                      'Calcular i',
+                      loc.calculatei,
                       Colors.orange[800]!,
                       () {
-                        controller.calcularTasaInteres(
-                          double.tryParse(_cController.text),
-                          double.tryParse(_mcController.text),
-                          double.tryParse(_nController.text),
-                        );
+                        context
+                            .read<InteresCompuestoController>()
+                            .calcularTasaInteres(
+                              context, // Pasar el BuildContext
+                              double.tryParse(_cController.text),
+                              double.tryParse(_mcController.text),
+                              double.tryParse(_nController.text),
+                            );
                       },
                     ),
                   ),

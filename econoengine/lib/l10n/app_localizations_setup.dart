@@ -190,7 +190,26 @@ class AppLocalizations {
       "monthly": "monthly",
       "quarterly": "quarterly",
       "semiannually": "semiannually",
-      "annually": "annually"
+      "annually": "annually",
+
+      //interes compuesto
+      'initialCapital': 'Initial Capital (C)',
+      'compoundAmount': 'Compound Amount (MC)',
+      'interestRate': 'Interest Rate (i)',
+      'tiempoInteresCompuesto': 'Time (n)',
+      'semiannual': 'semiannual',
+      'annual': 'annual',
+      'rateUnit': 'Rate Unit',
+      'timeUnit': 'Time Unit',
+      'calculateMC': 'Calculate MC',
+      'calculaten': 'Calculate n',
+      'calculatei': 'Calculate i',
+      'result': 'Result',
+
+      'invalidCapital': 'Invalid Capital',
+      'invalidAmount': 'Invalid Amount',
+      'invalidRate': 'Invalid Rate',
+      'invalidTime': 'Invalid Time',
     },
     'es': {
       // Textos generales
@@ -357,7 +376,26 @@ class AppLocalizations {
       "monthly": "mensual",
       "quarterly": "trimestral",
       "semiannually": "semestral",
-      "annually": "anual"
+      "annually": "anual",
+
+      //interes compuesto
+      'initialCapital': 'Capital Inicial (C)',
+      'compoundAmount': 'Monto Compuesto (MC)',
+      'interestRate': 'Tasa de Interés (i)',
+      'tiempoInteresCompuesto': 'Tiempo (n)',
+      'semiannual': 'semestral',
+      'annual': 'anual',
+      'rateUnit': 'Unidad de Tasa',
+      'timeUnit': 'Unidad de Tiempo',
+      'calculateMC': 'Calcular MC',
+      'calculaten': 'Calcular n',
+      'calculatei': 'Calcular i',
+      'result': 'Resultado',
+
+      'invalidCapital': 'Capital inválido',
+      'invalidAmount': 'Monto inválido',
+      'invalidRate': 'Tasa inválida',
+      'invalidTime': 'Tiempo inválido',
     },
   };
 
@@ -547,6 +585,21 @@ class AppLocalizations {
   String get quarterly => translate('quarterly');
   String get semiannually => translate('semiannually');
   String get annually => translate('annually');
+
+  //Interes compuesto
+  String get initialCapital => translate('initialCapital');
+  String get compoundAmount => translate('compoundAmount');
+  String get tiempoInteresCompuesto => translate('tiempoInteresCompuesto');
+  String get semiannual => translate('semiannual');
+  String get annual => translate('annual');
+  String get calculateMC => translate('calculateMC');
+  String get calculaten => translate('calculaten');
+  String get calculatei => translate('calculatei');
+  String get result => translate('result');
+  String get invalidCapital => translate('invalidCapital');
+  String get invalidAmount => translate('invalidAmount');
+  String get invalidRate => translate('invalidRate');
+  String get invalidTime => translate('invalidTime');
 }
 
 class _AppLocalizationsDelegate

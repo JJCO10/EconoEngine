@@ -1,15 +1,17 @@
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 import 'package:flutter/material.dart';
 import '../Services/interesCompuesto_service.dart';
 
 class InteresCompuestoController extends ChangeNotifier {
   final InteresCompuestoService _service = InteresCompuestoService();
-  
+
   // Variables de estado
   String _resultado = '';
   String _error = '';
   int _camposLlenos = 0;
-  String _unidadTiempo = 'años';
-  String _unidadTasa = 'anual';
+  String _unidadTiempo = 'years'; // Clave en inglés por defecto
+  String _unidadTasa = 'annual'; // Clave en inglés por defecto
+  // ... (getters) ...
 
   // Getters
   String get resultado => _resultado;
@@ -36,9 +38,14 @@ class InteresCompuestoController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void initialize(BuildContext context) {
+    notifyListeners();
+  }
+
   // Métodos de cálculo
-  void calcularMontoCompuesto(double? capital, double? tasa, double? tiempo) {
-    _error = _service.validarCampos(
+  void calcularMontoCompuesto(
+      BuildContext context, double? capital, double? tasa, double? tiempo) {
+    final errorKey = _service.validarCampos(
       capital: capital,
       montoCompuesto: null,
       tasa: tasa,
@@ -46,7 +53,8 @@ class InteresCompuestoController extends ChangeNotifier {
       requeridos: [true, false, true, true],
     );
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
@@ -62,8 +70,9 @@ class InteresCompuestoController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calcularTiempo(double? capital, double? montoCompuesto, double? tasa) {
-    _error = _service.validarCampos(
+  void calcularTiempo(BuildContext context, double? capital,
+      double? montoCompuesto, double? tasa) {
+    final errorKey = _service.validarCampos(
       capital: capital,
       montoCompuesto: montoCompuesto,
       tasa: tasa,
@@ -71,7 +80,8 @@ class InteresCompuestoController extends ChangeNotifier {
       requeridos: [true, true, true, false],
     );
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
@@ -87,8 +97,9 @@ class InteresCompuestoController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calcularTasaInteres(double? capital, double? montoCompuesto, double? tiempo) {
-    _error = _service.validarCampos(
+  void calcularTasaInteres(BuildContext context, double? capital,
+      double? montoCompuesto, double? tiempo) {
+    final errorKey = _service.validarCampos(
       capital: capital,
       montoCompuesto: montoCompuesto,
       tasa: null,
@@ -96,7 +107,8 @@ class InteresCompuestoController extends ChangeNotifier {
       requeridos: [true, true, false, true],
     );
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
