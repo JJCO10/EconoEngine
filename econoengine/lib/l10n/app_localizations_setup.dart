@@ -144,6 +144,10 @@ class AppLocalizations {
       'uvr': 'RVU',
       'capitalization': 'Capitalization',
       'inflation': 'Inflation',
+
+      //Transacciones view
+      'transactions': 'Transactions',
+      'loadMoreTransactions': 'Load more transactions',
     },
     'es': {
       // Textos generales
@@ -263,6 +267,10 @@ class AppLocalizations {
       'uvr': 'UVR',
       'capitalization': 'Capitalización',
       'inflation': 'Inflación',
+
+      //Transacciones view
+      'transactions': 'Movimientos',
+      'loadMoreTransactions': 'Cargar más movimientos',
     },
   };
 
@@ -401,6 +409,9 @@ class AppLocalizations {
   String get uvr => translate('uvr');
   String get capitalization => translate('capitalization');
   String get inflation => translate('inflation');
+
+  String get transactions => translate('transactions');
+  String get loadMoreTransactions => translate('loadMoreTransactions');
 }
 
 class _AppLocalizationsDelegate
