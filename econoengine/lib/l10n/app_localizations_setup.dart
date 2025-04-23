@@ -148,6 +148,16 @@ class AppLocalizations {
       //Transacciones view
       'transactions': 'Transactions',
       'loadMoreTransactions': 'Load more transactions',
+
+      //Profile view
+      'editProfile': 'Edit Profile',
+      'profile': 'Profile',
+      'profileUpdatedSuccessfully': 'Profile updated successfully',
+      'errorUpdatingProfile': 'Error updating profile',
+      'saveChanges': 'Save Changes',
+      'changePassword': 'Change your password',
+      'email': 'Email',
+      'userDataNotFound': 'User data not found',
     },
     'es': {
       // Textos generales
@@ -271,6 +281,16 @@ class AppLocalizations {
       //Transacciones view
       'transactions': 'Movimientos',
       'loadMoreTransactions': 'Cargar más movimientos',
+
+      //profile view
+      'editProfile': 'Editar Perfil',
+      'profile': 'Perfil',
+      'profileUpdatedSuccessfully': 'Perfil actualizado exitosamente',
+      'errorUpdatingProfile': 'Error al actualizar perfil',
+      'saveChanges': 'Guardar Cambios',
+      'changePassword': 'Deseas cambiar tu contraseña',
+      'email': 'Correo electrónico',
+      'userDataNotFound': 'No se encontraron datos del usuario',
     },
   };
 
@@ -410,8 +430,19 @@ class AppLocalizations {
   String get capitalization => translate('capitalization');
   String get inflation => translate('inflation');
 
+  //transaccion view
   String get transactions => translate('transactions');
   String get loadMoreTransactions => translate('loadMoreTransactions');
+
+  //profile view
+  String get editProfile => translate('editProfile');
+  String get profile => translate('profile');
+  String get profileUpdatedSuccessfully =>
+      translate('profileUpdatedSuccessfully');
+  String get errorUpdatingProfile => translate('errorUpdatingProfile');
+  String get saveChanges => translate('saveChanges');
+  String get changePassword => translate('changePassword');
+  String get userDataNotFound => translate('userDataNotFound');
 }
 
 class _AppLocalizationsDelegate

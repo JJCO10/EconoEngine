@@ -1,4 +1,5 @@
 import 'package:econoengine/Views/Auth/forgot_password_view.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,9 +31,13 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _cargarDatosUsuario() async {
     try {
       final user = _auth.currentUser;
-      if (user == null) throw Exception("Usuario no autenticado");
+      if (user == null) {
+        final loc = AppLocalizations.of(context);
+        throw Exception(loc.unauthenticatedUser);
+      }
 
-      final docUser = await _firestore.collection('usuarios').doc(user.uid).get();
+      final docUser =
+          await _firestore.collection('usuarios').doc(user.uid).get();
       if (docUser.exists) {
         final data = docUser.data()!;
         setState(() {
@@ -44,7 +49,8 @@ class _ProfileViewState extends State<ProfileView> {
           _isLoading = false;
         });
       } else {
-        throw Exception("No se encontraron datos del usuario");
+        final loc = AppLocalizations.of(context);
+        throw Exception(loc.userDataNotFound);
       }
     } catch (e) {
       print("Error al cargar usuario: $e");
@@ -53,9 +59,10 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Future<void> _guardarCambios() async {
+    final loc = AppLocalizations.of(context);
     try {
       final user = _auth.currentUser;
-      if (user == null) throw Exception("Usuario no autenticado");
+      if (user == null) throw Exception(loc.unauthenticatedUser);
 
       await _firestore.collection('usuarios').doc(user.uid).update({
         'Email': email,
@@ -63,12 +70,12 @@ class _ProfileViewState extends State<ProfileView> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Perfil actualizado exitosamente")),
+        SnackBar(content: Text(loc.profileUpdatedSuccessfully)),
       );
     } catch (e) {
       print("Error al actualizar perfil: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al actualizar perfil")),
+        SnackBar(content: Text(loc.errorUpdatingProfile)),
       );
     }
   }
@@ -82,10 +89,11 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(title: Text("Editar Perfil")),
+      appBar: AppBar(title: Text(loc.editProfile)),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -96,7 +104,8 @@ class _ProfileViewState extends State<ProfileView> {
                   children: [
                     // Formulario
                     Container(
-                      width: 350, // Ancho fijo para centrar en pantallas grandes
+                      width:
+                          350, // Ancho fijo para centrar en pantallas grandes
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: isDarkMode ? Colors.grey[900] : Colors.white,
@@ -115,32 +124,36 @@ class _ProfileViewState extends State<ProfileView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            _buildTextField("Nombre", nombre, false, isDarkMode),
-                          SizedBox(height: 10),
-                          _buildTextField("Tipo de Documento", tipoDocumento, false, isDarkMode),
-                          SizedBox(height: 10),
-                          _buildTextField("Número de Documento", numeroDocumento, false, isDarkMode),
-                          SizedBox(height: 10),
-                          _buildTextField("Email", email, true, isDarkMode, (value) => email = value),
-                          SizedBox(height: 10),
-                          _buildTextField("Teléfono", telefono, true, isDarkMode, (value) => telefono = value),
-                          SizedBox(height: 20),
+                            _buildTextField(
+                                loc.name, nombre, false, isDarkMode),
+                            SizedBox(height: 10),
+                            _buildTextField(loc.documentType, tipoDocumento,
+                                false, isDarkMode),
+                            SizedBox(height: 10),
+                            _buildTextField(loc.documentNumber, numeroDocumento,
+                                false, isDarkMode),
+                            SizedBox(height: 10),
+                            _buildTextField(loc.email, email, true, isDarkMode,
+                                (value) => email = value),
+                            SizedBox(height: 10),
+                            _buildTextField(loc.phone, telefono, true,
+                                isDarkMode, (value) => telefono = value),
+                            SizedBox(height: 20),
 
                             // Botón Guardar Cambios centrado
                             Align(
                               alignment: Alignment.center,
                               child: ElevatedButton(
                                 onPressed: _guardarCambios,
-                                // style: ElevatedButton.styleFrom(
-                                //   backgroundColor: isDarkMode ? Colors.lightBlueAccent : Colors.blue,
-                                // ),
                                 child: Text(
-                                  "Guardar Cambios",
+                                  loc.saveChanges,
                                   style: TextStyle(
-                                    color: isDarkMode ? Colors.lightBlueAccent : Colors.blue,
+                                    color: isDarkMode
+                                        ? Colors.lightBlueAccent
+                                        : Colors.blue,
                                     fontSize: 16,
                                   ),
-                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -148,22 +161,25 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                     ),
 
-                    SizedBox(height: 50), // Espacio entre el formulario y el botón
+                    SizedBox(
+                        height: 50), // Espacio entre el formulario y el botón
 
-                  // Botón Cambiar Contraseña (ahora afuera del formulario)
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      onPressed: _cambiarContrasena,
-                      child: Text(
-                        "Deseas cambiar tu contraseña",
-                        style: TextStyle(
-                          color: isDarkMode ? Colors.lightBlueAccent : Colors.blue,
-                          fontSize: 16,
+                    // Botón Cambiar Contraseña (ahora afuera del formulario)
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: _cambiarContrasena,
+                        child: Text(
+                          loc.changePassword,
+                          style: TextStyle(
+                            color: isDarkMode
+                                ? Colors.lightBlueAccent
+                                : Colors.blue,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   ],
                 ),
               ),
@@ -172,17 +188,22 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   /// Widget reutilizable para los campos de texto
-  Widget _buildTextField(String label, String value, bool isEditable, bool isDarkMode, [Function(String)? onChanged]) {
+  Widget _buildTextField(
+      String label, String value, bool isEditable, bool isDarkMode,
+      [Function(String)? onChanged]) {
     return TextFormField(
       initialValue: value,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+        labelStyle:
+            TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: isDarkMode ? Colors.white54 : Colors.black38),
+          borderSide:
+              BorderSide(color: isDarkMode ? Colors.white54 : Colors.black38),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: isDarkMode ? Colors.lightBlueAccent : Colors.blue),
+          borderSide: BorderSide(
+              color: isDarkMode ? Colors.lightBlueAccent : Colors.blue),
         ),
         filled: true,
         fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
@@ -192,5 +213,5 @@ class _ProfileViewState extends State<ProfileView> {
       enabled: isEditable,
       onChanged: isEditable ? onChanged : null,
     );
-  } 
+  }
 }
