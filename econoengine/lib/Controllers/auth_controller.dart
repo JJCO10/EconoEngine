@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:econoengine/Models/cuota.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:flutter/material.dart';
 import '../Services/auth_service.dart';
@@ -6,11 +7,67 @@ import '../Services/biometric_auth_service.dart';
 import '../Models/users.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:econoengine/Models/prestamo.dart';
+import 'package:econoengine/Services/loan_service.dart';
 
 class AuthController extends ChangeNotifier {
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
+  // Agrega como propiedad de la clase
+  final LoanService _loanService = LoanService();
+
+  // Agrega estos métodos
+  Future<List<Prestamo>> obtenerPrestamosUsuario() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+    return await _loanService.obtenerPrestamosUsuario(user.uid);
+  }
+
+  Future<void> solicitarPrestamo({
+    required double monto,
+    required String tipoInteres,
+    required double tasaInteres,
+    required int plazoMeses,
+    required String destinoTelefono,
+    required String solicitanteCedula,
+    required String solicitanteNombre,
+  }) async {
+    try {
+      // Lógica para manejar la solicitud de préstamo.
+      // Aquí puedes agregar el código para guardar los datos en Firestore o hacer cualquier otra acción.
+      print('Préstamo solicitado con los siguientes datos:');
+      print('Monto: $monto');
+      print('Tipo de Interés: $tipoInteres');
+      print('Tasa de Interés: $tasaInteres');
+      print('Plazo: $plazoMeses');
+      print('Teléfono de destino: $destinoTelefono');
+      print('Cédula del solicitante: $solicitanteCedula');
+      print('Nombre del solicitante: $solicitanteNombre');
+
+      // Llama a Firestore o a otro servicio para procesar la solicitud.
+    } catch (e) {
+      throw Exception('Error al solicitar el préstamo: $e');
+    }
+  }
+
+  Future<void> pagarCuota(String prestamoId, int numeroCuota) async {
+    await _loanService.pagarCuota(prestamoId, numeroCuota);
+  }
+
+  List<Cuota> calcularCuotasPrestamo({
+    required double monto,
+    required double tasaAnual,
+    required int plazoMeses,
+    required String tipoInteres,
+  }) {
+    return _loanService.calcularCuotas(
+      monto: monto,
+      tasaAnual: tasaAnual,
+      plazoMeses: plazoMeses,
+      tipoInteres: tipoInteres,
+    );
+  }
 
   Future<List<Transferencia>> obtenerTransferenciasEnviadas() async {
     return await _authService.obtenerTransferenciasEnviadas();
