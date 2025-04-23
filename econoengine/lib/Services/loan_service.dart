@@ -19,6 +19,41 @@ class LoanService {
         .toList();
   }
 
+  Future<void> solicitarPrestamo({
+    required String userId,
+    required double monto,
+    required String tipoInteres,
+    required double tasaInteres,
+    required int plazoMeses,
+    required String destinoTelefono,
+    required String solicitanteCedula,
+    required String solicitanteNombre,
+  }) async {
+    final cuotasCalculadas = calcularCuotas(
+      monto: monto,
+      tasaAnual: tasaInteres,
+      plazoMeses: plazoMeses,
+      tipoInteres: tipoInteres,
+    );
+
+    await _firestore.collection('prestamos').add({
+      'userId': userId,
+      'monto': monto,
+      'tipoInteres': tipoInteres,
+      'tasaInteres': tasaInteres,
+      'plazoMeses': plazoMeses,
+      'fechaSolicitud': Timestamp.now(),
+      'estado': 'pendiente',
+      'telefonoDestino': destinoTelefono,
+      'solicitanteCedula': solicitanteCedula,
+      'solicitanteNombre': solicitanteNombre,
+      'cuotas': cuotasCalculadas.map((cuota) => cuota.toMap()).toList(),
+      'saldoPendiente':
+          monto, // Inicialmente el saldo pendiente es el monto total
+      'totalPagado': 0.0, // Inicialmente no se ha pagado nada
+    });
+  }
+
   Future<List<Prestamo>> obtenerPrestamosPendientes() async {
     final query = await _firestore
         .collection('prestamos')

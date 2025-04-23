@@ -34,20 +34,24 @@ class AuthController extends ChangeNotifier {
     required String solicitanteNombre,
   }) async {
     try {
-      // Lógica para manejar la solicitud de préstamo.
-      // Aquí puedes agregar el código para guardar los datos en Firestore o hacer cualquier otra acción.
-      print('Préstamo solicitado con los siguientes datos:');
-      print('Monto: $monto');
-      print('Tipo de Interés: $tipoInteres');
-      print('Tasa de Interés: $tasaInteres');
-      print('Plazo: $plazoMeses');
-      print('Teléfono de destino: $destinoTelefono');
-      print('Cédula del solicitante: $solicitanteCedula');
-      print('Nombre del solicitante: $solicitanteNombre');
+      final user = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('Usuario no autenticado');
 
-      // Llama a Firestore o a otro servicio para procesar la solicitud.
+      await _loanService.solicitarPrestamo(
+        userId: user.uid,
+        monto: monto,
+        tipoInteres: tipoInteres,
+        tasaInteres: tasaInteres,
+        plazoMeses: plazoMeses,
+        destinoTelefono: destinoTelefono,
+        solicitanteCedula: solicitanteCedula,
+        solicitanteNombre: solicitanteNombre,
+      );
+
+      print('AuthController - Préstamo solicitado y guardado');
     } catch (e) {
-      throw Exception('Error al solicitar el préstamo: $e');
+      print('AuthController - Error al solicitar préstamo: $e');
+      rethrow;
     }
   }
 
@@ -61,6 +65,9 @@ class AuthController extends ChangeNotifier {
     required int plazoMeses,
     required String tipoInteres,
   }) {
+    print('AuthController - Calculando cuotas para simulación');
+    print(
+        'Monto: $monto, Tasa Anual: $tasaAnual, Plazo: $plazoMeses, Tipo: $tipoInteres');
     return _loanService.calcularCuotas(
       monto: monto,
       tasaAnual: tasaAnual,
