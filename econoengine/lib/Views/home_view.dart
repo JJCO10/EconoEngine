@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
+import 'package:econoengine/Services/auth_service.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/TIR_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
@@ -489,14 +490,29 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
             const SizedBox(height: 10),
-            Text(
-              saldo != null
-                  ? '\$${_formatearSaldo(saldo!)}'
-                  : 'Cargando saldo...',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+            StreamBuilder<double>(
+              stream: AuthService().obtenerSaldoEnTiempoReal(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text('Cargando saldo...');
+                }
+
+                if (snapshot.hasError) {
+                  return Text('Error al cargar el saldo');
+                }
+
+                final saldo = snapshot.data;
+
+                return Text(
+                  saldo != null
+                      ? '\$${_formatearSaldo(saldo)}'
+                      : 'Saldo no disponible',
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
             Row(
