@@ -160,6 +160,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                       Colors.blue[800]!,
                       () {
                         controller.calcularVF(
+                          context,
                           double.tryParse(_vpController.text),
                           double.tryParse(_iController.text),
                           double.tryParse(_tController.text),
@@ -174,6 +175,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                       Colors.purple[800]!,
                       () {
                         controller.calcularVP(
+                          context,
                           double.tryParse(_vfController.text),
                           double.tryParse(_iController.text),
                           double.tryParse(_tController.text),
@@ -192,6 +194,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                       Colors.green[800]!,
                       () {
                         controller.calcularTasa(
+                          context,
                           double.tryParse(_vpController.text),
                           double.tryParse(_vfController.text),
                           double.tryParse(_tController.text),
@@ -206,6 +209,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                       Colors.orange[800]!,
                       () {
                         controller.calcularTiempo(
+                          context,
                           double.tryParse(_vpController.text),
                           double.tryParse(_vfController.text),
                           double.tryParse(_iController.text),

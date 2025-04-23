@@ -210,6 +210,9 @@ class AppLocalizations {
       'invalidAmount': 'Invalid Amount',
       'invalidRate': 'Invalid Rate',
       'invalidTime': 'Invalid Time',
+
+      'invalidVP': 'Invalid PV',
+      'invalidVF': 'Invalid FV',
     },
     'es': {
       // Textos generales
@@ -396,6 +399,9 @@ class AppLocalizations {
       'invalidAmount': 'Monto inválido',
       'invalidRate': 'Tasa inválida',
       'invalidTime': 'Tiempo inválido',
+
+      'invalidVP': 'VP inválido',
+      'invalidVF': 'VF inválido',
     },
   };
 

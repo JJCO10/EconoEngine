@@ -47,11 +47,12 @@ class InteresSimpleController extends ChangeNotifier {
   }
 
   // --- Métodos de cálculo ---
-  void calcularVF(double? vp, double? i, double? t) {
-    _error = _service.validarCampos(
+  void calcularVF(BuildContext context, double? vp, double? i, double? t) {
+    final errorKey = _service.validarCampos(
         vp: vp, vf: null, i: i, t: t, requeridos: [true, false, true, true]);
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
@@ -66,11 +67,12 @@ class InteresSimpleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calcularVP(double? vf, double? i, double? t) {
-    _error = _service.validarCampos(
+  void calcularVP(BuildContext context, double? vf, double? i, double? t) {
+    final errorKey = _service.validarCampos(
         vp: null, vf: vf, i: i, t: t, requeridos: [false, true, true, true]);
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
@@ -85,11 +87,12 @@ class InteresSimpleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calcularTasa(double? vp, double? vf, double? t) {
-    _error = _service.validarCampos(
+  void calcularTasa(BuildContext context, double? vp, double? vf, double? t) {
+    final errorKey = _service.validarCampos(
         vp: vp, vf: vf, i: null, t: t, requeridos: [true, true, false, true]);
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
@@ -104,11 +107,12 @@ class InteresSimpleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void calcularTiempo(double? vp, double? vf, double? i) {
-    _error = _service.validarCampos(
+  void calcularTiempo(BuildContext context, double? vp, double? vf, double? i) {
+    final errorKey = _service.validarCampos(
         vp: vp, vf: vf, i: i, t: null, requeridos: [true, true, true, false]);
 
-    if (_error.isNotEmpty) {
+    if (errorKey.isNotEmpty) {
+      _error = AppLocalizations.of(context)!.translate(errorKey);
       notifyListeners();
       return;
     }
