@@ -161,6 +161,13 @@ class AppLocalizations {
 
       //navbar
       "home": "Home",
+
+      //settings view
+      "darkTheme": "Dark Theme",
+      "aboutEconoEngine": "About EconoEngine",
+      "aboutEconoEngineText1": "EconoEngine version 2.0.0",
+      "aboutEconoEngineText2": "An app to manage your finances efficiently.",
+      "aboutEconoEngineText3": "© 2025 EconoEngine",
     },
     'es': {
       // Textos generales
@@ -297,6 +304,14 @@ class AppLocalizations {
 
       //navbar
       "home": "Inicio",
+
+      //settings view
+      "darkTheme": "Tema Oscuro",
+      "aboutEconoEngine": "Acerca de EconoEngine",
+      "aboutEconoEngineText1": "EconoEngine versión 2.0.0",
+      "aboutEconoEngineText2":
+          "Una aplicación para gestionar tus finanzas de manera eficiente.",
+      "aboutEconoEngineText3": "© 2025 EconoEngine",
     },
   };
 
@@ -452,6 +467,15 @@ class AppLocalizations {
 
   //navbar
   String get home => translate('home');
+
+  //settigns view
+  String get darkTheme => translate('darkTheme');
+  String get spanish => translate('spanish');
+  String get english => translate('english');
+  String get aboutEconoEngine => translate('aboutEconoEngine');
+  String get aboutEconoEngineText1 => translate('aboutEconoEngineText1');
+  String get aboutEconoEngineText2 => translate('aboutEconoEngineText2');
+  String get aboutEconoEngineText3 => translate('aboutEconoEngineText3');
 }
 
 class _AppLocalizationsDelegate

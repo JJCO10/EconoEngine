@@ -21,10 +21,11 @@ class _SettingsViewState extends State<SettingsView> {
     final themeController = Provider.of<ThemeController>(context);
     final textSizeController = Provider.of<TextSizeController>(context);
     final languageController = Provider.of<LanguageController>(context);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).settings),
+        title: Text(loc.settings),
         backgroundColor: themeController.currentTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 5,
@@ -36,7 +37,7 @@ class _SettingsViewState extends State<SettingsView> {
           children: [
             // Sección de Tema
             Text(
-              'Tema',
+              loc.theme,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -45,7 +46,7 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 10),
             SwitchListTile(
-              title: const Text('Tema Oscuro'),
+              title: Text(loc.darkTheme),
               value: themeController.isDarkMode,
               onChanged: (value) {
                 themeController.toggleTheme();
@@ -55,7 +56,7 @@ class _SettingsViewState extends State<SettingsView> {
 
             // Sección de Idioma
             Text(
-              'Idioma',
+              loc.language,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -75,13 +76,11 @@ class _SettingsViewState extends State<SettingsView> {
               items: [
                 DropdownMenuItem(
                   value: 'es',
-                  child: Text(AppLocalizations.of(context).translate(
-                      'spanish')), // Añade 'spanish' a tu diccionario
+                  child: Text(loc.spanish), // Añade 'spanish' a tu diccionario
                 ),
                 DropdownMenuItem(
                   value: 'en',
-                  child: Text(AppLocalizations.of(context).translate(
-                      'english')), // Añade 'english' a tu diccionario
+                  child: Text(loc.english), // Añade 'english' a tu diccionario
                 ),
               ],
             ),
@@ -89,7 +88,7 @@ class _SettingsViewState extends State<SettingsView> {
 
             // Sección de Accesibilidad
             Text(
-              'Accesibilidad',
+              loc.accessibility,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -98,7 +97,7 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 10),
             SwitchListTile(
-              title: const Text('Alto Contraste'),
+              title: Text(loc.highContrast),
               value: themeController.isHighContrast,
               onChanged: (value) {
                 themeController.setHighContrast(value);
@@ -106,7 +105,7 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 10),
             ListTile(
-              title: const Text('Tamaño del Texto'),
+              title: Text(loc.textSize),
               subtitle: Slider(
                 value: textSizeController.textSize,
                 min: 12.0,
@@ -122,7 +121,7 @@ class _SettingsViewState extends State<SettingsView> {
 
             // Sección de Información de la Aplicación
             Text(
-              'Información de la Aplicación',
+              loc.appInfo,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -131,30 +130,29 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 10),
             ListTile(
-              title: const Text('Versión'),
-              subtitle: const Text('1.0.0'),
+              title: Text(loc.version),
+              subtitle: const Text('2.0.0'),
               trailing: IconButton(
                 icon: const Icon(Icons.info_outline),
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Acerca de EconoEngine'),
-                      content: const SingleChildScrollView(
+                      title: Text(loc.aboutEconoEngine),
+                      content: SingleChildScrollView(
                         child: ListBody(
                           children: <Widget>[
-                            Text('EconoEngine versión 1.0.0'),
+                            Text(loc.aboutEconoEngineText1),
                             SizedBox(height: 10),
-                            Text(
-                                'Una aplicación para gestionar tus finanzas de manera eficiente.'),
+                            Text(loc.aboutEconoEngineText2),
                             SizedBox(height: 10),
-                            Text('© 2025 EconoEngine'),
+                            Text(loc.aboutEconoEngineText3),
                           ],
                         ),
                       ),
                       actions: <Widget>[
                         TextButton(
-                          child: const Text('Cerrar'),
+                          child: Text(loc.close),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
