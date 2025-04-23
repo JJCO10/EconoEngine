@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/gradientes_controller.dart';
+import '../l10n/app_localizations_setup.dart';
 
 class GradientesView extends StatefulWidget {
   const GradientesView({super.key});
@@ -14,7 +15,8 @@ class _GradientesViewState extends State<GradientesView> {
   final TextEditingController _gradienteController = TextEditingController();
   final TextEditingController _tasaInteresController = TextEditingController();
   final TextEditingController _periodosController = TextEditingController();
-  final TextEditingController _tasaCrecimientoController = TextEditingController();
+  final TextEditingController _tasaCrecimientoController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -29,12 +31,29 @@ class _GradientesViewState extends State<GradientesView> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<GradienteController>(context);
-    final unidadesTasa = ['anual', 'mensual', 'trimestral', 'semestral', 'diaria'];
-    final unidadesPeriodo = ['meses', 'trimestres', 'semestres', 'años', 'días'];
+    final loc = AppLocalizations.of(context);
+
+    // Unidades para tasas (mostradas traducidas pero con valores internos consistentes)
+    final unidadesTasa = [
+      _DropdownItem(value: 'anual', display: loc.annual),
+      _DropdownItem(value: 'mensual', display: loc.monthly),
+      _DropdownItem(value: 'trimestral', display: loc.quarterly),
+      _DropdownItem(value: 'semestral', display: loc.semiannual),
+      _DropdownItem(value: 'diaria', display: loc.daily),
+    ];
+
+    // Unidades para periodos (mostradas traducidas pero con valores internos consistentes)
+    final unidadesPeriodo = [
+      _DropdownItem(value: 'meses', display: loc.months),
+      _DropdownItem(value: 'trimestres', display: loc.quarters),
+      _DropdownItem(value: 'semestres', display: loc.semesters),
+      _DropdownItem(value: 'años', display: loc.years),
+      _DropdownItem(value: 'días', display: loc.days),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gradientes Aritméticos y Geométricos'),
+        title: Text(loc.gradientsTitle),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
       ),
@@ -43,46 +62,59 @@ class _GradientesViewState extends State<GradientesView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSelectorTipo(controller),
+            _buildSelectorTipo(controller, loc),
             const SizedBox(height: 20),
-            _buildCamposEntrada(controller, unidadesTasa, unidadesPeriodo),
+            _buildCamposEntrada(controller, unidadesTasa, unidadesPeriodo, loc),
             const SizedBox(height: 20),
             if (controller.hasError) _buildError(controller),
-            _buildBotonCalcular(controller),
+            _buildBotonCalcular(controller, loc),
             const SizedBox(height: 20),
-            if (controller.resultados.isNotEmpty) _buildResultados(controller),
+            if (controller.resultados.isNotEmpty)
+              _buildResultados(controller, loc),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSelectorTipo(GradienteController controller) {
+  Widget _buildSelectorTipo(
+      GradienteController controller, AppLocalizations loc) {
+    final opcionesGradiente = [
+      _DropdownItem(value: 'Aritmético', display: loc.arithmeticGradient),
+      _DropdownItem(value: 'Geométrico', display: loc.geometricGradient),
+    ];
+
     return Card(
       elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Text(
-              "Seleccione el tipo de gradiente:",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              loc.selectGradientType,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            DropdownButton<String>(
-              value: controller.tipoGradiente,
-              onChanged: (String? newValue) {
+            DropdownButtonFormField<_DropdownItem>(
+              value: opcionesGradiente.firstWhere(
+                (item) => item.value == controller.tipoGradiente,
+                orElse: () => opcionesGradiente[0],
+              ),
+              onChanged: (_DropdownItem? newValue) {
                 if (newValue != null) {
-                  controller.cambiarTipoGradiente(newValue);
+                  controller.cambiarTipoGradiente(newValue.value);
                 }
               },
-              items: <String>["Aritmético", "Geométrico"]
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+              items: opcionesGradiente.map((_DropdownItem item) {
+                return DropdownMenuItem<_DropdownItem>(
+                  value: item,
+                  child: Text(item.display),
                 );
               }).toList(),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              ),
             ),
           ],
         ),
@@ -92,8 +124,9 @@ class _GradientesViewState extends State<GradientesView> {
 
   Widget _buildCamposEntrada(
     GradienteController controller,
-    List<String> unidadesTasa,
-    List<String> unidadesPeriodo,
+    List<_DropdownItem> unidadesTasa,
+    List<_DropdownItem> unidadesPeriodo,
+    AppLocalizations loc,
   ) {
     return Card(
       elevation: 5,
@@ -102,46 +135,49 @@ class _GradientesViewState extends State<GradientesView> {
         child: Column(
           children: [
             _buildInputField(
-              "Primer Pago (A)",
+              loc.firstPayment,
               _primerPagoController,
-              hintText: "Ej: 1000",
+              hintText: loc.exampleAmount,
               suffixText: "\$",
             ),
             const SizedBox(height: 10),
             if (controller.tipoGradiente == "Aritmético")
               _buildInputField(
-                "Gradiente (G)",
+                loc.gradient,
                 _gradienteController,
-                hintText: "Ej: 100",
+                hintText: loc.exampleAmount,
                 suffixText: "\$",
               ),
             if (controller.tipoGradiente == "Geométrico")
               _buildInputField(
-                "Tasa de Crecimiento (g)",
+                loc.growthRate,
                 _tasaCrecimientoController,
-                hintText: "Ej: 5 (5%)",
+                hintText: loc.examplePercentage,
                 suffixText: "%",
               ),
             const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 4, // Le damos más espacio al input
                   child: _buildInputField(
-                    "Tasa de Interés (i)",
+                    loc.interestRate,
                     _tasaInteresController,
-                    hintText: "Ej: 12 (12%)",
+                    hintText: loc.examplePercentage,
                     suffixText: "%",
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  flex: 2,
+                  flex: 3, // Le damos más espacio al dropdown
                   child: _buildDropdown(
-                    "Unidad",
+                    loc.unit,
                     unidadesTasa,
-                    controller.unidadTasa,
-                    (value) => controller.cambiarUnidadTasa(value!),
+                    unidadesTasa.firstWhere(
+                      (item) => item.value == controller.unidadTasa,
+                      orElse: () => unidadesTasa[0],
+                    ),
+                    (value) => controller.cambiarUnidadTasa(value!.value),
                   ),
                 ),
               ],
@@ -150,21 +186,24 @@ class _GradientesViewState extends State<GradientesView> {
             Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 4, // Le damos más espacio al input
                   child: _buildInputField(
-                    "Número de Períodos (n)",
+                    loc.periods,
                     _periodosController,
-                    hintText: "Ej: 12",
+                    hintText: loc.examplePeriods,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
-                  flex: 2,
+                  flex: 3, // Le damos más espacio al dropdown
                   child: _buildDropdown(
-                    "Unidad",
+                    loc.unit,
                     unidadesPeriodo,
-                    controller.unidadPeriodo,
-                    (value) => controller.cambiarUnidadPeriodo(value!),
+                    unidadesPeriodo.firstWhere(
+                      (item) => item.value == controller.unidadPeriodo,
+                      orElse: () => unidadesPeriodo[0],
+                    ),
+                    (value) => controller.cambiarUnidadPeriodo(value!.value),
                   ),
                 ),
               ],
@@ -195,20 +234,20 @@ class _GradientesViewState extends State<GradientesView> {
 
   Widget _buildDropdown(
     String label,
-    List<String> items,
-    String? value,
-    ValueChanged<String?> onChanged,
+    List<_DropdownItem> items,
+    _DropdownItem? value,
+    ValueChanged<_DropdownItem?> onChanged,
   ) {
-    return DropdownButtonFormField<String>(
-      value: value,
+    return DropdownButtonFormField<_DropdownItem>(
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
       ),
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
+      value: value,
+      items: items.map((_DropdownItem item) {
+        return DropdownMenuItem<_DropdownItem>(
           value: item,
-          child: Text(item),
+          child: Text(item.display),
         );
       }).toList(),
       onChanged: onChanged,
@@ -225,7 +264,8 @@ class _GradientesViewState extends State<GradientesView> {
     );
   }
 
-  Widget _buildBotonCalcular(GradienteController controller) {
+  Widget _buildBotonCalcular(
+      GradienteController controller, AppLocalizations loc) {
     return Center(
       child: ElevatedButton(
         onPressed: () => _calcular(controller),
@@ -234,12 +274,13 @@ class _GradientesViewState extends State<GradientesView> {
           backgroundColor: Colors.blue[800],
           foregroundColor: Colors.white,
         ),
-        child: const Text("Calcular"),
+        child: Text(loc.calculate),
       ),
     );
   }
 
-  Widget _buildResultados(GradienteController controller) {
+  Widget _buildResultados(
+      GradienteController controller, AppLocalizations loc) {
     return Card(
       elevation: 5,
       child: Padding(
@@ -274,7 +315,8 @@ class _GradientesViewState extends State<GradientesView> {
         periodos: periodos,
       );
     } else {
-      final tasaCrecimiento = double.tryParse(_tasaCrecimientoController.text) ?? 0;
+      final tasaCrecimiento =
+          double.tryParse(_tasaCrecimientoController.text) ?? 0;
       controller.calcular(
         primerPago: primerPago,
         gradienteOrTasaCrecimiento: tasaCrecimiento,
@@ -286,9 +328,18 @@ class _GradientesViewState extends State<GradientesView> {
 
   String _traducirConcepto(String key) {
     return {
-      'valorPresente': 'Valor Presente',
-      'valorFuturo': 'Valor Futuro',
-      'serie': 'Serie',
-    }[key] ?? key;
+          'valorPresente': 'Valor Presente',
+          'valorFuturo': 'Valor Futuro',
+          'serie': 'Serie',
+        }[key] ??
+        key;
   }
+}
+
+// Clase auxiliar para manejar los items del dropdown con valor interno y display traducido
+class _DropdownItem {
+  final String value;
+  final String display;
+
+  _DropdownItem({required this.value, required this.display});
 }

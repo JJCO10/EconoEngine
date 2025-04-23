@@ -213,6 +213,28 @@ class AppLocalizations {
 
       'invalidVP': 'Invalid PV',
       'invalidVF': 'Invalid FV',
+
+      // GradientesView
+      'gradientsTitle': 'Arithmetic and Geometric Gradients',
+      'selectGradientType': 'Select gradient type:',
+      'arithmetic': 'Arithmetic',
+      'geometric': 'Geometric',
+      'firstPayment': 'First Payment (A)',
+      'gradient': 'Gradient (G)',
+      'growthRate': 'Growth Rate (g)',
+      'periods': 'Number of Periods (n)',
+      'unit': 'Unit',
+      'calculate': 'Calculate',
+      'presentValue': 'Present Value',
+      'futureValue': 'Future Value',
+      'series': 'Series',
+      'exampleAmount': 'e.g. 1000',
+      'examplePercentage': 'e.g. 5 (5%)',
+      'examplePeriods': 'e.g. 12',
+
+      // Opciones de gradiente
+      'arithmeticGradient': 'Arithmetic Gradient',
+      'geometricGradient': 'Geometric Gradient',
     },
     'es': {
       // Textos generales
@@ -402,6 +424,28 @@ class AppLocalizations {
 
       'invalidVP': 'VP inválido',
       'invalidVF': 'VF inválido',
+
+      // GradientesView
+      'gradientsTitle': 'Gradientes Aritméticos y Geométricos',
+      'selectGradientType': 'Seleccione el tipo de gradiente:',
+      'arithmetic': 'Aritmético',
+      'geometric': 'Geométrico',
+      'firstPayment': 'Primer Pago (A)',
+      'gradient': 'Gradiente (G)',
+      'growthRate': 'Tasa de Crecimiento (g)',
+      'periods': 'Número de Períodos (n)',
+      'unit': 'Unidad',
+      'calculate': 'Calcular',
+      'presentValue': 'Valor Presente',
+      'futureValue': 'Valor Futuro',
+      'series': 'Serie',
+      'exampleAmount': 'Ej: 1000',
+      'examplePercentage': 'Ej: 5 (5%)',
+      'examplePeriods': 'Ej: 12',
+
+      // Opciones de gradiente
+      'arithmeticGradient': 'Gradiente Aritmético',
+      'geometricGradient': 'Gradiente Geométrico',
     },
   };
 
@@ -606,6 +650,26 @@ class AppLocalizations {
   String get invalidAmount => translate('invalidAmount');
   String get invalidRate => translate('invalidRate');
   String get invalidTime => translate('invalidTime');
+
+  // GradientesView
+  String get gradientsTitle => translate('gradientsTitle');
+  String get selectGradientType => translate('selectGradientType');
+  String get arithmetic => translate('arithmetic');
+  String get geometric => translate('geometric');
+  String get firstPayment => translate('firstPayment');
+  String get gradient => translate('gradient');
+  String get growthRate => translate('growthRate');
+  String get periods => translate('periods');
+  String get unit => translate('unit');
+  String get calculate => translate('calculate');
+  String get valorPresente => translate('presentValue');
+  String get valorFuturo => translate('futureValue');
+  String get series => translate('series');
+  String get exampleAmount => translate('exampleAmount');
+  String get examplePercentage => translate('examplePercentage');
+  String get examplePeriods => translate('examplePeriods');
+  String get arithmeticGradient => translate('arithmeticGradient');
+  String get geometricGradient => translate('geometricGradient');
 }
 
 class _AppLocalizationsDelegate
