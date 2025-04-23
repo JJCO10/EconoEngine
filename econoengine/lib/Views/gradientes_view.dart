@@ -1,3 +1,4 @@
+import 'package:econoengine/Controllers/text_size_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/gradientes_controller.dart';
@@ -14,7 +15,8 @@ class _GradientesViewState extends State<GradientesView> {
   final TextEditingController _gradienteController = TextEditingController();
   final TextEditingController _tasaInteresController = TextEditingController();
   final TextEditingController _periodosController = TextEditingController();
-  final TextEditingController _tasaCrecimientoController = TextEditingController();
+  final TextEditingController _tasaCrecimientoController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -29,8 +31,20 @@ class _GradientesViewState extends State<GradientesView> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<GradienteController>(context);
-    final unidadesTasa = ['anual', 'mensual', 'trimestral', 'semestral', 'diaria'];
-    final unidadesPeriodo = ['meses', 'trimestres', 'semestres', 'años', 'días'];
+    final unidadesTasa = [
+      'anual',
+      'mensual',
+      'trimestral',
+      'semestral',
+      'diaria'
+    ];
+    final unidadesPeriodo = [
+      'meses',
+      'trimestres',
+      'semestres',
+      'años',
+      'días'
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -123,10 +137,11 @@ class _GradientesViewState extends State<GradientesView> {
                 suffixText: "%",
               ),
             const SizedBox(height: 10),
+            // Modificación: Aumentar el flex del primer elemento y reducir el tamaño de la etiqueta
             Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 3, // Aumentado de 2 a 3
                   child: _buildInputField(
                     "Tasa de Interés (i)",
                     _tasaInteresController,
@@ -134,7 +149,7 @@ class _GradientesViewState extends State<GradientesView> {
                     suffixText: "%",
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8), // Reducido de 10 a 8
                 Expanded(
                   flex: 2,
                   child: _buildDropdown(
@@ -147,17 +162,18 @@ class _GradientesViewState extends State<GradientesView> {
               ],
             ),
             const SizedBox(height: 10),
+            // Modificación: Similar para esta fila
             Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 3, // Aumentado de 2 a 3
                   child: _buildInputField(
-                    "Número de Períodos (n)",
+                    "Períodos (n)",
                     _periodosController,
                     hintText: "Ej: 12",
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8), // Reducido de 10 a 8
                 Expanded(
                   flex: 2,
                   child: _buildDropdown(
@@ -187,6 +203,8 @@ class _GradientesViewState extends State<GradientesView> {
         hintText: hintText,
         suffixText: suffixText,
         border: const OutlineInputBorder(),
+        // Ajustar el contentPadding para reducir el tamaño horizontal
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
       ),
       keyboardType: TextInputType.number,
       controller: controller,
@@ -199,16 +217,27 @@ class _GradientesViewState extends State<GradientesView> {
     String? value,
     ValueChanged<String?> onChanged,
   ) {
+    final textSize = Provider.of<TextSizeController>(context).textSize;
+
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(fontSize: textSize), // tamaño controlado
         border: const OutlineInputBorder(),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
       ),
       items: items.map((String item) {
         return DropdownMenuItem<String>(
           value: item,
-          child: Text(item),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              item,
+              style: TextStyle(fontSize: textSize),
+            ),
+          ),
         );
       }).toList(),
       onChanged: onChanged,
@@ -274,7 +303,8 @@ class _GradientesViewState extends State<GradientesView> {
         periodos: periodos,
       );
     } else {
-      final tasaCrecimiento = double.tryParse(_tasaCrecimientoController.text) ?? 0;
+      final tasaCrecimiento =
+          double.tryParse(_tasaCrecimientoController.text) ?? 0;
       controller.calcular(
         primerPago: primerPago,
         gradienteOrTasaCrecimiento: tasaCrecimiento,
@@ -286,9 +316,10 @@ class _GradientesViewState extends State<GradientesView> {
 
   String _traducirConcepto(String key) {
     return {
-      'valorPresente': 'Valor Presente',
-      'valorFuturo': 'Valor Futuro',
-      'serie': 'Serie',
-    }[key] ?? key;
+          'valorPresente': 'Valor Presente',
+          'valorFuturo': 'Valor Futuro',
+          'serie': 'Serie',
+        }[key] ??
+        key;
   }
 }

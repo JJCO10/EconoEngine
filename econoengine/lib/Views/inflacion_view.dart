@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controllers/inflacion_controller.dart';
+import '../Controllers/inflacion_controller.dart';
 
 class InflacionView extends StatefulWidget {
   const InflacionView({super.key});

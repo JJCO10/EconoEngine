@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/capitalizacion_service.dart';
+import '../Services/capitalizacion_service.dart';
 
 class CapitalizacionController extends ChangeNotifier {
   final CapitalizacionService _service = CapitalizacionService();
