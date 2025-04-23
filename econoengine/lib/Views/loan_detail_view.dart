@@ -12,7 +12,10 @@ class LoanDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Préstamo #${prestamo.id.substring(0, 6)}')),
+      appBar: AppBar(
+        title:
+            Text('Préstamo #PRE-${prestamo.id.substring(0, 6).toUpperCase()}'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

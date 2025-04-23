@@ -53,6 +53,27 @@ class Prestamo {
     );
   }
 
+  factory Prestamo.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Prestamo(
+      id: doc.id,
+      userId: data['userId'],
+      monto: (data['monto'] ?? 0).toDouble(),
+      tipoInteres: data['tipoInteres'] ?? '',
+      tasaInteres: (data['tasaInteres'] ?? 0).toDouble(),
+      plazoMeses: data['plazoMeses'] ?? 0,
+      fechaSolicitud: data['fechaSolicitud'] ?? Timestamp.now(),
+      estado: data['estado'] ?? 'pendiente',
+      cuotas:
+          (data['cuotas'] as List? ?? []).map((c) => Cuota.fromMap(c)).toList(),
+      saldoPendiente: (data['saldoPendiente'] ?? 0).toDouble(),
+      totalPagado: (data['totalPagado'] ?? 0).toDouble(),
+      destinoTelefono: data['destinoTelefono'] ?? '',
+      solicitanteCedula: data['solicitanteCedula'] ?? '',
+      solicitanteNombre: data['solicitanteNombre'] ?? '',
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
