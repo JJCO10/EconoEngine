@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:econoengine/Models/cuota.dart';
 import 'package:econoengine/Models/transferencia.dart';
 import 'package:flutter/material.dart';
 import '../Services/auth_service.dart';
@@ -6,11 +9,276 @@ import '../Services/biometric_auth_service.dart';
 import '../Models/users.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:econoengine/Models/prestamo.dart';
+import 'package:econoengine/Services/loan_service.dart';
 
 class AuthController extends ChangeNotifier {
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
+  // Agrega como propiedad de la clase
+  final LoanService _loanService = LoanService();
+
+  // Agrega estos métodos
+  Future<List<Prestamo>> obtenerPrestamosUsuario() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('Usuario no autenticado');
+      return [];
+    }
+
+    print('Buscando préstamos para el UID: ${user.uid}');
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('prestamos')
+        .where('userId', isEqualTo: user.uid)
+        .get();
+
+    print('Préstamos encontrados: ${snapshot.docs.length}');
+
+    return snapshot.docs.map((doc) {
+      print('Prestamo encontrado: ${doc.data()}');
+      return Prestamo.fromFirestore(doc);
+    }).toList();
+  }
+
+  Stream<Prestamo> obtenerPrestamoPorId(String id) {
+    return FirebaseFirestore.instance
+        .collection('prestamos')
+        .doc(id)
+        .snapshots()
+        .map((doc) => Prestamo.fromMap(doc.data()!, doc.id));
+  }
+
+  Future<void> actualizarSaldoUsuario(double nuevoSaldo) async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    try {
+      await _firestore.collection('usuarios').doc(user.uid).update({
+        'Saldo': nuevoSaldo,
+      });
+      print('Saldo actualizado correctamente');
+    } catch (e) {
+      print('Error al actualizar el saldo: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> solicitarPrestamo({
+    required double monto,
+    required String tipoInteres,
+    required double tasaInteres,
+    required int plazoMeses,
+    required String destinoTelefono,
+    required String solicitanteCedula,
+    required String solicitanteNombre,
+    required String estado,
+  }) async {
+    try {
+      final user = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('Usuario no autenticado');
+
+      await _loanService.solicitarPrestamo(
+        userId: user.uid,
+        monto: monto,
+        tipoInteres: tipoInteres,
+        tasaInteres: tasaInteres,
+        plazoMeses: plazoMeses,
+        destinoTelefono: destinoTelefono,
+        solicitanteCedula: solicitanteCedula,
+        solicitanteNombre: solicitanteNombre,
+        estado: estado,
+      );
+
+      print('AuthController - Préstamo solicitado y guardado');
+    } catch (e) {
+      print('AuthController - Error al solicitar préstamo: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> pagarCuota(String prestamoId, int numeroCuota) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    final userRef = _db.collection('usuarios').doc(user.uid);
+    final prestamoRef = _db.collection('prestamos').doc(prestamoId);
+
+    await _db.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+      final prestamoSnapshot = await transaction.get(prestamoRef);
+
+      if (!userSnapshot.exists || !prestamoSnapshot.exists) {
+        throw Exception('Datos no encontrados');
+      }
+
+      final saldo = userSnapshot.get('Saldo') as double;
+      final data = prestamoSnapshot.data()!;
+      final cuotas = List<Map<String, dynamic>>.from(data['cuotas']);
+      final cuota = cuotas.firstWhere((c) => c['numero'] == numeroCuota);
+
+      if (cuota['estado'] == 'pagada') throw Exception('Cuota ya pagada');
+
+      final montoCuota = cuota['monto'] as double;
+
+      if (saldo < montoCuota) {
+        throw Exception('Saldo insuficiente');
+      }
+
+      // Actualizar cuota
+      cuota['estado'] = 'pagada';
+
+      // Recalcular saldo pendiente y total pagado
+      final nuevoSaldoPendiente =
+          (data['saldoPendiente'] as double) - montoCuota;
+      final nuevoTotalPagado = (data['totalPagado'] as double) + montoCuota;
+
+      // Revisar si todas las cuotas están pagadas
+      final todasPagadas = cuotas.every((c) => c['estado'] == 'pagada');
+      final nuevoEstado = todasPagadas ? 'pagado' : data['estado'];
+
+      // Actualizar préstamo
+      transaction.update(prestamoRef, {
+        'cuotas': cuotas,
+        'saldoPendiente': nuevoSaldoPendiente < 0 ? 0 : nuevoSaldoPendiente,
+        'totalPagado': nuevoTotalPagado,
+        'estado': nuevoEstado,
+      });
+
+      // Descontar del saldo del usuario
+      transaction.update(userRef, {
+        'Saldo': saldo - montoCuota, // Actualización del saldo
+      });
+    });
+  }
+
+  List<Cuota> calcularCuotasPrestamo({
+    required double monto,
+    required double tasaAnual,
+    required int plazoMeses,
+    required String tipoInteres,
+  }) {
+    switch (tipoInteres) {
+      case 'simple':
+        return _calcularCuotasSimple(monto, tasaAnual, plazoMeses);
+      case 'compuesto':
+        return _calcularCuotasCompuesto(monto, tasaAnual, plazoMeses);
+      case 'gradiente':
+        return _calcularCuotasGradiente(monto, tasaAnual, plazoMeses);
+      case 'amortizacion':
+        return _calcularCuotasAmortizacion(monto, tasaAnual, plazoMeses);
+      default:
+        throw Exception('Tipo de interés no soportado');
+    }
+  }
+
+  List<Cuota> _calcularCuotasSimple(
+      double monto, double tasaAnual, int plazoMeses) {
+    // Implementación de cuotas con interés simple
+    List<Cuota> cuotas = [];
+    double interesMensual = tasaAnual / 12 / 100;
+    double cuotaMensual = monto *
+        interesMensual /
+        (1 - pow(1 + interesMensual, -plazoMeses)); // Uso de pow
+
+    for (int i = 1; i <= plazoMeses; i++) {
+      cuotas.add(Cuota(
+        numero: i,
+        monto: cuotaMensual,
+        capital: monto / plazoMeses,
+        interes: cuotaMensual - monto / plazoMeses,
+        fechaVencimiento:
+            Timestamp.fromDate(DateTime.now().add(Duration(days: 30 * i))),
+        estado: 'pendiente',
+      ));
+    }
+
+    return cuotas;
+  }
+
+  List<Cuota> _calcularCuotasCompuesto(
+      double monto, double tasaAnual, int plazoMeses) {
+    // Implementación de cuotas con interés compuesto
+    List<Cuota> cuotas = [];
+    double interesMensual = tasaAnual / 12 / 100;
+    double cuotaMensual = monto *
+        interesMensual /
+        (1 - pow(1 + interesMensual, -plazoMeses)); // Uso de pow
+
+    for (int i = 1; i <= plazoMeses; i++) {
+      cuotas.add(Cuota(
+        numero: i,
+        monto: cuotaMensual,
+        capital: cuotaMensual - monto * interesMensual,
+        interes: monto * interesMensual,
+        fechaVencimiento:
+            Timestamp.fromDate(DateTime.now().add(Duration(days: 30 * i))),
+        estado: 'pendiente',
+      ));
+    }
+
+    return cuotas;
+  }
+
+  List<Cuota> _calcularCuotasGradiente(
+      double monto, double tasaAnual, int plazoMeses) {
+    final tasaMensual = tasaAnual / 12 / 100;
+    final cuotas = <Cuota>[];
+    final incremento = 20.0; // Por ejemplo, aumenta 20 por cuota
+
+    final fechaBase = DateTime.now();
+    for (int i = 1; i <= plazoMeses; i++) {
+      double pago = (monto / plazoMeses) + (i - 1) * incremento;
+      double interes = monto * tasaMensual;
+      double capital = pago - interes;
+
+      cuotas.add(Cuota(
+        numero: i,
+        monto: pago,
+        capital: capital,
+        interes: interes,
+        fechaVencimiento:
+            Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
+        estado: 'pendiente',
+      ));
+
+      monto -= capital;
+    }
+
+    return cuotas;
+  }
+
+  List<Cuota> _calcularCuotasAmortizacion(
+      double monto, double tasaAnual, int plazoMeses) {
+    final tasaMensual = tasaAnual / 12 / 100;
+    final cuotaFija =
+        monto * tasaMensual / (1 - (1 / (pow(1 + tasaMensual, plazoMeses))));
+
+    final cuotas = <Cuota>[];
+    final fechaBase = DateTime.now();
+
+    for (int i = 1; i <= plazoMeses; i++) {
+      double interes = monto * tasaMensual;
+      double capital = cuotaFija - interes;
+
+      cuotas.add(Cuota(
+        numero: i,
+        monto: cuotaFija,
+        capital: capital,
+        interes: interes,
+        fechaVencimiento:
+            Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
+        estado: 'pendiente',
+      ));
+
+      monto -= capital;
+    }
+
+    return cuotas;
+  }
 
   Future<List<Transferencia>> obtenerTransferenciasEnviadas() async {
     return await _authService.obtenerTransferenciasEnviadas();
