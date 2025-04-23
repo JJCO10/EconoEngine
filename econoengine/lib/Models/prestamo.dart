@@ -37,19 +37,20 @@ class Prestamo {
   factory Prestamo.fromMap(Map<String, dynamic> data, String id) {
     return Prestamo(
       id: id,
-      userId: data['userId'],
-      monto: data['monto'].toDouble(),
-      tipoInteres: data['tipoInteres'],
-      tasaInteres: data['tasaInteres'].toDouble(),
-      plazoMeses: data['plazoMeses'],
-      fechaSolicitud: data['fechaSolicitud'],
-      estado: data['estado'],
-      cuotas: (data['cuotas'] as List).map((c) => Cuota.fromMap(c)).toList(),
-      saldoPendiente: data['saldoPendiente'].toDouble(),
-      totalPagado: data['totalPagado'].toDouble(),
-      destinoTelefono: data['destinoTelefono'],
-      solicitanteCedula: data['solicitanteCedula'],
-      solicitanteNombre: data['solicitanteNombre'],
+      userId: data['userId'] ?? '',
+      monto: (data['monto'] ?? 0).toDouble(),
+      tipoInteres: data['tipoInteres'] ?? '',
+      tasaInteres: (data['tasaInteres'] ?? 0).toDouble(),
+      plazoMeses: data['plazoMeses'] ?? 0,
+      fechaSolicitud: data['fechaSolicitud'] ?? Timestamp.now(),
+      estado: data['estado'] ?? 'pendiente',
+      cuotas:
+          (data['cuotas'] as List? ?? []).map((c) => Cuota.fromMap(c)).toList(),
+      saldoPendiente: (data['saldoPendiente'] ?? 0).toDouble(),
+      totalPagado: (data['totalPagado'] ?? 0).toDouble(),
+      destinoTelefono: data['destinoTelefono'] ?? '',
+      solicitanteCedula: data['solicitanteCedula'] ?? '',
+      solicitanteNombre: data['solicitanteNombre'] ?? '',
     );
   }
 

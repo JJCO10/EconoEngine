@@ -6,16 +6,40 @@ import 'package:econoengine/Controllers/auth_controller.dart';
 import 'package:econoengine/Models/prestamo.dart';
 import 'package:intl/intl.dart';
 
-class LoansListView extends StatelessWidget {
+class LoansListView extends StatefulWidget {
   const LoansListView({super.key});
+
+  @override
+  State<LoansListView> createState() => _LoansListViewState();
+}
+
+class _LoansListViewState extends State<LoansListView> {
+  late Future<List<Prestamo>> _prestamosFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrestamos();
+  }
+
+  void _loadPrestamos() {
+    _prestamosFuture = Provider.of<AuthController>(context, listen: false)
+        .obtenerPrestamosUsuario();
+  }
+
+  // Este se llama cada vez que se navega de vuelta a esta vista
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadPrestamos();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Préstamos')),
       body: FutureBuilder<List<Prestamo>>(
-        future: Provider.of<AuthController>(context, listen: false)
-            .obtenerPrestamosUsuario(),
+        future: _prestamosFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -51,14 +75,17 @@ class LoansListView extends StatelessWidget {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.arrow_forward),
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      // Espera a que se cierre la pantalla de detalle
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              LoanDetailView(prestamo: prestamo),
+                              LoanDetailView(prestamoId: prestamo.id),
                         ),
                       );
+                      // Refresca los datos al volver
+                      setState(_loadPrestamos);
                     },
                   ),
                 ),
@@ -69,11 +96,13 @@ class LoansListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const LoanRequestView()),
           );
+          // Refresca al volver de la solicitud de préstamo
+          setState(_loadPrestamos);
         },
       ),
     );

@@ -28,6 +28,7 @@ class LoanService {
     required String destinoTelefono,
     required String solicitanteCedula,
     required String solicitanteNombre,
+    required String estado,
   }) async {
     final cuotasCalculadas = calcularCuotas(
       monto: monto,
@@ -43,7 +44,7 @@ class LoanService {
       'tasaInteres': tasaInteres,
       'plazoMeses': plazoMeses,
       'fechaSolicitud': Timestamp.now(),
-      'estado': 'pendiente',
+      'estado': estado,
       'telefonoDestino': destinoTelefono,
       'solicitanteCedula': solicitanteCedula,
       'solicitanteNombre': solicitanteNombre,

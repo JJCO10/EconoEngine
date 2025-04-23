@@ -13,6 +13,8 @@ import 'package:econoengine/Models/prestamo.dart';
 import 'package:econoengine/Services/loan_service.dart';
 
 class AuthController extends ChangeNotifier {
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final BiometricAuthService _biometricAuthService = BiometricAuthService();
@@ -42,6 +44,29 @@ class AuthController extends ChangeNotifier {
     }).toList();
   }
 
+  Stream<Prestamo> obtenerPrestamoPorId(String id) {
+    return FirebaseFirestore.instance
+        .collection('prestamos')
+        .doc(id)
+        .snapshots()
+        .map((doc) => Prestamo.fromMap(doc.data()!, doc.id));
+  }
+
+  Future<void> actualizarSaldoUsuario(double nuevoSaldo) async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    try {
+      await _firestore.collection('usuarios').doc(user.uid).update({
+        'Saldo': nuevoSaldo,
+      });
+      print('Saldo actualizado correctamente');
+    } catch (e) {
+      print('Error al actualizar el saldo: $e');
+      rethrow;
+    }
+  }
+
   Future<void> solicitarPrestamo({
     required double monto,
     required String tipoInteres,
@@ -50,6 +75,7 @@ class AuthController extends ChangeNotifier {
     required String destinoTelefono,
     required String solicitanteCedula,
     required String solicitanteNombre,
+    required String estado,
   }) async {
     try {
       final user = firebase_auth.FirebaseAuth.instance.currentUser;
@@ -64,6 +90,7 @@ class AuthController extends ChangeNotifier {
         destinoTelefono: destinoTelefono,
         solicitanteCedula: solicitanteCedula,
         solicitanteNombre: solicitanteNombre,
+        estado: estado,
       );
 
       print('AuthController - Préstamo solicitado y guardado');
@@ -74,7 +101,58 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> pagarCuota(String prestamoId, int numeroCuota) async {
-    await _loanService.pagarCuota(prestamoId, numeroCuota);
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    final userRef = _db.collection('usuarios').doc(user.uid);
+    final prestamoRef = _db.collection('prestamos').doc(prestamoId);
+
+    await _db.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+      final prestamoSnapshot = await transaction.get(prestamoRef);
+
+      if (!userSnapshot.exists || !prestamoSnapshot.exists) {
+        throw Exception('Datos no encontrados');
+      }
+
+      final saldo = userSnapshot.get('Saldo') as double;
+      final data = prestamoSnapshot.data()!;
+      final cuotas = List<Map<String, dynamic>>.from(data['cuotas']);
+      final cuota = cuotas.firstWhere((c) => c['numero'] == numeroCuota);
+
+      if (cuota['estado'] == 'pagada') throw Exception('Cuota ya pagada');
+
+      final montoCuota = cuota['monto'] as double;
+
+      if (saldo < montoCuota) {
+        throw Exception('Saldo insuficiente');
+      }
+
+      // Actualizar cuota
+      cuota['estado'] = 'pagada';
+
+      // Recalcular saldo pendiente y total pagado
+      final nuevoSaldoPendiente =
+          (data['saldoPendiente'] as double) - montoCuota;
+      final nuevoTotalPagado = (data['totalPagado'] as double) + montoCuota;
+
+      // Revisar si todas las cuotas están pagadas
+      final todasPagadas = cuotas.every((c) => c['estado'] == 'pagada');
+      final nuevoEstado = todasPagadas ? 'pagado' : data['estado'];
+
+      // Actualizar préstamo
+      transaction.update(prestamoRef, {
+        'cuotas': cuotas,
+        'saldoPendiente': nuevoSaldoPendiente < 0 ? 0 : nuevoSaldoPendiente,
+        'totalPagado': nuevoTotalPagado,
+        'estado': nuevoEstado,
+      });
+
+      // Descontar del saldo del usuario
+      transaction.update(userRef, {
+        'Saldo': saldo - montoCuota, // Actualización del saldo
+      });
+    });
   }
 
   List<Cuota> calcularCuotasPrestamo({

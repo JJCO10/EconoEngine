@@ -5,67 +5,98 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class LoanDetailView extends StatelessWidget {
-  final Prestamo prestamo;
+  final String prestamoId;
 
-  const LoanDetailView({super.key, required this.prestamo});
+  const LoanDetailView({super.key, required this.prestamoId});
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context, listen: false);
+
     return Scaffold(
-      appBar: AppBar(
-        title:
-            Text('Préstamo #PRE-${prestamo.id.substring(0, 6).toUpperCase()}'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoItem('Monto', '\$${prestamo.monto.toStringAsFixed(2)}'),
-            _buildInfoItem('Tasa de interés',
-                '${prestamo.tasaInteres.toStringAsFixed(2)}%'),
-            _buildInfoItem('Tipo de interés', prestamo.tipoInteres),
-            _buildInfoItem('Plazo', '${prestamo.plazoMeses} meses'),
-            _buildInfoItem('Estado', prestamo.estado),
-            _buildInfoItem(
-                'Fecha solicitud',
-                DateFormat('dd/MM/yyyy')
-                    .format(prestamo.fechaSolicitud.toDate())),
-            _buildInfoItem('Saldo pendiente',
-                '\$${prestamo.saldoPendiente.toStringAsFixed(2)}'),
-            _buildInfoItem(
-                'Total pagado', '\$${prestamo.totalPagado.toStringAsFixed(2)}'),
-            const SizedBox(height: 20),
-            const Text('Cuotas',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ...prestamo.cuotas.map((cuota) {
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  title: Text('Cuota ${cuota.numero}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          'Vence: ${DateFormat('dd/MM/yyyy').format(cuota.fechaVencimiento.toDate())}'),
-                      Text('Monto: \$${cuota.monto.toStringAsFixed(2)}'),
-                      Text('Estado: ${cuota.estado}'),
-                    ],
-                  ),
-                  trailing: cuota.estado == 'pendiente'
-                      ? IconButton(
-                          icon: const Icon(Icons.payment),
-                          onPressed: () {
-                            // Implementar pago de cuota
-                            _pagarCuota(context, cuota.numero);
-                          },
-                        )
-                      : null,
+      appBar: AppBar(title: const Text('Detalles del Préstamo')),
+      body: StreamBuilder<Prestamo>(
+        stream: authController.obtenerPrestamoPorId(prestamoId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: Text('Préstamo no encontrado.'));
+          }
+
+          final prestamo = snapshot.data!;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoItem(
+                    'Monto', '\$${prestamo.monto.toStringAsFixed(2)}'),
+                _buildInfoItem('Tasa de interés',
+                    '${prestamo.tasaInteres.toStringAsFixed(2)}%'),
+                _buildInfoItem('Tipo de interés', prestamo.tipoInteres),
+                _buildInfoItem('Plazo', '${prestamo.plazoMeses} meses'),
+                _buildInfoItem('Estado', prestamo.estado),
+                _buildInfoItem(
+                  'Fecha solicitud',
+                  DateFormat('dd/MM/yyyy')
+                      .format(prestamo.fechaSolicitud.toDate()),
                 ),
-              );
-            }).toList(),
-          ],
-        ),
+                _buildInfoItem('Saldo pendiente',
+                    '\$${prestamo.saldoPendiente.toStringAsFixed(2)}'),
+                _buildInfoItem('Total pagado',
+                    '\$${prestamo.totalPagado.toStringAsFixed(2)}'),
+                const SizedBox(height: 20),
+                const Text('Cuotas',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ...prestamo.cuotas.map((cuota) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      title: Text('Cuota ${cuota.numero}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Vence: ${DateFormat('dd/MM/yyyy').format(cuota.fechaVencimiento.toDate())}',
+                          ),
+                          Text('Monto: \$${cuota.monto.toStringAsFixed(2)}'),
+                          Text('Estado: ${cuota.estado}'),
+                        ],
+                      ),
+                      trailing: prestamo.estado == 'pendiente' &&
+                              prestamo.estado != 'aprobado'
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.payment),
+                              onPressed: cuota.estado == 'pagada'
+                                  ? null
+                                  : () {
+                                      _pagarCuota(
+                                          context, prestamo.id, cuota.numero);
+                                    },
+                              tooltip: cuota.estado == 'pagada'
+                                  ? 'Cuota ya pagada'
+                                  : 'Pagar cuota',
+                              color: cuota.estado == 'pagada'
+                                  ? Colors.grey
+                                  : Colors.blue,
+                            ),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -82,7 +113,7 @@ class LoanDetailView extends StatelessWidget {
     );
   }
 
-  void _pagarCuota(BuildContext context, int numeroCuota) {
+  void _pagarCuota(BuildContext context, String prestamoId, int numeroCuota) {
     showDialog(
       context: context,
       builder: (context) {
@@ -97,15 +128,13 @@ class LoanDetailView extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 try {
-                  // Implementar lógica de pago
                   await Provider.of<AuthController>(context, listen: false)
-                      .pagarCuota(prestamo.id, numeroCuota);
+                      .pagarCuota(prestamoId, numeroCuota);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Cuota pagada exitosamente')),
                   );
-                  Navigator.pop(context);
-                  Navigator.pop(context); // Volver a la lista de préstamos
+                  Navigator.pop(context); // Cierra el dialog
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error: ${e.toString()}')),

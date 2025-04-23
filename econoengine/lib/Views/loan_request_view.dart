@@ -16,16 +16,17 @@ class LoanRequestView extends StatefulWidget {
 class _LoanRequestViewState extends State<LoanRequestView> {
   final _formKey = GlobalKey<FormState>();
   double _monto = 0;
-  double _tasaInteres = 0;
+  double _tasaInteres = 1.5;
   double _plazo = 12;
   String _tipoPlazo = 'meses'; // mes o año
-  String _tipoInteres = 'compuesto';
+  String _tipoInteres = 'simple';
   List<Cuota> _cuotasSimuladas = [];
 
   // Usuario datos desde Firestore
   String _telefono = '';
   String _cedula = '';
   String _nombre = '';
+  double _saldoUsuario = 0;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _LoanRequestViewState extends State<LoanRequestView> {
           _telefono = userData['Telefono'] ?? '';
           _cedula = userData['Numero Documento'] ?? '';
           _nombre = userData['Nombre'] ?? '';
+          _saldoUsuario = userData['Saldo'] ?? 0; // Obtener el saldo
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,29 +85,55 @@ class _LoanRequestViewState extends State<LoanRequestView> {
 
   Future<void> _solicitarPrestamo() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        final authController =
-            Provider.of<AuthController>(context, listen: false);
-        final plazoMeses =
-            _tipoPlazo == 'meses' ? _plazo.toInt() : (_plazo.toInt() * 12);
+      // Validar si el saldo es suficiente
+      if (_saldoUsuario >= _monto * 0.1) {
+        try {
+          final authController =
+              Provider.of<AuthController>(context, listen: false);
+          final plazoMeses =
+              _tipoPlazo == 'meses' ? _plazo.toInt() : (_plazo.toInt() * 12);
 
-        await authController.solicitarPrestamo(
-          monto: _monto,
-          tipoInteres: _tipoInteres,
-          tasaInteres: _tasaInteres,
-          plazoMeses: plazoMeses,
-          destinoTelefono: _telefono,
-          solicitanteCedula: _cedula,
-          solicitanteNombre: _nombre,
-        );
+          // Asignar el estado del préstamo en función de la validación
+          final estadoPrestamo =
+              _saldoUsuario >= _monto * 0.1 ? 'aprobado' : 'pendiente';
 
+          await authController.solicitarPrestamo(
+            monto: _monto,
+            tipoInteres: _tipoInteres,
+            tasaInteres: _tasaInteres,
+            plazoMeses: plazoMeses,
+            destinoTelefono: _telefono,
+            solicitanteCedula: _cedula,
+            solicitanteNombre: _nombre,
+            estado: estadoPrestamo, // Establecer el estado
+          );
+
+          // Si el préstamo es aprobado, actualizar el saldo en Firestore
+          if (estadoPrestamo == 'aprobado') {
+            // Actualizar el saldo
+            final nuevoSaldo = _saldoUsuario + _monto;
+
+            // Aquí actualizas el saldo del usuario en Firestore
+            await authController.actualizarSaldoUsuario(nuevoSaldo);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Préstamo solicitado y saldo actualizado')),
+            );
+          }
+          Navigator.pop(context);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      } else {
+        print('Saldo usuario: $_saldoUsuario');
+        print('Monto préstamo: $_monto');
+        print('10% del monto: ${_monto * 0.1}');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Préstamo solicitado exitosamente')),
-        );
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          const SnackBar(
+              content: Text('Saldo insuficiente para aprobar el préstamo')),
         );
       }
     }
