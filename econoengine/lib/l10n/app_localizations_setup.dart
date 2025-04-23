@@ -158,6 +158,9 @@ class AppLocalizations {
       'changePassword': 'Change your password',
       'email': 'Email',
       'userDataNotFound': 'User data not found',
+
+      //navbar
+      "home": "Home",
     },
     'es': {
       // Textos generales
@@ -291,6 +294,9 @@ class AppLocalizations {
       'changePassword': 'Deseas cambiar tu contraseña',
       'email': 'Correo electrónico',
       'userDataNotFound': 'No se encontraron datos del usuario',
+
+      //navbar
+      "home": "Inicio",
     },
   };
 
@@ -443,6 +449,9 @@ class AppLocalizations {
   String get saveChanges => translate('saveChanges');
   String get changePassword => translate('changePassword');
   String get userDataNotFound => translate('userDataNotFound');
+
+  //navbar
+  String get home => translate('home');
 }
 
 class _AppLocalizationsDelegate

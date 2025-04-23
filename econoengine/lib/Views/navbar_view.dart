@@ -1,52 +1,52 @@
 import 'package:econoengine/Views/profile_view.dart';
 import 'package:econoengine/Views/transactions_view.dart';
 import 'package:flutter/material.dart';
-import 'package:econoengine/Views/home_view.dart'; // Asegúrate de importar las vistas correctas
+import 'package:econoengine/Views/home_view.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 
 class NavbarView extends StatefulWidget {
   const NavbarView({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _NavbarViewState createState() => _NavbarViewState();
 }
 
 class _NavbarViewState extends State<NavbarView> {
   int _currentIndex = 0;
 
-  // Lista de páginas
   final List<Widget> _pages = [
     const HomeView(),
     const TransactionsView(),
-    // const SettingsView(),
     ProfileView(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context); // Accede a traducciones
+
     return Scaffold(
-      body: _pages[_currentIndex], // Muestra la página actual
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Cambia la página al seleccionar un ícono
+            _currentIndex = index;
           });
         },
         selectedItemColor: Colors.blue[800],
         unselectedItemColor: Colors.grey,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Principal',
+            label: loc.home, // Principal
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.swap_horiz),
-            label: 'Movimientos',
+            label: loc.transactions, // Movimientos
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Perfil',
+            label: loc.profile, // Perfil
           ),
         ],
       ),
