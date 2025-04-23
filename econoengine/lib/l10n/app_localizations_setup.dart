@@ -90,6 +90,60 @@ class AppLocalizations {
       'TI': 'IC',
       'CE': 'FID',
       'PP': 'PP',
+
+      //Textos para home view
+      'hello': 'Hello',
+      'loading': 'Loading...',
+      'name': 'Name',
+      'confirm': 'Confirm',
+      'user': 'User',
+      'error': 'Error',
+
+      // Balance Section
+      'availableBalance': 'Available balance',
+      'loadingBalance': 'Loading balance...',
+
+      // Transfer Dialog
+      'makeTransfer': 'Make Transfer',
+      'recipientPhone': 'Recipient phone number',
+      'transferAmount': 'Amount to transfer',
+      'cancel': 'Cancel',
+      'transfer': 'Transfer',
+      'invalidData': 'Please enter valid data',
+      'recipientNotFound': 'Recipient not found',
+      'nameNotFound': 'Recipient name not found',
+
+      // Transfer Confirmation
+      'confirmTransfer': 'Confirm Transfer',
+      'recipient': 'Recipient',
+      'amount': 'Amount',
+      'date': 'Date',
+      'time': 'Time',
+      'reference': 'Reference',
+      'successfulTransfer': 'Transfer successful',
+      'unauthenticatedUser': 'Unauthenticated user',
+      'senderNotFound': 'Sender not found',
+      'incompleteSenderData': 'Incomplete sender data',
+      'incompleteRecipientData': 'Incomplete recipient data',
+
+      // Transaction History
+      'transactionHistory': 'Transaction History',
+      'noRecentTransactions': 'No recent transactions',
+      'viewAllTransactions': 'View all transactions',
+      'sentTo': 'Sent to',
+      'receivedFrom': 'Received from',
+      'transferDetails': 'Transfer Details',
+      'receptionDetails': 'Reception Details',
+
+      // Menu Options
+      'simpleInterest': 'Simple Interest',
+      'compoundInterest': 'Compound Interest',
+      'gradients': 'Gradients',
+      'amortization': 'Amortization',
+      'irr': 'IRR',
+      'uvr': 'RVU',
+      'capitalization': 'Capitalization',
+      'inflation': 'Inflation',
     },
     'es': {
       // Textos generales
@@ -154,6 +208,61 @@ class AppLocalizations {
       'TI': 'TI',
       'CE': 'CE',
       'PP': 'PP',
+
+      //textos para home view
+      // General
+      'hello': 'Hola',
+      'name': 'Nombre',
+      'confirm': 'Confirmar',
+      'loading': 'Cargando...',
+      'user': 'Usuario',
+      'error': 'Error',
+
+      // Balance Section
+      'availableBalance': 'Saldo disponible',
+      'loadingBalance': 'Cargando saldo...',
+
+      // Transfer Dialog
+      'makeTransfer': 'Realizar Transferencia',
+      'recipientPhone': 'Número de teléfono del destinatario',
+      'transferAmount': 'Monto a transferir',
+      'cancel': 'Cancelar',
+      'transfer': 'Transferir',
+      'invalidData': 'Por favor ingrese datos válidos',
+      'recipientNotFound': 'Destinatario no encontrado',
+      'nameNotFound': 'Nombre del destinatario no encontrado',
+
+      // Transfer Confirmation
+      'confirmTransfer': 'Confirmar Transferencia',
+      'recipient': 'Destinatario',
+      'amount': 'Monto',
+      'date': 'Fecha',
+      'time': 'Hora',
+      'reference': 'Referencia',
+      'successfulTransfer': 'Transferencia exitosa',
+      'unauthenticatedUser': 'Usuario no autenticado',
+      'senderNotFound': 'Remitente no encontrado',
+      'incompleteSenderData': 'Datos del remitente incompletos',
+      'incompleteRecipientData': 'Datos del destinatario incompletos',
+
+      // Transaction History
+      'transactionHistory': 'Historial de Transacciones',
+      'noRecentTransactions': 'No hay transacciones recientes',
+      'viewAllTransactions': 'Ver todas las transacciones',
+      'sentTo': 'Enviado a',
+      'receivedFrom': 'Recibido de',
+      'transferDetails': 'Detalles del Envío',
+      'receptionDetails': 'Detalles de la Recepción',
+
+      // Menu Options
+      'simpleInterest': 'Interés Simple',
+      'compoundInterest': 'Interés Compuesto',
+      'gradients': 'Gradientes',
+      'amortization': 'Amortización',
+      'irr': 'TIR',
+      'uvr': 'UVR',
+      'capitalization': 'Capitalización',
+      'inflation': 'Inflación',
     },
   };
 
@@ -189,6 +298,7 @@ class AppLocalizations {
   String get version => translate('version');
   String get about => translate('about');
   String get close => translate('close');
+
   // Textos para LoginView
   String get login => translate('login');
   String get documentNumber => translate('documentNumber');
@@ -203,9 +313,11 @@ class AppLocalizations {
   String get biometricError => translate('biometricError');
   String get fieldRequired => translate('fieldRequired');
   String get pleaseEnter => translate('pleaseEnter');
+
   // Mensajes de validación
   String get pleaseEnterDocument => translate('pleaseEnterDocument');
   String get pleaseEnterPassword => translate('pleaseEnterPassword');
+
   // Textos para Forgot password
   String get resetPassword => translate('resetPassword');
   String get enterEmailForReset => translate('enterEmailForReset');
@@ -215,6 +327,7 @@ class AppLocalizations {
   String get enterValidEmail => translate('enterValidEmail');
   String get emailRequired => translate('emailRequired');
   String get backToLogin => translate('backToLogin');
+
   // Textos para Registrar usuario
   String get fullName => translate('fullName');
   String get documentType => translate('documentType');
@@ -234,6 +347,60 @@ class AppLocalizations {
   String get ti => translate('TI');
   String get ce => translate('CE');
   String get pp => translate('PP');
+
+  // Home view
+  String get hello => translate('hello');
+  String get loading => translate('loading');
+  String get name => translate('name');
+  String get confirm => translate('confirm');
+  String get user => translate('user');
+  String get error => translate('error');
+
+  // Balance Section
+  String get availableBalance => translate('availableBalance');
+  String get loadingBalance => translate('loadingBalance');
+
+  // Transfer Dialog
+  String get makeTransfer => translate('makeTransfer');
+  String get recipientPhone => translate('recipientPhone');
+  String get transferAmount => translate('transferAmount');
+  String get cancel => translate('cancel');
+  String get transfer => translate('transfer');
+  String get invalidData => translate('invalidData');
+  String get recipientNotFound => translate('recipientNotFound');
+  String get nameNotFound => translate('nameNotFound');
+
+  // Transfer Confirmation
+  String get confirmTransfer => translate('confirmTransfer');
+  String get recipient => translate('recipient');
+  String get amount => translate('amount');
+  String get date => translate('date');
+  String get time => translate('time');
+  String get reference => translate('reference');
+  String get successfulTransfer => translate('successfulTransfer');
+  String get unauthenticatedUser => translate('unauthenticatedUser');
+  String get senderNotFound => translate('senderNotFound');
+  String get incompleteSenderData => translate('incompleteSenderData');
+  String get incompleteRecipientData => translate('incompleteRecipientData');
+
+  // Transaction History
+  String get transactionHistory => translate('transactionHistory');
+  String get noRecentTransactions => translate('noRecentTransactions');
+  String get viewAllTransactions => translate('viewAllTransactions');
+  String get sentTo => translate('sentTo');
+  String get receivedFrom => translate('receivedFrom');
+  String get transferDetails => translate('transferDetails');
+  String get receptionDetails => translate('receptionDetails');
+
+  // Menu Options
+  String get simpleInterest => translate('simpleInterest');
+  String get compoundInterest => translate('compoundInterest');
+  String get gradients => translate('gradients');
+  String get amortization => translate('amortization');
+  String get irr => translate('irr');
+  String get uvr => translate('uvr');
+  String get capitalization => translate('capitalization');
+  String get inflation => translate('inflation');
 }
 
 class _AppLocalizationsDelegate

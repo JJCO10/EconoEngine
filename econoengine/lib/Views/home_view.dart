@@ -7,7 +7,7 @@ import 'package:econoengine/Views/UVR_view.dart';
 import 'package:econoengine/Views/capitalizacion_view.dart';
 import 'package:econoengine/Views/amortizacion_view.dart';
 //import 'package:econoengine/Views/bonos_view.dart';
-// import 'package:econoengine/Views/detalles_transfer_view.dart';
+//import 'package:econoengine/Views/detalles_transfer_view.dart';
 import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
 import 'package:econoengine/Views/interesCompuesto_view.dart';
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:econoengine/Controllers/auth_controller.dart'; // Asegúrate de importar el AuthController
 import 'package:provider/provider.dart'; // Para usar Provider
 import 'package:intl/intl.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -41,29 +42,30 @@ class _HomeViewState extends State<HomeView> {
   Future<void> _mostrarDialogoTransferencia(BuildContext context) async {
     final telefonoDestinatarioController = TextEditingController();
     final montoController = TextEditingController();
+    final loc = AppLocalizations.of(context);
 
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Realizar Transferencia'),
+          title: Text(loc.makeTransfer),
           content: SizedBox(
-            width: double.maxFinite, // Hacer el diálogo más grande
+            width: double.maxFinite,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: telefonoDestinatarioController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de celular del destinatario',
+                  decoration: InputDecoration(
+                    labelText: loc.recipientPhone,
                   ),
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: montoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Monto a transferir',
+                  decoration: InputDecoration(
+                    labelText: loc.transferAmount,
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -72,27 +74,23 @@ class _HomeViewState extends State<HomeView> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
-              },
-              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.cancel),
             ),
             TextButton(
               onPressed: () async {
-                final telefonoDestinatario = telefonoDestinatarioController.text;
+                final telefonoDestinatario =
+                    telefonoDestinatarioController.text;
                 final monto = double.tryParse(montoController.text) ?? 0.0;
 
                 if (telefonoDestinatario.isEmpty || monto <= 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Por favor, ingresa datos válidos')),
+                    SnackBar(content: Text(loc.invalidData)),
                   );
                   return;
                 }
 
                 try {
-                  // final authController = Provider.of<AuthController>(context, listen: false);
-
-                  // Obtener los datos del destinatario
                   final destinatarioSnapshot = await FirebaseFirestore.instance
                       .collection('usuarios')
                       .where('Telefono', isEqualTo: telefonoDestinatario)
@@ -100,20 +98,21 @@ class _HomeViewState extends State<HomeView> {
                       .get();
 
                   if (destinatarioSnapshot.docs.isEmpty) {
-                    throw ('No se encontró el destinatario');
+                    throw (loc.recipientNotFound);
                   }
 
-                  final destinatarioData = destinatarioSnapshot.docs.first.data();
-                  final nombreDestinatario = destinatarioData['Nombre'] as String?;
+                  final destinatarioData =
+                      destinatarioSnapshot.docs.first.data();
+                  final nombreDestinatario =
+                      destinatarioData['Nombre'] as String?;
 
                   if (nombreDestinatario == null) {
-                    throw ('No se encontró el nombre del destinatario');
+                    throw (loc.nameNotFound);
                   }
 
-                  // Generar la referencia de transferencia
-                  final referenciaTransferencia = _generarReferenciaTransferencia();
+                  final referenciaTransferencia =
+                      _generarReferenciaTransferencia();
 
-                  // Mostrar el cuadro de confirmación
                   await _mostrarConfirmacionTransferencia(
                     context,
                     nombreDestinatario,
@@ -123,11 +122,11 @@ class _HomeViewState extends State<HomeView> {
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text('${loc.error}: $e')),
                   );
                 }
               },
-              child: const Text('Transferir'),
+              child: Text(loc.transfer),
             ),
           ],
         );
@@ -151,112 +150,40 @@ class _HomeViewState extends State<HomeView> {
     final now = DateTime.now();
     final formattedDate = DateFormat('dd/MM/yyyy').format(now);
     final formattedTime = DateFormat('HH:mm').format(now);
+    final loc = AppLocalizations.of(context);
 
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Confirmar Transferencia'),
+          title: Text(loc.confirmTransfer),
           content: SizedBox(
-            width: double.maxFinite, // Hacer el diálogo más grande
+            width: double.maxFinite,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Destinatario: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: nombreDestinatario),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Teléfono: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: telefonoDestinatario),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Monto: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: '\$${_formatearSaldo(monto)}'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Fecha: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: formattedDate),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      const TextSpan(
-                        text: 'Hora: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: formattedTime),
-                    ],
-                  ),
-                ),
-                // RichText(
-                //   text: TextSpan(
-                //     style: DefaultTextStyle.of(context).style,
-                //     children: [
-                //       const TextSpan(
-                //         text: 'Referencia: ',
-                //         style: TextStyle(fontWeight: FontWeight.bold),
-                //       ),
-                //       TextSpan(text: referenciaTransferencia),
-                //     ],
-                //   ),
-                // ),
+                _buildDetailRow(loc.recipient, nombreDestinatario),
+                _buildDetailRow(loc.phone, telefonoDestinatario),
+                _buildDetailRow(loc.amount, '\$${_formatearSaldo(monto)}'),
+                _buildDetailRow(loc.date, formattedDate),
+                _buildDetailRow(loc.time, formattedTime),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo sin hacer la transferencia
-              },
-              child: const Text('Cancelar'),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.cancel),
             ),
             TextButton(
               onPressed: () async {
                 try {
-                  final authController = Provider.of<AuthController>(context, listen: false);
-
-                  // Obtener los datos del remitente (usuario actual)
+                  final authController =
+                      Provider.of<AuthController>(context, listen: false);
                   final user = FirebaseAuth.instance.currentUser;
-                  if (user == null) throw Exception('Usuario no autenticado');
+
+                  if (user == null) throw Exception(loc.unauthenticatedUser);
 
                   final remitenteSnapshot = await FirebaseFirestore.instance
                       .collection('usuarios')
@@ -264,19 +191,16 @@ class _HomeViewState extends State<HomeView> {
                       .get();
 
                   if (!remitenteSnapshot.exists) {
-                    throw Exception('No se encontró el remitente');
+                    throw Exception(loc.senderNotFound);
                   }
 
                   final remitenteData = remitenteSnapshot.data();
-                  final remitenteNombre = remitenteData?['Nombre'] as String?;
-                  final remitenteCelular = remitenteData?['Telefono'] as String?;
-                  final remitenteCedula = remitenteData?['Numero Documento'] as String?;
-
-                  if (remitenteNombre == null || remitenteCelular == null || remitenteCedula == null) {
-                    throw Exception('Datos del remitente incompletos');
+                  if (remitenteData?['Nombre'] == null ||
+                      remitenteData?['Telefono'] == null ||
+                      remitenteData?['Numero Documento'] == null) {
+                    throw Exception(loc.incompleteSenderData);
                   }
 
-                  // Obtener los datos del destinatario
                   final destinatarioSnapshot = await FirebaseFirestore.instance
                       .collection('usuarios')
                       .where('Telefono', isEqualTo: telefonoDestinatario)
@@ -284,52 +208,42 @@ class _HomeViewState extends State<HomeView> {
                       .get();
 
                   if (destinatarioSnapshot.docs.isEmpty) {
-                    throw Exception('No se encontró el destinatario');
+                    throw Exception(loc.recipientNotFound);
                   }
 
-                  final destinatarioData = destinatarioSnapshot.docs.first.data();
-                  final destinatarioNombre = destinatarioData['Nombre'] as String?;
-                  final destinatarioCedula = destinatarioData['Numero Documento'] as String?;
-
-                  if (destinatarioNombre == null || destinatarioCedula == null) {
-                    throw Exception('Datos del destinatario incompletos');
+                  final destinatarioData =
+                      destinatarioSnapshot.docs.first.data();
+                  if (destinatarioData['Nombre'] == null ||
+                      destinatarioData['Numero Documento'] == null) {
+                    throw Exception(loc.incompleteRecipientData);
                   }
 
-                  // Realizar la transferencia
                   await authController.transferirDinero(
-                    remitenteNombre: remitenteNombre,
-                    remitenteCelular: remitenteCelular,
-                    remitenteCedula: remitenteCedula,
-                    destinatarioNombre: destinatarioNombre,
+                    remitenteNombre: remitenteData!['Nombre'],
+                    remitenteCelular: remitenteData['Telefono'],
+                    remitenteCedula: remitenteData['Numero Documento'],
+                    destinatarioNombre: destinatarioData['Nombre'],
                     destinatarioCelular: telefonoDestinatario,
-                    destinatarioCedula: destinatarioCedula,
+                    destinatarioCedula: destinatarioData['Numero Documento'],
                     monto: monto,
                   );
 
-                  // Actualizar el saldo después de la transferencia
                   await _loadUserData();
 
-                  // Mostrar mensaje de éxito
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Transferencia exitosa')),
+                    SnackBar(content: Text(loc.successfulTransfer)),
                   );
 
-                  // Cerrar el cuadro de confirmación
                   Navigator.of(context).pop();
-
-                  // Cerrar el cuadro de diálogo de transferencia
                   Navigator.of(context).pop();
                 } catch (e) {
-                  // Mostrar mensaje de error
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
+                    SnackBar(content: Text('${loc.error}: $e')),
                   );
-
-                  // Cerrar el cuadro de confirmación en caso de error
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Confirmar'),
+              child: Text(loc.confirm),
             ),
           ],
         );
@@ -337,12 +251,31 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: RichText(
+        text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
+          children: [
+            TextSpan(
+                text: '$label: ',
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(text: value),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<List<Transferencia>> _obtenerUltimosMovimientos() async {
     final authController = Provider.of<AuthController>(context, listen: false);
 
     // Obtener transferencias enviadas y recibidas
-    final transferenciasEnviadas = await authController.obtenerTransferenciasEnviadas();
-    final transferenciasRecibidas = await authController.obtenerTransferenciasRecibidas();
+    final transferenciasEnviadas =
+        await authController.obtenerTransferenciasEnviadas();
+    final transferenciasRecibidas =
+        await authController.obtenerTransferenciasRecibidas();
 
     // Combinar y ordenar por fecha
     final movimientos = [...transferenciasEnviadas, ...transferenciasRecibidas];
@@ -360,7 +293,8 @@ class _HomeViewState extends State<HomeView> {
 
     if (savedUserId != null) {
       try {
-        final userData = await authController.getUserData(savedUserId); // Obtener los datos del usuario
+        final userData = await authController
+            .getUserData(savedUserId); // Obtener los datos del usuario
         print("Datos del usuario: $userData"); // Depuración
         setState(() {
           userName = userData['Nombre'] as String?;
@@ -370,7 +304,8 @@ class _HomeViewState extends State<HomeView> {
       } catch (e) {
         print("Error al cargar los datos del usuario: $e");
         setState(() {
-          isLoading = false; // Indicar que la carga ha terminado (incluso si hay un error)
+          isLoading =
+              false; // Indicar que la carga ha terminado (incluso si hay un error)
         });
       }
     } else {
@@ -389,16 +324,21 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: isLoading
-            ? const Text("Cargando...", style: TextStyle(color: Colors.white)) // Indicador de carga
+            ? Text(loc.loading,
+                style: TextStyle(color: Colors.white)) // Indicador de carga
             : Text(
-                userName != null ? 'Hola, ${userName!.split(" ")[0]}' : 'Hola, Usuario',
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
+                userName != null
+                    ? '${loc.hello}, ${userName!.split(" ")[0]}'
+                    : '${loc.hello}, ${loc.user}',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
         backgroundColor: Colors.blue[800],
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -448,30 +388,26 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildBalanceSection() {
+    final loc = AppLocalizations.of(context);
+
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Saldo disponible',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+            Text(
+              loc.availableBalance,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 10),
             Text(
-              saldo != null ? '\$${_formatearSaldo(saldo!)}' : 'Cargando saldo...',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+              saldo != null
+                  ? '\$${_formatearSaldo(saldo!)}'
+                  : loc.loadingBalance,
+              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Row(
@@ -482,16 +418,13 @@ class _HomeViewState extends State<HomeView> {
                       backgroundColor: Colors.blue[800],
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    onPressed: () {
-                      _mostrarDialogoTransferencia(context);
-                    },
-                    child: const Text(
-                      'Transferir',
-                      style: TextStyle(color: Colors.white),
+                    onPressed: () => _mostrarDialogoTransferencia(context),
+                    child: Text(
+                      loc.transfer,
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10)
               ],
             ),
           ],
@@ -501,64 +434,54 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildHorizontalMenu(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return SizedBox(
       height: 100,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildMenuButton(Icons.calculate, 'Interés Simple', () {
+          _buildMenuButton(Icons.calculate, loc.simpleInterest, () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InteresSimpleView()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const InteresSimpleView()));
           }),
-          _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
+          _buildMenuButton(Icons.trending_up, loc.compoundInterest, () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InteresCompuestoView()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const InteresCompuestoView()));
           }),
-          _buildMenuButton(Icons.timeline, 'Gradientes', () {
+          _buildMenuButton(Icons.timeline, loc.gradients, () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const GradientesView()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const GradientesView()));
           }),
-          _buildMenuButton(Icons.pie_chart, 'Amortización', () {
+          _buildMenuButton(Icons.pie_chart, loc.amortization, () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AmortizacionView()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const AmortizacionView()));
           }),
-          _buildMenuButton(Icons.trending_up, 'TIR', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const TirView()),
-            );
+          _buildMenuButton(Icons.trending_up, loc.irr, () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const TirView()));
           }),
-          _buildMenuButton(Icons.monetization_on, 'UVR', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const UvrView()),
-            );
+          _buildMenuButton(Icons.monetization_on, loc.uvr, () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const UvrView()));
           }),
-          _buildMenuButton(Icons.business, 'Capitalizacion', () {
+          _buildMenuButton(Icons.business, loc.capitalization, () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const CapitalizacionView()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CapitalizacionView()));
           }),
-          /*_buildMenuButton(Icons.credit_card, 'Bonos', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const BonosView()),
-            );
-          }),*/
-          _buildMenuButton(Icons.arrow_upward, 'Inflación', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const InflacionView()),
-            );
+          _buildMenuButton(Icons.arrow_upward, loc.inflation, () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const InflacionView()));
           }),
         ],
       ),
@@ -581,22 +504,19 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildTransactionHistorySection() {
+    final loc = AppLocalizations.of(context);
+
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Historial de Movimientos',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              loc.transactionHistory,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             FutureBuilder<List<Transferencia>>(
@@ -605,30 +525,25 @@ class _HomeViewState extends State<HomeView> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return Text('${loc.error}: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No hay movimientos recientes');
+                  return Text(loc.noRecentTransactions);
                 } else {
-                  final movimientos = snapshot.data!;
                   return Column(
-                    children: movimientos.map((movimiento) {
-                      return _buildTransactionItem(
-                        movimiento,
-                      );
-                    }).toList(),
+                    children: snapshot.data!
+                        .map((movimiento) => _buildTransactionItem(movimiento))
+                        .toList(),
                   );
                 }
               },
             ),
             TextButton(
-              onPressed: () {
-                // Navegar a la vista de transacciones
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TransactionsView()),
-                );
-              },
-              child: const Text('Ver todos los movimientos'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const TransactionsView()),
+              ),
+              child: Text(loc.viewAllTransactions),
             ),
           ],
         ),
@@ -637,87 +552,65 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildTransactionItem(Transferencia transferencia) {
-    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
-    final nombre = esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre;
+    final loc = AppLocalizations.of(context);
+    final esEnvio =
+        transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+    final nombre = esEnvio
+        ? transferencia.destinatarioNombre
+        : transferencia.remitenteNombre;
     final color = esEnvio ? Colors.red : Colors.green;
     final icono = esEnvio ? Icons.arrow_downward : Icons.arrow_upward;
 
     return ListTile(
       leading: Icon(icono, color: color),
       title: Text(
-        esEnvio ? 'Enviado a $nombre' : 'Recibido de $nombre',
+        esEnvio ? '${loc.sentTo} $nombre' : '${loc.receivedFrom} $nombre',
         style: TextStyle(color: color),
       ),
       subtitle: Text(
         '\$${_formatearSaldo(transferencia.monto)} - ${DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)}',
       ),
-      onTap: () {
-        // Navegar a la vista de detalles
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => DetallesTransferenciaView(transferencia: transferencia),
-        //   ),
-        // );
-        _mostrarDetallesTransferencia(context, transferencia);
-      },
+      onTap: () => _mostrarDetallesTransferencia(context, transferencia),
     );
   }
 
-  void _mostrarDetallesTransferencia(BuildContext context, Transferencia transferencia) {
-    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+  void _mostrarDetallesTransferencia(
+      BuildContext context, Transferencia transferencia) {
+    final loc = AppLocalizations.of(context);
+    final esEnvio =
+        transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
+          title: Text(esEnvio ? loc.transferDetails : loc.receptionDetails),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style, // Hereda el estilo por defecto
-                  children: [
-                    const TextSpan(text: 'Nombre: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre),
-                  ],
-                ),
-              ),
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    const TextSpan(text: 'Teléfono: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular),
-                  ],
-                ),
-              ),
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    const TextSpan(text: 'Monto: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}'),
-                  ],
-                ),
-              ),
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    const TextSpan(text: 'Fecha: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)),
-                  ],
-                ),
-              ),
+              _buildDetailRow(
+                  loc.name,
+                  esEnvio
+                      ? transferencia.destinatarioNombre
+                      : transferencia.remitenteNombre),
+              _buildDetailRow(
+                  loc.phone,
+                  esEnvio
+                      ? transferencia.destinatarioCelular
+                      : transferencia.remitenteCelular),
+              _buildDetailRow(
+                  loc.amount, '\$${_formatearSaldo(transferencia.monto)}'),
+              _buildDetailRow(
+                  loc.date,
+                  DateFormat('dd/MM/yyyy HH:mm')
+                      .format(transferencia.fechaHora)),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+              child: Text(loc.close),
             ),
           ],
         );
