@@ -168,6 +168,29 @@ class AppLocalizations {
       "aboutEconoEngineText1": "EconoEngine version 2.0.0",
       "aboutEconoEngineText2": "An app to manage your finances efficiently.",
       "aboutEconoEngineText3": "© 2025 EconoEngine",
+
+      //interes simple
+      "present_value": "Present Value (PV)",
+      "future_value": "Future Value (FV)",
+      "interest_rate": "Interest Rate (i)",
+      "rate": "Rate",
+      "rate_unit": "Rate Unit",
+      "tiempo": "Time (t)",
+      "time_unit": "Time Unit",
+      "calculate_fv": "Calculate FV",
+      "calculate_pv": "Calculate PV",
+      "calculate_i": "Calculate i",
+      "calculate_t": "Calculate t",
+      "days": "days",
+      "months": "months",
+      "quarters": "quarters",
+      "semesters": "semesters",
+      "years": "years",
+      "daily": "daily",
+      "monthly": "monthly",
+      "quarterly": "quarterly",
+      "semiannually": "semiannually",
+      "annually": "annually"
     },
     'es': {
       // Textos generales
@@ -312,6 +335,29 @@ class AppLocalizations {
       "aboutEconoEngineText2":
           "Una aplicación para gestionar tus finanzas de manera eficiente.",
       "aboutEconoEngineText3": "© 2025 EconoEngine",
+
+      //interes simple
+      "present_value": "Valor Presente (VP)",
+      "future_value": "Valor Futuro (VF)",
+      "interest_rate": "Tasa de Interés (i)",
+      "rate": "Tasa",
+      "rate_unit": "Unidad de Tasa",
+      "tiempo": "Tiempo (t)",
+      "time_unit": "Unidad de Tiempo",
+      "calculate_fv": "Calcular VF",
+      "calculate_pv": "Calcular VP",
+      "calculate_i": "Calcular i",
+      "calculate_t": "Calcular t",
+      "days": "días",
+      "months": "meses",
+      "quarters": "trimestres",
+      "semesters": "semestres",
+      "years": "años",
+      "daily": "diaria",
+      "monthly": "mensual",
+      "quarterly": "trimestral",
+      "semiannually": "semestral",
+      "annually": "anual"
     },
   };
 
@@ -476,6 +522,31 @@ class AppLocalizations {
   String get aboutEconoEngineText1 => translate('aboutEconoEngineText1');
   String get aboutEconoEngineText2 => translate('aboutEconoEngineText2');
   String get aboutEconoEngineText3 => translate('aboutEconoEngineText3');
+
+  //interes simple
+  String get presentValue => translate('present_value');
+  String get futureValue => translate('future_value');
+  String get interestRate => translate('interest_rate');
+  String get rate => translate('rate');
+  String get rateUnit => translate('rate_unit');
+  String get tiempo => translate('tiempo');
+  String get timeUnit => translate('time_unit');
+  String get calculateFv => translate('calculate_fv');
+  String get calculatePv => translate('calculate_pv');
+  String get calculateI => translate('calculate_i');
+  String get calculateT => translate('calculate_t');
+
+  String get days => translate('days');
+  String get months => translate('months');
+  String get quarters => translate('quarters');
+  String get semesters => translate('semesters');
+  String get years => translate('years');
+
+  String get daily => translate('daily');
+  String get monthly => translate('monthly');
+  String get quarterly => translate('quarterly');
+  String get semiannually => translate('semiannually');
+  String get annually => translate('annually');
 }
 
 class _AppLocalizationsDelegate

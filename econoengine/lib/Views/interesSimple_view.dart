@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Controllers/interesSimple_controller.dart';
+import 'package:econoengine/l10n/app_localizations_setup.dart';
 
 class InteresSimpleView extends StatefulWidget {
   const InteresSimpleView({super.key});
@@ -14,6 +15,16 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
   final TextEditingController _vfController = TextEditingController();
   final TextEditingController _iController = TextEditingController();
   final TextEditingController _tController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el controlador aquí, después de que el widget se construye
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<InteresSimpleController>(context, listen: false)
+          .initialize(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -39,12 +50,26 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<InteresSimpleController>();
-    final List<String> unidadesTiempo = ['días', 'meses', 'trimestres', 'semestres', 'años'];
-    final List<String> unidadesTasa = ['diaria', 'mensual', 'trimestral', 'semestral', 'anual'];
+    final loc = AppLocalizations.of(context);
+
+    final List<String> unidadesTiempo = [
+      loc.days,
+      loc.months,
+      loc.quarters,
+      loc.semesters,
+      loc.years
+    ];
+    final List<String> unidadesTasa = [
+      loc.daily,
+      loc.monthly,
+      loc.quarterly,
+      loc.semiannually,
+      loc.annually
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Interés Simple'),
+        title: Text(loc.simpleInterest),
         backgroundColor: Colors.blue[800],
         foregroundColor: Colors.white,
       ),
@@ -55,7 +80,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
             children: [
               _buildTextField(
                 context,
-                'Valor Presente (VP)',
+                loc.presentValue,
                 _vpController,
                 hint: "Ej: 1000",
                 suffix: "\$",
@@ -63,7 +88,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Valor Futuro (VF)',
+                loc.futureValue,
                 _vfController,
                 hint: "Ej: 1500",
                 suffix: "\$",
@@ -71,7 +96,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Tasa de Interés (i)',
+                loc.interestRate,
                 _iController,
                 hint: "Ej: 10",
                 suffix: "%",
@@ -83,21 +108,21 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                 items: unidadesTasa.map((unidad) {
                   return DropdownMenuItem(
                     value: unidad,
-                    child: Text('Tasa $unidad'),
+                    child: Text('${loc.rate} $unidad'),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) controller.cambiarUnidadTasa(value);
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Unidad de Tasa',
+                decoration: InputDecoration(
+                  labelText: loc.rateUnit,
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
               _buildTextField(
                 context,
-                'Tiempo (t)',
+                loc.tiempo,
                 _tController,
                 hint: "Ej: 5",
               ),
@@ -114,24 +139,24 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                 onChanged: (value) {
                   if (value != null) controller.cambiarUnidadTiempo(value);
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Unidad de Tiempo',
+                decoration: InputDecoration(
+                  labelText: loc.timeUnit,
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               if (controller.shouldShowError)
                 Text(
                   controller.error,
                   style: const TextStyle(color: Colors.red, fontSize: 16),
                 ),
-              
+
               Row(
                 children: [
                   Expanded(
                     child: _buildButton(
-                      'Calcular VF',
+                      loc.calculateFv,
                       Colors.blue[800]!,
                       () {
                         controller.calcularVF(
@@ -145,7 +170,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildButton(
-                      'Calcular VP',
+                      loc.calculatePv,
                       Colors.purple[800]!,
                       () {
                         controller.calcularVP(
@@ -163,7 +188,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                 children: [
                   Expanded(
                     child: _buildButton(
-                      'Calcular i',
+                      loc.calculateI,
                       Colors.green[800]!,
                       () {
                         controller.calcularTasa(
@@ -177,7 +202,7 @@ class _InteresSimpleViewState extends State<InteresSimpleView> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildButton(
-                      'Calcular t',
+                      loc.calculateT,
                       Colors.orange[800]!,
                       () {
                         controller.calcularTiempo(
