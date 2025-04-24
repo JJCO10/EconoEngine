@@ -9,7 +9,7 @@ class CapitalizacionService {
     required double comisionAdministrativa,
   }) {
     final meses = plazoAnos * 12;
-    final tasaMensual = pow(1 + tasaInteres, 1/12) - 1;
+    final tasaMensual = pow(1 + tasaInteres, 1 / 12) - 1;
     double saldo = 0;
     double totalAportes = 0;
     double totalIntereses = 0;
@@ -18,7 +18,7 @@ class CapitalizacionService {
     for (int mes = 1; mes <= meses; mes++) {
       final aporteNeto = aporteMensual * (1 - comisionAdministrativa);
       final interes = (saldo + aporteNeto) * tasaMensual;
-      
+
       totalAportes += aporteMensual;
       totalIntereses += interes;
       totalComisiones += aporteMensual * comisionAdministrativa;
@@ -34,6 +34,7 @@ class CapitalizacionService {
   }
 
   // Sistema de Capitalización Colectiva
+  // Sistema de Capitalización Colectiva - Versión corregida
   Map<String, dynamic> calcularColectiva({
     required List<double> aportes,
     required double tasaInteres,
@@ -42,43 +43,53 @@ class CapitalizacionService {
     required int participantes,
   }) {
     final meses = plazoAnos * 12;
-    final tasaMensual = pow(1 + tasaInteres, 1/12) - 1;
+    final tasaMensual = pow(1 + tasaInteres, 1 / 12) - 1;
     double saldoTotal = 0;
     double totalAportes = 0;
     double totalIntereses = 0;
     double totalComisiones = 0;
-    
+
     final saldosIndividuales = List<double>.filled(participantes, 0);
     final aportesIndividuales = List<double>.from(aportes);
 
     // Asegurar que la lista de aportes coincida con el número de participantes
     if (aportesIndividuales.length < participantes) {
-      aportesIndividuales.addAll(List<double>.filled(participantes - aportes.length, aportes.last));
+      aportesIndividuales.addAll(
+          List<double>.filled(participantes - aportes.length, aportes.last));
     } else if (aportesIndividuales.length > participantes) {
       aportesIndividuales.removeRange(participantes, aportes.length);
     }
 
     for (int mes = 1; mes <= meses; mes++) {
-      double aporteTotal = 0;
-      
+      double aporteTotalMes = 0;
+
+      // 1. Aplicar aportes individuales y comisiones
       for (int i = 0; i < participantes; i++) {
-        final aporteNeto = aportesIndividuales[i] * (1 - comisionAdministrativa);
+        final aporteNeto =
+            aportesIndividuales[i] * (1 - comisionAdministrativa);
         saldosIndividuales[i] += aporteNeto;
-        aporteTotal += aportesIndividuales[i];
+        aporteTotalMes += aportesIndividuales[i];
         totalComisiones += aportesIndividuales[i] * comisionAdministrativa;
       }
 
-      final interesTotal = saldoTotal * tasaMensual;
-      final factorDistribucion = interesTotal / saldoTotal;
-
-      for (int i = 0; i < participantes; i++) {
-        final interesIndividual = saldosIndividuales[i] * factorDistribucion;
-        saldosIndividuales[i] += interesIndividual;
-        totalIntereses += interesIndividual;
-      }
-
-      totalAportes += aporteTotal;
+      totalAportes += aporteTotalMes;
       saldoTotal = saldosIndividuales.reduce((a, b) => a + b);
+
+      // 2. Calcular intereses sobre el saldo total
+      if (saldoTotal > 0) {
+        final interesTotal = saldoTotal * tasaMensual;
+        totalIntereses += interesTotal;
+
+        // 3. Distribuir intereses proporcionalmente a los saldos individuales
+        for (int i = 0; i < participantes; i++) {
+          final proporcion = saldosIndividuales[i] / saldoTotal;
+          final interesIndividual = interesTotal * proporcion;
+          saldosIndividuales[i] += interesIndividual;
+        }
+
+        // Actualizar saldo total después de distribuir intereses
+        saldoTotal = saldosIndividuales.reduce((a, b) => a + b);
+      }
     }
 
     return {
@@ -99,9 +110,9 @@ class CapitalizacionService {
     required double porcentajeCapitalizacion, // 0-1 (ej: 0.7 para 70%)
   }) {
     final meses = plazoAnos * 12;
-    final tasaMensualCap = pow(1 + tasaInteresCapitalizacion, 1/12) - 1;
-    final tasaMensualRep = pow(1 + tasaInteresReparto, 1/12) - 1;
-    
+    final tasaMensualCap = pow(1 + tasaInteresCapitalizacion, 1 / 12) - 1;
+    final tasaMensualRep = pow(1 + tasaInteresReparto, 1 / 12) - 1;
+
     double saldoCapitalizacion = 0;
     double saldoReparto = 0;
     double totalAportes = 0;
@@ -111,17 +122,17 @@ class CapitalizacionService {
     for (int mes = 1; mes <= meses; mes++) {
       final aporteCap = aporteMensual * porcentajeCapitalizacion;
       final aporteRep = aporteMensual * (1 - porcentajeCapitalizacion);
-      
+
       // Parte de capitalización
       final interesCap = saldoCapitalizacion * tasaMensualCap;
       saldoCapitalizacion += aporteCap + interesCap;
       totalInteresesCap += interesCap;
-      
+
       // Parte de reparto
       final interesRep = saldoReparto * tasaMensualRep;
       saldoReparto += aporteRep + interesRep;
       totalInteresesRep += interesRep;
-      
+
       totalAportes += aporteMensual;
     }
 
@@ -145,8 +156,8 @@ class CapitalizacionService {
     required int frecuenciaPago, // 1=anual, 12=meses
   }) {
     final periodos = plazoAnos * (12 ~/ frecuenciaPago);
-    final tasaPeriodica = pow(1 + tasaInteres, frecuenciaPago/12) - 1;
-    
+    final tasaPeriodica = pow(1 + tasaInteres, frecuenciaPago / 12) - 1;
+
     double saldo = 0;
     double totalPrimas = 0;
     double totalIntereses = 0;
@@ -156,12 +167,12 @@ class CapitalizacionService {
     for (int periodo = 1; periodo <= periodos; periodo++) {
       final primaNeta = prima * (1 - comisionAdministrativa);
       final interes = saldo * tasaPeriodica;
-      
+
       totalPrimas += prima;
       totalIntereses += interes;
       totalComisiones += prima * comisionAdministrativa;
       totalSeguro += costoSeguro;
-      
+
       saldo += primaNeta + interes - costoSeguro;
     }
 

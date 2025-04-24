@@ -42,7 +42,7 @@ class _InflacionViewState extends State<InflacionView> {
     final controller = Provider.of<InflacionController>(context);
     final modos = [
       'Pérdida de valor',
-      'Ajuste histórico',
+      // 'Ajuste histórico',
       'Aumento de precio',
       'Inflación acumulada',
       'Comparar inversiones',

@@ -1,6 +1,9 @@
 class InteresSimpleService {
   // Cálculo del Valor Futuro (VF = VP * (1 + i * t))
-  double calcularVF(double vp, double i, double t, {
+  double calcularVF(
+    double vp,
+    double i,
+    double t, {
     String unidadTiempo = 'años',
     String unidadTasa = 'anual',
   }) {
@@ -10,7 +13,10 @@ class InteresSimpleService {
   }
 
   // Cálculo del Valor Presente (VP = VF / (1 + i * t))
-  double calcularVP(double vf, double i, double t, {
+  double calcularVP(
+    double vf,
+    double i,
+    double t, {
     String unidadTiempo = 'años',
     String unidadTasa = 'anual',
   }) {
@@ -20,7 +26,10 @@ class InteresSimpleService {
   }
 
   // Cálculo de la Tasa de Interés (i = ((VF/VP) - 1) / t * 100)
-  double calcularTasa(double vp, double vf, double t, {
+  double calcularTasa(
+    double vp,
+    double vf,
+    double t, {
     String unidadTiempo = 'años',
     String unidadTasa = 'anual',
   }) {
@@ -30,7 +39,10 @@ class InteresSimpleService {
   }
 
   // Cálculo del Tiempo (t = ((VF/VP) - 1) / i)
-  double calcularTiempo(double vp, double vf, double i, {
+  double calcularTiempo(
+    double vp,
+    double vf,
+    double i, {
     String unidadTiempo = 'años',
     String unidadTasa = 'anual',
   }) {
