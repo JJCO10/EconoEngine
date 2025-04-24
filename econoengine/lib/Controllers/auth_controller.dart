@@ -76,6 +76,9 @@ class AuthController extends ChangeNotifier {
     required String solicitanteCedula,
     required String solicitanteNombre,
     required String estado,
+    String? tipoGradiente,
+    String? tipoAmortizacion,
+    double? valorGradiente,
   }) async {
     try {
       final user = firebase_auth.FirebaseAuth.instance.currentUser;
@@ -91,6 +94,9 @@ class AuthController extends ChangeNotifier {
         solicitanteCedula: solicitanteCedula,
         solicitanteNombre: solicitanteNombre,
         estado: estado,
+        tipoGradiente: tipoGradiente,
+        tipoAmortizacion: tipoAmortizacion,
+        valorGradiente: valorGradiente,
       );
 
       print('AuthController - Préstamo solicitado y guardado');
@@ -160,16 +166,43 @@ class AuthController extends ChangeNotifier {
     required double tasaAnual,
     required int plazoMeses,
     required String tipoInteres,
+    required String tipoGradiente,
+    required String tipoAmortizacion,
+    required double valorGradiente,
   }) {
     switch (tipoInteres) {
       case 'simple':
         return _calcularCuotasSimple(monto, tasaAnual, plazoMeses);
+
       case 'compuesto':
         return _calcularCuotasCompuesto(monto, tasaAnual, plazoMeses);
+
       case 'gradiente':
-        return _calcularCuotasGradiente(monto, tasaAnual, plazoMeses);
+        // ignore: unnecessary_null_comparison
+        if (tipoGradiente == null) {
+          throw Exception('Debe especificar el tipo de gradiente');
+        }
+        return _calcularCuotasGradiente(
+          primerPago: monto,
+          tasaInteres: tasaAnual,
+          periodos: plazoMeses,
+          gradienteOrTasaCrecimiento:
+              valorGradiente, // puedes reemplazar 10 por un valor recibido desde el formulario
+          tipoGradiente: tipoGradiente,
+        );
+
       case 'amortizacion':
-        return _calcularCuotasAmortizacion(monto, tasaAnual, plazoMeses);
+        // ignore: unnecessary_null_comparison
+        if (tipoAmortizacion == null) {
+          throw Exception('Debe especificar el tipo de amortización');
+        }
+        return _calcularCuotasAmortizacion(
+          monto,
+          tasaAnual,
+          plazoMeses,
+          tipoAmortizacion,
+        );
+
       default:
         throw Exception('Tipo de interés no soportado');
     }
@@ -223,17 +256,33 @@ class AuthController extends ChangeNotifier {
     return cuotas;
   }
 
-  List<Cuota> _calcularCuotasGradiente(
-      double monto, double tasaAnual, int plazoMeses) {
-    final tasaMensual = tasaAnual / 12 / 100;
+  List<Cuota> _calcularCuotasGradiente({
+    required double primerPago,
+    required double tasaInteres,
+    required int periodos,
+    required double gradienteOrTasaCrecimiento,
+    required String tipoGradiente,
+  }) {
+    final tasaMensual = tasaInteres / 12 / 100;
     final cuotas = <Cuota>[];
-    final incremento = 20.0; // Por ejemplo, aumenta 20 por cuota
-
     final fechaBase = DateTime.now();
-    for (int i = 1; i <= plazoMeses; i++) {
-      double pago = (monto / plazoMeses) + (i - 1) * incremento;
-      double interes = monto * tasaMensual;
-      double capital = pago - interes;
+    double saldo = primerPago;
+
+    for (int i = 1; i <= periodos; i++) {
+      double pago;
+
+      if (tipoGradiente.toLowerCase() == 'aritmético') {
+        // Aritmético: A + (i - 1) * G
+        pago = primerPago + (i - 1) * gradienteOrTasaCrecimiento;
+      } else {
+        // Geométrico: A * (1 + g)^(i - 1)
+        final tasaCrecimiento = gradienteOrTasaCrecimiento / 100;
+        pago = primerPago * pow(1 + tasaCrecimiento, i - 1);
+      }
+
+      final interes = saldo * tasaMensual;
+      final capital = pago - interes;
+      saldo -= capital;
 
       cuotas.add(Cuota(
         numero: i,
@@ -244,37 +293,85 @@ class AuthController extends ChangeNotifier {
             Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
         estado: 'pendiente',
       ));
-
-      monto -= capital;
     }
 
     return cuotas;
   }
 
   List<Cuota> _calcularCuotasAmortizacion(
-      double monto, double tasaAnual, int plazoMeses) {
+    double monto,
+    double tasaAnual,
+    int plazoMeses,
+    String tipoAmortizacion,
+  ) {
     final tasaMensual = tasaAnual / 12 / 100;
-    final cuotaFija =
-        monto * tasaMensual / (1 - (1 / (pow(1 + tasaMensual, plazoMeses))));
-
-    final cuotas = <Cuota>[];
     final fechaBase = DateTime.now();
+    final cuotas = <Cuota>[];
 
-    for (int i = 1; i <= plazoMeses; i++) {
-      double interes = monto * tasaMensual;
-      double capital = cuotaFija - interes;
+    switch (tipoAmortizacion.toLowerCase()) {
+      case 'francés':
+        final cuotaFija =
+            monto * tasaMensual / (1 - pow(1 + tasaMensual, -plazoMeses));
+        double saldo = monto;
 
-      cuotas.add(Cuota(
-        numero: i,
-        monto: cuotaFija,
-        capital: capital,
-        interes: interes,
-        fechaVencimiento:
-            Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
-        estado: 'pendiente',
-      ));
+        for (int i = 1; i <= plazoMeses; i++) {
+          final interes = saldo * tasaMensual;
+          final capital = cuotaFija - interes;
+          saldo -= capital;
 
-      monto -= capital;
+          cuotas.add(Cuota(
+            numero: i,
+            monto: cuotaFija,
+            capital: capital,
+            interes: interes,
+            fechaVencimiento:
+                Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
+            estado: 'pendiente',
+          ));
+        }
+        break;
+
+      case 'alemán':
+        final capitalFijo = monto / plazoMeses;
+        double saldo = monto;
+
+        for (int i = 1; i <= plazoMeses; i++) {
+          final interes = saldo * tasaMensual;
+          final cuota = capitalFijo + interes;
+          saldo -= capitalFijo;
+
+          cuotas.add(Cuota(
+            numero: i,
+            monto: cuota,
+            capital: capitalFijo,
+            interes: interes,
+            fechaVencimiento:
+                Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
+            estado: 'pendiente',
+          ));
+        }
+        break;
+
+      case 'americano':
+        for (int i = 1; i <= plazoMeses; i++) {
+          final interes = monto * tasaMensual;
+          final capital = (i == plazoMeses) ? monto : 0.0;
+          final cuota = interes + capital;
+
+          cuotas.add(Cuota(
+            numero: i,
+            monto: cuota,
+            capital: capital,
+            interes: interes,
+            fechaVencimiento:
+                Timestamp.fromDate(fechaBase.add(Duration(days: 30 * i))),
+            estado: 'pendiente',
+          ));
+        }
+        break;
+
+      default:
+        throw Exception('Tipo de amortización no soportado');
     }
 
     return cuotas;
@@ -371,68 +468,6 @@ class AuthController extends ChangeNotifier {
       rethrow;
     }
   }
-
-  // Método para realizar transferencias
-  // Future<void> transferirDinero(String telefonoDestinatario, double monto, {required String remitenteCelular, required String remitenteNombre}) async {
-  //   try {
-  //     // Obtener el usuario actual
-  //     final user = firebase_auth.FirebaseAuth.instance.currentUser;
-  //     if (user == null) {
-  //       throw Exception('Usuario no autenticado');
-  //     }
-
-  //     // Obtener el documento del remitente (usuario actual)
-  //     final remitenteSnapshot = await _firestore.collection('usuarios').doc(user.uid).get();
-  //     if (!remitenteSnapshot.exists) {
-  //       throw Exception('No se encontró el remitente');
-  //     }
-
-  //     final remitenteData = remitenteSnapshot.data();
-  //     final telefonoRemitente = remitenteData?['Telefono'] as String?;
-  //     final saldoRemitente = remitenteData?['Saldo'] as double?;
-
-  //     if (telefonoRemitente == null || saldoRemitente == null) {
-  //       throw Exception('Datos del remitente incompletos');
-  //     }
-
-  //     if (saldoRemitente < monto) {
-  //       throw Exception('Saldo insuficiente');
-  //     }
-
-  //     // Obtener el documento del destinatario
-  //     final destinatarioSnapshot = await _firestore
-  //         .collection('usuarios')
-  //         .where('Telefono', isEqualTo: telefonoDestinatario)
-  //         .limit(1)
-  //         .get();
-
-  //     if (destinatarioSnapshot.docs.isEmpty) {
-  //       throw Exception('No se encontró el destinatario');
-  //     }
-
-  //     final destinatarioDoc = destinatarioSnapshot.docs.first;
-  //     final destinatarioData = destinatarioDoc.data();
-  //     final saldoDestinatario = destinatarioData['Saldo'] as double;
-
-  //     // Actualizar saldos en una transacción
-  //     await _firestore.runTransaction((transaction) async {
-  //       // Disminuir saldo del remitente
-  //       transaction.update(remitenteSnapshot.reference, {
-  //         'Saldo': saldoRemitente - monto,
-  //       });
-
-  //       // Aumentar saldo del destinatario
-  //       transaction.update(destinatarioDoc.reference, {
-  //         'Saldo': saldoDestinatario + monto,
-  //       });
-  //     });
-
-  //     print("Transferencia exitosa");
-  //   } catch (e) {
-  //     print("Error en AuthController (transferirDinero): $e");
-  //     rethrow;
-  //   }
-  // }
 
   // Método para obtener el nombre del usuario desde Firestore
   Future<Map<String, dynamic>> getUserData(String uid) async {

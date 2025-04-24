@@ -108,8 +108,7 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Transferencia.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias enviadas: $e");
@@ -130,8 +129,7 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Transferencia.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias recibidas: $e");
