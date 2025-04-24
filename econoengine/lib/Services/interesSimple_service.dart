@@ -85,14 +85,14 @@ class InteresSimpleService {
   // --- Conversiones para la tasa ---
   double _convertirTasa(double tasa, String unidadTasa) {
     switch (unidadTasa) {
-      case 'diaria':
-        return tasa / 365; // Corregido: dividir en lugar de multiplicar
       case 'mensual':
         return tasa * 12;
       case 'trimestral':
         return tasa * 4;
       case 'semestral':
         return tasa * 2;
+      case 'diaria':
+        return tasa * 365;
       default: // anual
         return tasa;
     }
@@ -100,14 +100,14 @@ class InteresSimpleService {
 
   double _convertirTasaInversa(double tasaAnual, String unidadTasa) {
     switch (unidadTasa) {
-      case 'diaria':
-        return tasaAnual * 365; // Corregido: multiplicar en lugar de dividir
       case 'mensual':
         return tasaAnual / 12;
       case 'trimestral':
         return tasaAnual / 4;
       case 'semestral':
         return tasaAnual / 2;
+      case 'diaria':
+        return tasaAnual / 365;
       default: // anual
         return tasaAnual;
     }
