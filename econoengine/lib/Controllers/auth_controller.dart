@@ -106,6 +106,73 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  // En AuthController
+  Future<bool> puedePagarPrestamoCompleto(String prestamoId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    final userSnapshot = await _db.collection('usuarios').doc(user.uid).get();
+    final prestamoSnapshot =
+        await _db.collection('prestamos').doc(prestamoId).get();
+
+    if (!userSnapshot.exists || !prestamoSnapshot.exists) {
+      throw Exception('Datos no encontrados');
+    }
+
+    final saldoUsuario = (userSnapshot.get('Saldo') as num).toDouble();
+    final saldoPendiente =
+        (prestamoSnapshot.get('saldoPendiente') as num).toDouble();
+
+    return saldoUsuario >= saldoPendiente;
+  }
+
+  // En tu AuthController
+  Future<void> pagarPrestamoCompleto(String prestamoId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuario no autenticado');
+
+    final userRef = _db.collection('usuarios').doc(user.uid);
+    final prestamoRef = _db.collection('prestamos').doc(prestamoId);
+
+    await _db.runTransaction((transaction) async {
+      final userSnapshot = await transaction.get(userRef);
+      final prestamoSnapshot = await transaction.get(prestamoRef);
+
+      if (!userSnapshot.exists || !prestamoSnapshot.exists) {
+        throw Exception('Datos no encontrados');
+      }
+
+      final saldoUsuario = (userSnapshot.get('Saldo') as num).toDouble();
+      final prestamoData = prestamoSnapshot.data()!;
+      final saldoPendiente = (prestamoData['saldoPendiente'] as num).toDouble();
+
+      if (saldoUsuario < saldoPendiente) {
+        throw Exception('Saldo insuficiente para pagar el préstamo completo');
+      }
+
+      // Marcar todas las cuotas como pagadas
+      final cuotas = List<Map<String, dynamic>>.from(prestamoData['cuotas']);
+      for (var cuota in cuotas) {
+        if (cuota['estado'] != 'pagada') {
+          cuota['estado'] = 'pagada';
+        }
+      }
+
+      // Actualizar el préstamo
+      transaction.update(prestamoRef, {
+        'cuotas': cuotas,
+        'saldoPendiente': 0,
+        'totalPagado': prestamoData['monto'],
+        'estado': 'pagado',
+      });
+
+      // Descontar del saldo del usuario
+      transaction.update(userRef, {
+        'Saldo': saldoUsuario - saldoPendiente,
+      });
+    });
+  }
+
   Future<void> pagarCuota(String prestamoId, int numeroCuota) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('Usuario no autenticado');

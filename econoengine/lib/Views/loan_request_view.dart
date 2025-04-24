@@ -91,55 +91,54 @@ class _LoanRequestViewState extends State<LoanRequestView> {
 
   Future<void> _solicitarPrestamo() async {
     if (_formKey.currentState!.validate()) {
-      // Validar si el saldo es suficiente
-      if (_saldoUsuario >= _monto * 0.1) {
-        try {
-          final authController =
-              Provider.of<AuthController>(context, listen: false);
-          final plazoMeses =
-              _tipoPlazo == 'meses' ? _plazo.toInt() : (_plazo.toInt() * 12);
+      try {
+        final authController =
+            Provider.of<AuthController>(context, listen: false);
+        final plazoMeses =
+            _tipoPlazo == 'meses' ? _plazo.toInt() : (_plazo.toInt() * 12);
 
-          // Asignar el estado del préstamo en función de la validación
-          final estadoPrestamo =
-              _saldoUsuario >= _monto * 0.1 ? 'aprobado' : 'pendiente';
+        // Determinar el estado basado en el saldo
+        final estadoPrestamo = _saldoUsuario >= _monto * 0.1
+            ? 'aprobado'
+            : 'en estudio'; // Cambiado de 'pendiente' a 'en estudio'
 
-          await authController.solicitarPrestamo(
-            monto: _monto,
-            tipoInteres: _tipoInteres,
-            tasaInteres: _tasaInteres,
-            plazoMeses: plazoMeses,
-            destinoTelefono: _telefono,
-            solicitanteCedula: _cedula,
-            solicitanteNombre: _nombre,
-            estado: estadoPrestamo, // Establecer el estado
-          );
+        await authController.solicitarPrestamo(
+          monto: _monto,
+          tipoInteres: _tipoInteres,
+          tasaInteres: _tasaInteres,
+          plazoMeses: plazoMeses,
+          destinoTelefono: _telefono,
+          solicitanteCedula: _cedula,
+          solicitanteNombre: _nombre,
+          estado: estadoPrestamo,
+          tipoGradiente: _tipoInteres == 'gradiente' ? _tipoGradiente : null,
+          tipoAmortizacion:
+              _tipoInteres == 'amortizacion' ? _tipoAmortizacion : null,
+          valorGradiente: _tipoInteres == 'gradiente' ? _valorGradiente : null,
+        );
 
-          // Si el préstamo es aprobado, actualizar el saldo en Firestore
-          if (estadoPrestamo == 'aprobado') {
-            // Actualizar el saldo
-            final nuevoSaldo = _saldoUsuario + _monto;
+        // Solo actualizar saldo si es aprobado
+        if (estadoPrestamo == 'aprobado') {
+          final nuevoSaldo = _saldoUsuario + _monto;
+          await authController.actualizarSaldoUsuario(nuevoSaldo);
 
-            // Aquí actualizas el saldo del usuario en Firestore
-            await authController.actualizarSaldoUsuario(nuevoSaldo);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text('Préstamo solicitado y saldo actualizado')),
-            );
-          }
-          Navigator.pop(context);
-        } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.toString()}')),
+            const SnackBar(
+              content: Text('Préstamo aprobado y saldo actualizado'),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Préstamo enviado a estudio'),
+            ),
           );
         }
-      } else {
-        print('Saldo usuario: $_saldoUsuario');
-        print('Monto préstamo: $_monto');
-        print('10% del monto: ${_monto * 0.1}');
+
+        Navigator.pop(context);
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Saldo insuficiente para aprobar el préstamo')),
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     }
