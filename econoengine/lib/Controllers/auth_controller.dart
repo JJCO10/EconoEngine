@@ -121,14 +121,16 @@ class AuthController extends ChangeNotifier {
         throw Exception('Datos no encontrados');
       }
 
-      final saldo = userSnapshot.get('Saldo') as double;
+      // Usa .toDouble() para convertir seguro cualquier num a double
+      final saldo = (userSnapshot.get('Saldo') as num).toDouble();
       final data = prestamoSnapshot.data()!;
       final cuotas = List<Map<String, dynamic>>.from(data['cuotas']);
       final cuota = cuotas.firstWhere((c) => c['numero'] == numeroCuota);
 
       if (cuota['estado'] == 'pagada') throw Exception('Cuota ya pagada');
 
-      final montoCuota = cuota['monto'] as double;
+      final montoCuota =
+          (cuota['monto'] as num).toDouble(); // Conversión segura
 
       if (saldo < montoCuota) {
         throw Exception('Saldo insuficiente');
@@ -137,10 +139,11 @@ class AuthController extends ChangeNotifier {
       // Actualizar cuota
       cuota['estado'] = 'pagada';
 
-      // Recalcular saldo pendiente y total pagado
+      // Recalcular saldos (conversión segura)
       final nuevoSaldoPendiente =
-          (data['saldoPendiente'] as double) - montoCuota;
-      final nuevoTotalPagado = (data['totalPagado'] as double) + montoCuota;
+          (data['saldoPendiente'] as num).toDouble() - montoCuota;
+      final nuevoTotalPagado =
+          (data['totalPagado'] as num).toDouble() + montoCuota;
 
       // Revisar si todas las cuotas están pagadas
       final todasPagadas = cuotas.every((c) => c['estado'] == 'pagada');
@@ -156,7 +159,7 @@ class AuthController extends ChangeNotifier {
 
       // Descontar del saldo del usuario
       transaction.update(userRef, {
-        'Saldo': saldo - montoCuota, // Actualización del saldo
+        'Saldo': saldo - montoCuota,
       });
     });
   }

@@ -167,8 +167,10 @@ class _UvrViewState extends State<UvrView> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                final valorInicial = double.tryParse(_valorInicialController.text) ?? 0;
-                final valorFinal = double.tryParse(_valorFinalController.text) ?? 0;
+                final valorInicial =
+                    double.tryParse(_valorInicialController.text) ?? 0;
+                final valorFinal =
+                    double.tryParse(_valorFinalController.text) ?? 0;
                 controller.calcularVariacionUvr(
                   valorInicial,
                   valorFinal,
@@ -211,7 +213,8 @@ class _UvrViewState extends State<UvrView> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                final valorPesos = double.tryParse(_valorPesosController.text) ?? 0;
+                final valorPesos =
+                    double.tryParse(_valorPesosController.text) ?? 0;
                 final valorUvr = double.tryParse(_valorUvrController.text) ?? 0;
                 controller.convertirPesosAUvr(valorPesos, valorUvr);
               },
@@ -251,7 +254,8 @@ class _UvrViewState extends State<UvrView> {
             ElevatedButton(
               onPressed: () {
                 final valorUvr = double.tryParse(_valorUvrController.text) ?? 0;
-                final valorActualUvr = double.tryParse(_valorFinalController.text) ?? 0;
+                final valorActualUvr =
+                    double.tryParse(_valorFinalController.text) ?? 0;
                 controller.convertirUvrAPesos(valorUvr, valorActualUvr);
               },
               child: const Text('Convertir a Pesos'),
@@ -308,8 +312,10 @@ class _UvrViewState extends State<UvrView> {
             ElevatedButton(
               onPressed: () {
                 final montoUvr = double.tryParse(_montoUvrController.text) ?? 0;
-                final tasaInteres = double.tryParse(_tasaInteresController.text) ?? 0;
-                final plazoMeses = int.tryParse(_plazoMesesController.text) ?? 0;
+                final tasaInteres =
+                    double.tryParse(_tasaInteresController.text) ?? 0;
+                final plazoMeses =
+                    int.tryParse(_plazoMesesController.text) ?? 0;
                 final valorUvr = double.tryParse(_valorUvrController.text) ?? 0;
                 controller.calcularCuotaCreditoUvr(
                   montoUvr,
@@ -366,7 +372,8 @@ class _UvrViewState extends State<UvrView> {
             ElevatedButton(
               onPressed: () {
                 final valorUvr = double.tryParse(_valorUvrController.text) ?? 0;
-                final inflacion = double.tryParse(_inflacionController.text) ?? 0;
+                final inflacion =
+                    double.tryParse(_inflacionController.text) ?? 0;
                 controller.proyectarUvr(
                   valorUvr,
                   inflacion / 100,
@@ -446,11 +453,15 @@ class _UvrViewState extends State<UvrView> {
             ElevatedButton(
               onPressed: () {
                 final capital = double.tryParse(_capitalController.text) ?? 0;
-                final cuotaInicial = double.tryParse(_cuotaInicialController.text) ?? 0;
+                final cuotaInicial =
+                    double.tryParse(_cuotaInicialController.text) ?? 0;
                 final valorUvr = double.tryParse(_valorUvrController.text) ?? 0;
-                final tasaInteres = double.tryParse(_tasaInteresController.text) ?? 0;
-                final plazoMeses = int.tryParse(_plazoMesesController.text) ?? 0;
-                final inflacion = double.tryParse(_inflacionController.text) ?? 0;
+                final tasaInteres =
+                    double.tryParse(_tasaInteresController.text) ?? 0;
+                final plazoMeses =
+                    int.tryParse(_plazoMesesController.text) ?? 0;
+                final inflacion =
+                    double.tryParse(_inflacionController.text) ?? 0;
                 controller.generarTablaAmortizacionUvr(
                   capital,
                   cuotaInicial,
@@ -468,7 +479,8 @@ class _UvrViewState extends State<UvrView> {
     );
   }
 
-  Widget _buildDatePicker(String label, DateTime date, ValueChanged<DateTime> onChanged) {
+  Widget _buildDatePicker(
+      String label, DateTime date, ValueChanged<DateTime> onChanged) {
     return ListTile(
       title: Text('$label: ${DateFormat('dd/MM/yyyy').format(date)}'),
       trailing: const Icon(Icons.calendar_today),
@@ -498,8 +510,7 @@ class _UvrViewState extends State<UvrView> {
   }
 
   Widget _buildResultado(UvrController controller) {
-    if (controller.modoSeleccionado == 'Tabla Amortización UVR' && 
-        controller.resultado is List) {
+    if (controller.modoSeleccionado == 'Tabla Amortización UVR') {
       return _buildTablaAmortizacionResult(controller.resultado);
     }
 
@@ -547,7 +558,7 @@ class _UvrViewState extends State<UvrView> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-              entry.value is double 
+              entry.value is double
                   ? entry.value.toStringAsFixed(2)
                   : entry.value.toString(),
             ),
@@ -557,7 +568,15 @@ class _UvrViewState extends State<UvrView> {
     }).toList();
   }
 
-  Widget _buildTablaAmortizacionResult(List<Map<String, dynamic>> tabla) {
+  Widget _buildTablaAmortizacionResult(dynamic resultado) {
+    // Verificar si el resultado tiene la estructura esperada
+    if (resultado == null || resultado['tabla'] == null) {
+      return const Text('No hay datos de tabla para mostrar');
+    }
+
+    final resumen = resultado['resumen'] as Map<String, dynamic>;
+    final tabla = resultado['tabla'] as List<Map<String, dynamic>>;
+
     return Card(
       elevation: 5,
       child: Padding(
@@ -566,29 +585,64 @@ class _UvrViewState extends State<UvrView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Tabla de Amortización UVR',
+              'Resumen del Crédito',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            ...resumen.entries.map((entry) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(entry.key,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(entry.value.toString()),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 20),
+            const Text(
+              'Tabla de Amortización',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
+                columnSpacing: 20,
                 columns: const [
                   DataColumn(label: Text('Mes')),
-                  DataColumn(label: Text('Cuota (Pesos)')),
-                  DataColumn(label: Text('Interés (Pesos)')),
-                  DataColumn(label: Text('Capital (Pesos)')),
-                  DataColumn(label: Text('Saldo (Pesos)')),
-                  DataColumn(label: Text('Valor UVR')),
+                  DataColumn(
+                      label: Text('Valor UVR', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Cuota UVR', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Interés UVR', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Abono UVR', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Saldo UVR', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Cuota \$', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Interés \$', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Abono \$', textAlign: TextAlign.right)),
+                  DataColumn(
+                      label: Text('Saldo \$', textAlign: TextAlign.right)),
                 ],
                 rows: tabla.map((fila) {
                   return DataRow(cells: [
-                    DataCell(Text(fila['mes'].toString())),
-                    DataCell(Text(fila['cuotaPesos'].toStringAsFixed(2))),
-                    DataCell(Text(fila['interesPesos'].toStringAsFixed(2))),
-                    DataCell(Text(fila['abonoCapitalPesos'].toStringAsFixed(2))),
-                    DataCell(Text(fila['saldoPesos'].toStringAsFixed(2))),
-                    DataCell(Text(fila['valorUvr'].toStringAsFixed(2))),
+                    DataCell(Text(fila['Mes'].toString())),
+                    DataCell(Text(fila['Valor UVR'])),
+                    DataCell(Text(fila['Cuota UVR'])),
+                    DataCell(Text(fila['Interés UVR'])),
+                    DataCell(Text(fila['Abono Capital UVR'])),
+                    DataCell(Text(fila['Saldo UVR'])),
+                    DataCell(Text(fila['Cuota Pesos'])),
+                    DataCell(Text(fila['Interés Pesos'])),
+                    DataCell(Text(fila['Abono Capital Pesos'])),
+                    DataCell(Text(fila['Saldo Pesos'])),
                   ]);
                 }).toList(),
               ),

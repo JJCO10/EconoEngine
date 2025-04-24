@@ -2,27 +2,26 @@ import 'dart:math';
 
 class UvrService {
   // Método para calcular la variación del valor de la UVR entre dos fechas
-  double calcularVariacionUvr(double valorInicial, double valorFinal, DateTime fechaInicial, DateTime fechaFinal) {
+  // (Este es el único que debe devolver un porcentaje)
+  double calcularVariacionUvr(double valorInicial, double valorFinal,
+      DateTime fechaInicial, DateTime fechaFinal) {
     if (valorInicial <= 0 || valorFinal <= 0) {
       throw ArgumentError('Los valores de UVR deben ser mayores que cero');
     }
-    
-    // Calcular días entre las fechas
+
     int diasEntreFechas = fechaFinal.difference(fechaInicial).inDays;
     if (diasEntreFechas <= 0) {
-      throw ArgumentError('La fecha final debe ser posterior a la fecha inicial');
+      throw ArgumentError(
+          'La fecha final debe ser posterior a la fecha inicial');
     }
-    
-    // Calcular variación porcentual
+
     double variacion = (valorFinal - valorInicial) / valorInicial;
-    
-    // Convertir a tasa efectiva anual
     double tasaEfectivaAnual = pow(1 + variacion, 365 / diasEntreFechas) - 1;
-    
+
     return tasaEfectivaAnual;
   }
 
-  // Método para convertir un valor en pesos a UVR
+  // Método para convertir un valor en pesos a UVR - Devuelve valor absoluto
   double convertirPesosAUvr(double valorPesos, double valorUvr) {
     if (valorUvr <= 0) {
       throw ArgumentError('El valor de la UVR debe ser mayor que cero');
@@ -30,7 +29,7 @@ class UvrService {
     return valorPesos / valorUvr;
   }
 
-  // Método para convertir un valor en UVR a pesos
+  // Método para convertir un valor en UVR a pesos - Devuelve valor absoluto
   double convertirUvrAPesos(double valorUvr, double valorActualUvr) {
     if (valorActualUvr <= 0) {
       throw ArgumentError('El valor actual de la UVR debe ser mayor que cero');
@@ -38,107 +37,80 @@ class UvrService {
     return valorUvr * valorActualUvr;
   }
 
-  // Método para calcular la cuota de un crédito en UVR
-  double calcularCuotaCreditoUvr(double montoUvr, double tasaInteresEA, int plazoMeses) {
+  // Método para calcular la cuota de un crédito en UVR - Devuelve valor absoluto
+  double calcularCuotaCreditoUvr(
+      double montoUvr, double tasaInteresEA, int plazoMeses) {
     if (montoUvr <= 0) {
       throw ArgumentError('El monto del crédito debe ser mayor que cero');
     }
     if (plazoMeses <= 0) {
       throw ArgumentError('El plazo debe ser mayor que cero');
     }
-    
-    // Convertir tasa efectiva anual a tasa efectiva mensual
-    double tasaMensual = pow(1 + tasaInteresEA, 1/12) - 1;
-    
-    // Calcular factor de amortización
-    double factor = tasaMensual * pow(1 + tasaMensual, plazoMeses) / (pow(1 + tasaMensual, plazoMeses) - 1);
-    
-    // Calcular cuota en UVR
+
+    double tasaMensual = pow(1 + tasaInteresEA, 1 / 12) - 1;
+    double factor = tasaMensual *
+        pow(1 + tasaMensual, plazoMeses) /
+        (pow(1 + tasaMensual, plazoMeses) - 1);
+
     return montoUvr * factor;
   }
 
-  // Método para proyectar el valor futuro de la UVR
-  double proyectarUvr(double valorActualUvr, double inflacionAnualProyectada, int numeroDias) {
+  // Método para proyectar el valor futuro de la UVR - Devuelve valor absoluto
+  double proyectarUvr(
+      double valorActualUvr, double inflacionAnualProyectada, int numeroDias) {
     if (valorActualUvr <= 0) {
       throw ArgumentError('El valor actual de la UVR debe ser mayor que cero');
     }
     if (numeroDias < 0) {
       throw ArgumentError('El número de días debe ser positivo');
     }
-    
-    // Convertir inflación anual a inflación diaria
-    double inflacionDiaria = pow(1 + inflacionAnualProyectada, 1/365) - 1;
-    
-    // Proyectar valor futuro
+
+    double inflacionDiaria = pow(1 + inflacionAnualProyectada, 1 / 365) - 1;
     return valorActualUvr * pow(1 + inflacionDiaria, numeroDias);
   }
 
   // Método para generar tabla de amortización de un crédito en UVR
+  // En UvrService
   List<Map<String, dynamic>> generarTablaAmortizacionUvr(
-      double montoPrestamoUvr, 
-      double valorInicialUvr, 
-      double tasaInteresEA, 
-      int plazoMeses, 
+      double montoPrestamoUvr,
+      double valorInicialUvr,
+      double tasaInteresEA,
+      int plazoMeses,
       double inflacionAnualProyectada) {
-    
-    if (montoPrestamoUvr <= 0 || valorInicialUvr <= 0 || plazoMeses <= 0) {
-      throw ArgumentError('Los valores de monto, UVR y plazo deben ser mayores que cero');
-    }
-    
     List<Map<String, dynamic>> tabla = [];
-    
-    // Convertir tasa efectiva anual a tasa efectiva mensual
-    double tasaMensual = pow(1 + tasaInteresEA, 1/12) - 1;
-    
-    // Calcular cuota fija en UVR
-    double cuotaUvr = calcularCuotaCreditoUvr(montoPrestamoUvr, tasaInteresEA, plazoMeses);
-    
-    // Convertir inflación anual a inflación mensual
-    double inflacionMensual = pow(1 + inflacionAnualProyectada, 1/12) - 1;
-    
+    double tasaMensual = pow(1 + tasaInteresEA, 1 / 12) - 1;
+    double cuotaUvr =
+        calcularCuotaCreditoUvr(montoPrestamoUvr, tasaInteresEA, plazoMeses);
+    double inflacionMensual = pow(1 + inflacionAnualProyectada, 1 / 12) - 1;
+
     double saldoUvr = montoPrestamoUvr;
     double valorUvr = valorInicialUvr;
-    
+
     for (int mes = 1; mes <= plazoMeses; mes++) {
-      // Calcular interés del mes
       double interesUvr = saldoUvr * tasaMensual;
-      
-      // Calcular abono a capital
       double abonoCapitalUvr = cuotaUvr - interesUvr;
-      
-      // Actualizar saldo
       double nuevoSaldoUvr = saldoUvr - abonoCapitalUvr;
-      
-      // Actualizar valor de la UVR para el siguiente mes
+
       valorUvr = valorUvr * (1 + inflacionMensual);
-      
-      // Convertir valores de UVR a pesos
-      double cuotaPesos = cuotaUvr * valorUvr;
-      double interesPesos = interesUvr * valorUvr;
-      double abonoCapitalPesos = abonoCapitalUvr * valorUvr;
-      double saldoPesos = nuevoSaldoUvr * valorUvr;
-      
-      // Añadir registro a la tabla
+
+      // Formateamos los números para mejor visualización
       tabla.add({
-        'mes': mes,
-        'cuotaUvr': cuotaUvr,
-        'interesUvr': interesUvr,
-        'abonoCapitalUvr': abonoCapitalUvr,
-        'saldoUvr': nuevoSaldoUvr,
-        'valorUvr': valorUvr,
-        'cuotaPesos': cuotaPesos,
-        'interesPesos': interesPesos,
-        'abonoCapitalPesos': abonoCapitalPesos,
-        'saldoPesos': saldoPesos,
+        'Mes': mes,
+        'Valor UVR': valorUvr.toStringAsFixed(4),
+        'Cuota UVR': cuotaUvr.toStringAsFixed(4),
+        'Interés UVR': interesUvr.toStringAsFixed(4),
+        'Abono Capital UVR': abonoCapitalUvr.toStringAsFixed(4),
+        'Saldo UVR': nuevoSaldoUvr.toStringAsFixed(4),
+        'Cuota Pesos': (cuotaUvr * valorUvr).toStringAsFixed(2),
+        'Interés Pesos': (interesUvr * valorUvr).toStringAsFixed(2),
+        'Abono Capital Pesos': (abonoCapitalUvr * valorUvr).toStringAsFixed(2),
+        'Saldo Pesos': (nuevoSaldoUvr * valorUvr).toStringAsFixed(2),
       });
-      
-      // Actualizar saldo para el siguiente mes
+
       saldoUvr = nuevoSaldoUvr;
-      
-      // Si el saldo llega a cero o menos, terminar
       if (saldoUvr <= 0) break;
     }
-    
+
     return tabla;
   }
 }
