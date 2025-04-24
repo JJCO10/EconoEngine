@@ -60,8 +60,8 @@ class LoanDetailView extends StatelessWidget {
                         '\$${prestamo.totalPagado.toStringAsFixed(2)}'),
                     const SizedBox(height: 20),
                     // Botón para pagar el préstamo completo
-                    if (prestamo.estado.toLowerCase() != 'pagado' &&
-                        prestamo.estado.toLowerCase() != 'en estudio')
+                    if (prestamo.estado.trim().toLowerCase() != 'pagado' &&
+                        prestamo.estado.trim().toLowerCase() != 'en estudio')
                       Center(
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.payment),
@@ -99,27 +99,27 @@ class LoanDetailView extends StatelessWidget {
                               Text('Estado: ${cuota.estado}'),
                             ],
                           ),
-                          trailing:
-                              (prestamo.estado.toLowerCase() == 'en estudio' ||
-                                      cuota.estado.toLowerCase() == 'pagada')
-                                  ? IconButton(
-                                      icon: const Icon(Icons.payment),
-                                      onPressed: null, // deshabilitado
-                                      tooltip:
-                                          cuota.estado.toLowerCase() == 'pagada'
-                                              ? 'Cuota ya pagada'
-                                              : 'Préstamo en estudio',
-                                      color: Colors.grey,
-                                    )
-                                  : IconButton(
-                                      icon: const Icon(Icons.payment),
-                                      onPressed: () {
-                                        _pagarCuota(
-                                            context, prestamo.id, cuota.numero);
-                                      },
-                                      tooltip: 'Pagar cuota',
-                                      color: Colors.blue,
-                                    ),
+                          trailing: (prestamo.estado.trim().toLowerCase() ==
+                                      'en estudio' ||
+                                  cuota.estado.toLowerCase() == 'pagada')
+                              ? IconButton(
+                                  icon: const Icon(Icons.payment),
+                                  onPressed: null, // deshabilitado
+                                  tooltip:
+                                      cuota.estado.toLowerCase() == 'pagada'
+                                          ? 'Cuota ya pagada'
+                                          : 'Préstamo en estudio',
+                                  color: Colors.grey,
+                                )
+                              : IconButton(
+                                  icon: const Icon(Icons.payment),
+                                  onPressed: () {
+                                    _pagarCuota(
+                                        context, prestamo.id, cuota.numero);
+                                  },
+                                  tooltip: 'Pagar cuota',
+                                  color: Colors.blue,
+                                ),
                         ),
                       );
                     }).toList(),
