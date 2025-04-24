@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/cuota.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:econoengine/Controllers/auth_controller.dart';
-import 'package:econoengine/Models/prestamo.dart';
 
 class LoanRequestView extends StatefulWidget {
   const LoanRequestView({super.key});
@@ -20,6 +18,10 @@ class _LoanRequestViewState extends State<LoanRequestView> {
   double _plazo = 12;
   String _tipoPlazo = 'meses'; // mes o año
   String _tipoInteres = 'simple';
+  // Nuevos campos para gradiente y amortización
+  String _tipoGradiente = 'aritmético';
+  String _tipoAmortizacion = 'francés';
+  double _valorGradiente = 10.0; // valor por defecto
   List<Cuota> _cuotasSimuladas = [];
 
   // Usuario datos desde Firestore
@@ -70,6 +72,10 @@ class _LoanRequestViewState extends State<LoanRequestView> {
           tasaAnual: _tasaInteres,
           plazoMeses: plazoMeses,
           tipoInteres: _tipoInteres,
+          tipoGradiente: _tipoGradiente, // Pasamos el tipo de gradiente
+          tipoAmortizacion:
+              _tipoAmortizacion, // Pasamos el tipo de amortización
+          valorGradiente: _valorGradiente, // Pasamos el valor del gradiente
         );
 
         setState(() {
@@ -220,6 +226,90 @@ class _LoanRequestViewState extends State<LoanRequestView> {
                         onChanged: (value) =>
                             setState(() => _tipoInteres = value!),
                       ),
+
+                      // Opciones adicionales para Gradiente
+                      if (_tipoInteres == 'gradiente') ...[
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _tipoGradiente,
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo de Gradiente',
+                            prefixIcon: Icon(Icons.trending_up),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                                value: 'aritmético', child: Text('Aritmético')),
+                            DropdownMenuItem(
+                                value: 'geométrico', child: Text('Geométrico')),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _tipoGradiente = value!),
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _tipoGradiente == 'aritmético'
+                                  ? 'Valor del Gradiente'
+                                  : 'Tasa de Crecimiento (%)',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Slider(
+                                    value: _valorGradiente,
+                                    min: 0,
+                                    max: _tipoGradiente == 'aritmético'
+                                        ? 100
+                                        : 20,
+                                    divisions: _tipoGradiente == 'aritmético'
+                                        ? 100
+                                        : 20,
+                                    label: _valorGradiente.toStringAsFixed(1),
+                                    onChanged: (value) =>
+                                        setState(() => _valorGradiente = value),
+                                  ),
+                                ),
+                                Container(
+                                  width: 60,
+                                  child: Text(_tipoGradiente == 'aritmético'
+                                      ? '${_valorGradiente.toStringAsFixed(1)}'
+                                      : '${_valorGradiente.toStringAsFixed(1)}%'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      // Opciones adicionales para Amortización
+                      if (_tipoInteres == 'amortizacion') ...[
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _tipoAmortizacion,
+                          decoration: const InputDecoration(
+                            labelText: 'Sistema de Amortización',
+                            prefixIcon: Icon(Icons.account_balance),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                                value: 'francés',
+                                child: Text('Sistema Francés')),
+                            DropdownMenuItem(
+                                value: 'alemán', child: Text('Sistema Alemán')),
+                            DropdownMenuItem(
+                                value: 'americano',
+                                child: Text('Sistema Americano')),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _tipoAmortizacion = value!),
+                        ),
+                      ],
+
                       const SizedBox(height: 16),
                       const Text('Tasa de interés anual'),
                       Row(
