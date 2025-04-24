@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:econoengine/Models/transferencia.dart';
+import 'package:econoengine/Services/auth_service.dart';
 import 'package:econoengine/Views/Auth/login_view.dart';
 import 'package:econoengine/Views/TIR_view.dart';
 import 'package:econoengine/Views/UVR_view.dart';
@@ -12,6 +13,7 @@ import 'package:econoengine/Views/gradientes_view.dart';
 import 'package:econoengine/Views/inflacion_view.dart';
 import 'package:econoengine/Views/interesCompuesto_view.dart';
 import 'package:econoengine/Views/interesSimple_view.dart';
+import 'package:econoengine/Views/loans_list_view.dart';
 import 'package:econoengine/Views/settings_view.dart';
 import 'package:econoengine/Views/transactions_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -79,12 +81,14 @@ class _HomeViewState extends State<HomeView> {
             ),
             TextButton(
               onPressed: () async {
-                final telefonoDestinatario = telefonoDestinatarioController.text;
+                final telefonoDestinatario =
+                    telefonoDestinatarioController.text;
                 final monto = double.tryParse(montoController.text) ?? 0.0;
 
                 if (telefonoDestinatario.isEmpty || monto <= 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Por favor, ingresa datos válidos')),
+                    const SnackBar(
+                        content: Text('Por favor, ingresa datos válidos')),
                   );
                   return;
                 }
@@ -103,15 +107,18 @@ class _HomeViewState extends State<HomeView> {
                     throw ('No se encontró el destinatario');
                   }
 
-                  final destinatarioData = destinatarioSnapshot.docs.first.data();
-                  final nombreDestinatario = destinatarioData['Nombre'] as String?;
+                  final destinatarioData =
+                      destinatarioSnapshot.docs.first.data();
+                  final nombreDestinatario =
+                      destinatarioData['Nombre'] as String?;
 
                   if (nombreDestinatario == null) {
                     throw ('No se encontró el nombre del destinatario');
                   }
 
                   // Generar la referencia de transferencia
-                  final referenciaTransferencia = _generarReferenciaTransferencia();
+                  final referenciaTransferencia =
+                      _generarReferenciaTransferencia();
 
                   // Mostrar el cuadro de confirmación
                   await _mostrarConfirmacionTransferencia(
@@ -245,14 +252,16 @@ class _HomeViewState extends State<HomeView> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo sin hacer la transferencia
+                Navigator.of(context)
+                    .pop(); // Cerrar el diálogo sin hacer la transferencia
               },
               child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () async {
                 try {
-                  final authController = Provider.of<AuthController>(context, listen: false);
+                  final authController =
+                      Provider.of<AuthController>(context, listen: false);
 
                   // Obtener los datos del remitente (usuario actual)
                   final user = FirebaseAuth.instance.currentUser;
@@ -269,10 +278,14 @@ class _HomeViewState extends State<HomeView> {
 
                   final remitenteData = remitenteSnapshot.data();
                   final remitenteNombre = remitenteData?['Nombre'] as String?;
-                  final remitenteCelular = remitenteData?['Telefono'] as String?;
-                  final remitenteCedula = remitenteData?['Numero Documento'] as String?;
+                  final remitenteCelular =
+                      remitenteData?['Telefono'] as String?;
+                  final remitenteCedula =
+                      remitenteData?['Numero Documento'] as String?;
 
-                  if (remitenteNombre == null || remitenteCelular == null || remitenteCedula == null) {
+                  if (remitenteNombre == null ||
+                      remitenteCelular == null ||
+                      remitenteCedula == null) {
                     throw Exception('Datos del remitente incompletos');
                   }
 
@@ -287,11 +300,15 @@ class _HomeViewState extends State<HomeView> {
                     throw Exception('No se encontró el destinatario');
                   }
 
-                  final destinatarioData = destinatarioSnapshot.docs.first.data();
-                  final destinatarioNombre = destinatarioData['Nombre'] as String?;
-                  final destinatarioCedula = destinatarioData['Numero Documento'] as String?;
+                  final destinatarioData =
+                      destinatarioSnapshot.docs.first.data();
+                  final destinatarioNombre =
+                      destinatarioData['Nombre'] as String?;
+                  final destinatarioCedula =
+                      destinatarioData['Numero Documento'] as String?;
 
-                  if (destinatarioNombre == null || destinatarioCedula == null) {
+                  if (destinatarioNombre == null ||
+                      destinatarioCedula == null) {
                     throw Exception('Datos del destinatario incompletos');
                   }
 
@@ -341,8 +358,10 @@ class _HomeViewState extends State<HomeView> {
     final authController = Provider.of<AuthController>(context, listen: false);
 
     // Obtener transferencias enviadas y recibidas
-    final transferenciasEnviadas = await authController.obtenerTransferenciasEnviadas();
-    final transferenciasRecibidas = await authController.obtenerTransferenciasRecibidas();
+    final transferenciasEnviadas =
+        await authController.obtenerTransferenciasEnviadas();
+    final transferenciasRecibidas =
+        await authController.obtenerTransferenciasRecibidas();
 
     // Combinar y ordenar por fecha
     final movimientos = [...transferenciasEnviadas, ...transferenciasRecibidas];
@@ -360,7 +379,8 @@ class _HomeViewState extends State<HomeView> {
 
     if (savedUserId != null) {
       try {
-        final userData = await authController.getUserData(savedUserId); // Obtener los datos del usuario
+        final userData = await authController
+            .getUserData(savedUserId); // Obtener los datos del usuario
         print("Datos del usuario: $userData"); // Depuración
         setState(() {
           userName = userData['Nombre'] as String?;
@@ -370,7 +390,8 @@ class _HomeViewState extends State<HomeView> {
       } catch (e) {
         print("Error al cargar los datos del usuario: $e");
         setState(() {
-          isLoading = false; // Indicar que la carga ha terminado (incluso si hay un error)
+          isLoading =
+              false; // Indicar que la carga ha terminado (incluso si hay un error)
         });
       }
     } else {
@@ -392,13 +413,16 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: isLoading
-            ? const Text("Cargando...", style: TextStyle(color: Colors.white)) // Indicador de carga
+            ? const Text("Cargando...",
+                style: TextStyle(color: Colors.white)) // Indicador de carga
             : Text(
-                userName != null ? 'Hola, ${userName!.split(" ")[0]}' : 'Hola, Usuario',
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
+                userName != null
+                    ? 'Hola, ${userName!.split(" ")[0]}'
+                    : 'Hola, Usuario',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
         backgroundColor: Colors.blue[800],
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -466,12 +490,29 @@ class _HomeViewState extends State<HomeView> {
               ),
             ),
             const SizedBox(height: 10),
-            Text(
-              saldo != null ? '\$${_formatearSaldo(saldo!)}' : 'Cargando saldo...',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+            StreamBuilder<double>(
+              stream: AuthService().obtenerSaldoEnTiempoReal(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text('Cargando saldo...');
+                }
+
+                if (snapshot.hasError) {
+                  return Text('Error al cargar el saldo');
+                }
+
+                final saldo = snapshot.data;
+
+                return Text(
+                  saldo != null
+                      ? '\$${_formatearSaldo(saldo)}'
+                      : 'Saldo no disponible',
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 10),
             Row(
@@ -487,6 +528,27 @@ class _HomeViewState extends State<HomeView> {
                     },
                     child: const Text(
                       'Transferir',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[800],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoansListView(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Préstamos',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -509,13 +571,15 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.calculate, 'Interés Simple', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const InteresSimpleView()),
+              MaterialPageRoute(
+                  builder: (context) => const InteresSimpleView()),
             );
           }),
           _buildMenuButton(Icons.trending_up, 'Interés Compuesto', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const InteresCompuestoView()),
+              MaterialPageRoute(
+                  builder: (context) => const InteresCompuestoView()),
             );
           }),
           _buildMenuButton(Icons.timeline, 'Gradientes', () {
@@ -545,7 +609,8 @@ class _HomeViewState extends State<HomeView> {
           _buildMenuButton(Icons.business, 'Capitalizacion', () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CapitalizacionView()),
+              MaterialPageRoute(
+                  builder: (context) => const CapitalizacionView()),
             );
           }),
           /*_buildMenuButton(Icons.credit_card, 'Bonos', () {
@@ -625,7 +690,8 @@ class _HomeViewState extends State<HomeView> {
                 // Navegar a la vista de transacciones
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const TransactionsView()),
+                  MaterialPageRoute(
+                      builder: (context) => const TransactionsView()),
                 );
               },
               child: const Text('Ver todos los movimientos'),
@@ -637,8 +703,11 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildTransactionItem(Transferencia transferencia) {
-    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
-    final nombre = esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre;
+    final esEnvio =
+        transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+    final nombre = esEnvio
+        ? transferencia.destinatarioNombre
+        : transferencia.remitenteNombre;
     final color = esEnvio ? Colors.red : Colors.green;
     final icono = esEnvio ? Icons.arrow_downward : Icons.arrow_upward;
 
@@ -664,24 +733,33 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  void _mostrarDetallesTransferencia(BuildContext context, Transferencia transferencia) {
-    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+  void _mostrarDetallesTransferencia(
+      BuildContext context, Transferencia transferencia) {
+    final esEnvio =
+        transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
+          title:
+              Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RichText(
                 text: TextSpan(
-                  style: DefaultTextStyle.of(context).style, // Hereda el estilo por defecto
+                  style: DefaultTextStyle.of(context)
+                      .style, // Hereda el estilo por defecto
                   children: [
-                    const TextSpan(text: 'Nombre: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre),
+                    const TextSpan(
+                        text: 'Nombre: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: esEnvio
+                            ? transferencia.destinatarioNombre
+                            : transferencia.remitenteNombre),
                   ],
                 ),
               ),
@@ -689,8 +767,13 @@ class _HomeViewState extends State<HomeView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Teléfono: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular),
+                    const TextSpan(
+                        text: 'Teléfono: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: esEnvio
+                            ? transferencia.destinatarioCelular
+                            : transferencia.remitenteCelular),
                   ],
                 ),
               ),
@@ -698,7 +781,9 @@ class _HomeViewState extends State<HomeView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Monto: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const TextSpan(
+                        text: 'Monto: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}'),
                   ],
                 ),
@@ -707,8 +792,12 @@ class _HomeViewState extends State<HomeView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Fecha: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)),
+                    const TextSpan(
+                        text: 'Fecha: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: DateFormat('dd/MM/yyyy HH:mm')
+                            .format(transferencia.fechaHora)),
                   ],
                 ),
               ),

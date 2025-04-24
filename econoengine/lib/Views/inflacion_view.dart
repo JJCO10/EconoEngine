@@ -11,15 +11,16 @@ class InflacionView extends StatefulWidget {
 
 class _InflacionViewState extends State<InflacionView> {
   final TextEditingController _montoController = TextEditingController();
-  final TextEditingController _tasaInflacionController = TextEditingController();
+  final TextEditingController _tasaInflacionController =
+      TextEditingController();
   final TextEditingController _anosController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _tasaInversionController = TextEditingController();
+  final TextEditingController _tasaInversionController =
+      TextEditingController();
   final TextEditingController _aporteAnualController = TextEditingController();
   final TextEditingController _tasaAnualController = TextEditingController();
 
   List<TextEditingController> _tasasAnualesControllers = [];
-  int _anosSimulacion = 1;
 
   @override
   void dispose() {
@@ -69,7 +70,8 @@ class _InflacionViewState extends State<InflacionView> {
     );
   }
 
-  Widget _buildModoSelector(InflacionController controller, List<String> modos) {
+  Widget _buildModoSelector(
+      InflacionController controller, List<String> modos) {
     return Card(
       elevation: 5,
       child: Padding(
@@ -158,7 +160,8 @@ class _InflacionViewState extends State<InflacionView> {
             ElevatedButton(
               onPressed: () {
                 final monto = double.tryParse(_montoController.text) ?? 0;
-                final tasa = double.tryParse(_tasaInflacionController.text) ?? 0;
+                final tasa =
+                    double.tryParse(_tasaInflacionController.text) ?? 0;
                 final anos = int.tryParse(_anosController.text) ?? 0;
                 controller.calcularPerdidaValor(
                   montoInicial: monto,
@@ -213,7 +216,8 @@ class _InflacionViewState extends State<InflacionView> {
             ElevatedButton(
               onPressed: () {
                 final precio = double.tryParse(_precioController.text) ?? 0;
-                final tasa = double.tryParse(_tasaInflacionController.text) ?? 0;
+                final tasa =
+                    double.tryParse(_tasaInflacionController.text) ?? 0;
                 final anos = int.tryParse(_anosController.text) ?? 0;
                 controller.ajustarPrecioHistorico(
                   precioOriginal: precio,
@@ -268,7 +272,8 @@ class _InflacionViewState extends State<InflacionView> {
             ElevatedButton(
               onPressed: () {
                 final precio = double.tryParse(_precioController.text) ?? 0;
-                final tasa = double.tryParse(_tasaInflacionController.text) ?? 0;
+                final tasa =
+                    double.tryParse(_tasaInflacionController.text) ?? 0;
                 final anos = int.tryParse(_anosController.text) ?? 0;
                 controller.calcularAumentoPrecio(
                   precioActual: precio,
@@ -316,15 +321,11 @@ class _InflacionViewState extends State<InflacionView> {
                     for (int i = 0; i < diferencia; i++) {
                       _tasasAnualesControllers.add(TextEditingController());
                     }
-                    _anosSimulacion = anos;
                   });
                 } else if (anos < _tasasAnualesControllers.length && anos > 0) {
                   setState(() {
                     _tasasAnualesControllers.removeRange(
-                      anos, 
-                      _tasasAnualesControllers.length
-                    );
-                    _anosSimulacion = anos;
+                        anos, _tasasAnualesControllers.length);
                   });
                 }
               },
@@ -358,13 +359,13 @@ class _InflacionViewState extends State<InflacionView> {
                 final tasas = _tasasAnualesControllers
                     .map((c) => double.tryParse(c.text) ?? 0)
                     .toList();
-                
+
                 if (tasas.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ingrese al menos una tasa de inflación')));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Ingrese al menos una tasa de inflación')));
                   return;
                 }
-                
+
                 controller.simularInflacionAcumulada(
                   montoInicial: monto,
                   tasasInflacionAnuales: tasas,
@@ -437,11 +438,14 @@ class _InflacionViewState extends State<InflacionView> {
             ElevatedButton(
               onPressed: () {
                 final monto = double.tryParse(_montoController.text) ?? 0;
-                final tasaInflacion = double.tryParse(_tasaInflacionController.text) ?? 0;
+                final tasaInflacion =
+                    double.tryParse(_tasaInflacionController.text) ?? 0;
                 final anos = int.tryParse(_anosController.text) ?? 0;
-                final tasaInversion = double.tryParse(_tasaInversionController.text) ?? 0;
-                final aporteAnual = double.tryParse(_aporteAnualController.text);
-                
+                final tasaInversion =
+                    double.tryParse(_tasaInversionController.text) ?? 0;
+                final aporteAnual =
+                    double.tryParse(_aporteAnualController.text);
+
                 controller.compararEscenariosInversion(
                   montoInicial: monto,
                   tasaInflacionAnual: tasaInflacion,
@@ -472,16 +476,16 @@ class _InflacionViewState extends State<InflacionView> {
   Widget _buildResultados(InflacionController controller) {
     if (controller.resultados is Map) {
       final resultados = controller.resultados as Map<String, dynamic>;
-      
-      if (controller.modoSeleccionado == 'Inflación acumulada' && 
+
+      if (controller.modoSeleccionado == 'Inflación acumulada' &&
           resultados is List) {
         return _buildResultadosInflacionAcumulada(resultados.values.toList());
       }
-      
+
       if (controller.modoSeleccionado == 'Comparar inversiones') {
         return _buildResultadosComparacion(resultados);
       }
-      
+
       return Card(
         elevation: 5,
         color: Colors.blue[50],
@@ -509,11 +513,11 @@ class _InflacionViewState extends State<InflacionView> {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        entry.value is double 
-                            ? entry.key == 'poderAdquisitivo' || 
-                              entry.key == 'aumentoPorcentual'
-                              ? '${entry.value.toStringAsFixed(2)}%'
-                              : '\$${entry.value.toStringAsFixed(2)}'
+                        entry.value is double
+                            ? entry.key == 'poderAdquisitivo' ||
+                                    entry.key == 'aumentoPorcentual'
+                                ? '${entry.value.toStringAsFixed(2)}%'
+                                : '\$${entry.value.toStringAsFixed(2)}'
                             : entry.value.toString(),
                       ),
                     ],
@@ -560,10 +564,14 @@ class _InflacionViewState extends State<InflacionView> {
                 rows: resultados.map((resultado) {
                   return DataRow(cells: [
                     DataCell(Text(resultado['ano'].toString())),
-                    DataCell(Text(resultado['tasaInflacion'].toStringAsFixed(2))),
-                    DataCell(Text('\$${resultado['valorFinal'].toStringAsFixed(2)}')),
-                    DataCell(Text('\$${resultado['perdidaAnual'].toStringAsFixed(2)}')),
-                    DataCell(Text(resultado['poderAdquisitivo'].toStringAsFixed(2))),
+                    DataCell(
+                        Text(resultado['tasaInflacion'].toStringAsFixed(2))),
+                    DataCell(Text(
+                        '\$${resultado['valorFinal'].toStringAsFixed(2)}')),
+                    DataCell(Text(
+                        '\$${resultado['perdidaAnual'].toStringAsFixed(2)}')),
+                    DataCell(
+                        Text(resultado['poderAdquisitivo'].toStringAsFixed(2))),
                   ]);
                 }).toList(),
               ),
@@ -576,7 +584,7 @@ class _InflacionViewState extends State<InflacionView> {
 
   Widget _buildResultadosComparacion(Map<String, dynamic> resultados) {
     final escenarios = resultados['escenarios'] as Map<String, dynamic>;
-    
+
     return Card(
       elevation: 5,
       color: Colors.blue[50],
@@ -610,7 +618,9 @@ class _InflacionViewState extends State<InflacionView> {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  ...(escenario.value as Map<String, dynamic>).entries.map((entry) {
+                  ...(escenario.value as Map<String, dynamic>)
+                      .entries
+                      .map((entry) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 10, bottom: 5),
                       child: Row(
@@ -638,24 +648,26 @@ class _InflacionViewState extends State<InflacionView> {
 
   String _traducirConcepto(String key) {
     return {
-      'valorFinal': 'Valor final',
-      'perdida': 'Pérdida por inflación',
-      'poderAdquisitivo': 'Poder adquisitivo',
-      'nuevoPrecio': 'Nuevo precio',
-      'aumentoAbsoluto': 'Aumento absoluto',
-      'aumentoPorcentual': 'Aumento porcentual',
-      'valorNominal': 'Valor nominal',
-      'valorReal': 'Valor real (ajustado)',
-      'ganancia': 'Ganancia real',
-    }[key] ?? key;
+          'valorFinal': 'Valor final',
+          'perdida': 'Pérdida por inflación',
+          'poderAdquisitivo': 'Poder adquisitivo',
+          'nuevoPrecio': 'Nuevo precio',
+          'aumentoAbsoluto': 'Aumento absoluto',
+          'aumentoPorcentual': 'Aumento porcentual',
+          'valorNominal': 'Valor nominal',
+          'valorReal': 'Valor real (ajustado)',
+          'ganancia': 'Ganancia real',
+        }[key] ??
+        key;
   }
 
   String _traducirEscenario(String key) {
     return {
-      'guardarDinero': '1. Guardar dinero',
-      'invertir': '2. Invertir dinero',
-      'inversionAportes': '3. Inversión con aportes',
-    }[key] ?? key;
+          'guardarDinero': '1. Guardar dinero',
+          'invertir': '2. Invertir dinero',
+          'inversionAportes': '3. Inversión con aportes',
+        }[key] ??
+        key;
   }
 
   void _clearInputs() {
@@ -668,7 +680,6 @@ class _InflacionViewState extends State<InflacionView> {
       _aporteAnualController.clear();
       _tasaAnualController.clear();
       _tasasAnualesControllers.clear();
-      _anosSimulacion = 1;
     });
   }
 }

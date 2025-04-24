@@ -22,8 +22,10 @@ class _TransactionsViewState extends State<TransactionsView> {
     if (user == null) return;
 
     // Obtener los datos del usuario desde Firestore
-    final userDocRef = FirebaseFirestore.instance.collection('usuarios').doc(user.uid);
-    final userDoc = await userDocRef.get(); // Esta es la variable que estaba faltando
+    final userDocRef =
+        FirebaseFirestore.instance.collection('usuarios').doc(user.uid);
+    final userDoc =
+        await userDocRef.get(); // Esta es la variable que estaba faltando
 
     if (!userDoc.exists) {
       throw Exception('Documento del usuario no encontrado');
@@ -37,8 +39,10 @@ class _TransactionsViewState extends State<TransactionsView> {
     final query = FirebaseFirestore.instance
         .collection('transferencias')
         .where(Filter.or(
-          Filter('userId', isEqualTo: user.uid), // Transacciones enviadas por el usuario
-      Filter('destinatarioCedula', isEqualTo: numeroDocumento), // Transacciones recibidas
+          Filter('userId',
+              isEqualTo: user.uid), // Transacciones enviadas por el usuario
+          Filter('destinatarioCedula',
+              isEqualTo: numeroDocumento), // Transacciones recibidas
         )) // Filtra tanto envíos como recepciones
         .orderBy('fechaHora', descending: true)
         .limit(_movimientosPorCarga);
@@ -56,7 +60,8 @@ class _TransactionsViewState extends State<TransactionsView> {
 
     setState(() {
       _movimientos.addAll(
-        snapshot.docs.map((doc) => Transferencia.fromMap(doc.data() as Map<String, dynamic>)),
+        snapshot.docs.map(
+            (doc) => Transferencia.fromMap(doc.data() as Map<String, dynamic>)),
       );
       _cargandoMas = false;
       _hayMasMovimientos = snapshot.docs.length == _movimientosPorCarga;
@@ -64,7 +69,8 @@ class _TransactionsViewState extends State<TransactionsView> {
   }
 
   Future<void> _cargarMasMovimientos() async {
-    if (_cargandoMas || _movimientos.isEmpty || !_hayMasMovimientos) return; // Verificar si la lista está vacía
+    if (_cargandoMas || _movimientos.isEmpty || !_hayMasMovimientos)
+      return; // Verificar si la lista está vacía
 
     setState(() {
       _cargandoMas = true;
@@ -93,13 +99,15 @@ class _TransactionsViewState extends State<TransactionsView> {
         .collection('transferencias')
         .where('userId', isEqualTo: user.uid) // Filtra por destinatario
         .orderBy('fechaHora', descending: true) // Ordena por fechaHora
-        .startAfter([_movimientos.last.fechaHora]) // Usa la fechaHora del último movimiento
+        .startAfter([
+      _movimientos.last.fechaHora
+    ]) // Usa la fechaHora del último movimiento
         .limit(_movimientosPorCarga);
 
     final snapshot = await query.get();
     setState(() {
       _movimientos.addAll(
-        snapshot.docs.map((doc) => Transferencia.fromMap(doc.data() as Map<String, dynamic>)),
+        snapshot.docs.map((doc) => Transferencia.fromMap(doc.data())),
       );
       _cargandoMas = false;
       _hayMasMovimientos = snapshot.docs.length == _movimientosPorCarga;
@@ -119,11 +127,13 @@ class _TransactionsViewState extends State<TransactionsView> {
         title: const Text('Movimientos'),
       ),
       body: ListView.builder(
-        itemCount: _movimientos.length + (_hayMasMovimientos ? 1 : 0), // +1 para el botón de cargar más
+        itemCount: _movimientos.length +
+            (_hayMasMovimientos ? 1 : 0), // +1 para el botón de cargar más
         itemBuilder: (context, index) {
           if (index < _movimientos.length) {
             final transferencia = _movimientos[index];
-            final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+            final esEnvio =
+                transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
 
             return ListTile(
               leading: Icon(
@@ -136,8 +146,10 @@ class _TransactionsViewState extends State<TransactionsView> {
                     : 'Recibido de ${transferencia.remitenteNombre}',
                 style: TextStyle(
                   color: esEnvio
-                    ? Colors.red
-                    : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                      ? Colors.red
+                      : (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black),
                 ),
               ),
               subtitle: Text(
@@ -147,8 +159,7 @@ class _TransactionsViewState extends State<TransactionsView> {
                 _mostrarDetallesTransferencia(context, transferencia);
               },
             );
-          } 
-          else {
+          } else {
             return _cargandoMas
                 ? const Center(child: CircularProgressIndicator())
                 : TextButton(
@@ -167,24 +178,33 @@ class _TransactionsViewState extends State<TransactionsView> {
     return formatter.format(saldo);
   }
 
-  void _mostrarDetallesTransferencia(BuildContext context, Transferencia transferencia) {
-    final esEnvio = transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
+  void _mostrarDetallesTransferencia(
+      BuildContext context, Transferencia transferencia) {
+    final esEnvio =
+        transferencia.userId == FirebaseAuth.instance.currentUser?.uid;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
+          title:
+              Text(esEnvio ? 'Detalles del envío' : 'Detalles de la recepción'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RichText(
                 text: TextSpan(
-                  style: DefaultTextStyle.of(context).style, // Hereda el estilo por defecto
+                  style: DefaultTextStyle.of(context)
+                      .style, // Hereda el estilo por defecto
                   children: [
-                    const TextSpan(text: 'Nombre: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioNombre : transferencia.remitenteNombre),
+                    const TextSpan(
+                        text: 'Nombre: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: esEnvio
+                            ? transferencia.destinatarioNombre
+                            : transferencia.remitenteNombre),
                   ],
                 ),
               ),
@@ -192,8 +212,13 @@ class _TransactionsViewState extends State<TransactionsView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Teléfono: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: esEnvio ? transferencia.destinatarioCelular : transferencia.remitenteCelular),
+                    const TextSpan(
+                        text: 'Teléfono: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: esEnvio
+                            ? transferencia.destinatarioCelular
+                            : transferencia.remitenteCelular),
                   ],
                 ),
               ),
@@ -201,7 +226,9 @@ class _TransactionsViewState extends State<TransactionsView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Monto: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const TextSpan(
+                        text: 'Monto: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: '\$${_formatearSaldo(transferencia.monto)}'),
                   ],
                 ),
@@ -210,8 +237,12 @@ class _TransactionsViewState extends State<TransactionsView> {
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style,
                   children: [
-                    const TextSpan(text: 'Fecha: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: DateFormat('dd/MM/yyyy HH:mm').format(transferencia.fechaHora)),
+                    const TextSpan(
+                        text: 'Fecha: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: DateFormat('dd/MM/yyyy HH:mm')
+                            .format(transferencia.fechaHora)),
                   ],
                 ),
               ),

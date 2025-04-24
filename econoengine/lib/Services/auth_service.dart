@@ -7,6 +7,20 @@ class AuthService {
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Stream<double> obtenerSaldoEnTiempoReal() {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Stream
+          .empty(); // Si el usuario no está autenticado, no devuelve datos
+    }
+
+    return _firestore
+        .collection('usuarios')
+        .doc(user.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.data()?['Saldo']?.toDouble() ?? 0.0);
+  }
+
   // Registrar usuario
   Future<firebase_auth.User?> registrarUsuario(
       User usuario, String contrasena) async {
@@ -94,8 +108,7 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Transferencia.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias enviadas: $e");
@@ -116,8 +129,7 @@ class AuthService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) =>
-              Transferencia.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => Transferencia.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print("Error al obtener transferencias recibidas: $e");
